@@ -1,0 +1,25 @@
+{
+    "projects": [
+        {
+            "title": "Mike dean inspired mb song",
+            "visibilty": "public",
+            "tags": [
+                "RnB",
+                "C#m",
+                "95 BPM"
+            ],
+            "lastUpdated": "Feb 3, 2025"
+        },
+        {
+            "title": "Untilted 02",
+            "visibilty": "public",
+            "tags": [
+                "Indie",
+                "D#maj",
+                "125 BPM",
+                "Uplifting"
+            ],
+            "lastUpdated": "Feb 2, 2025"
+        }
+    ]
+}
