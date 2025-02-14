@@ -3,8 +3,9 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "tailwindcss";
 import "./App.css";
+import Sidebar from "./components/Sidebar/Sidebar.tsx";
 
 function App() {
-  return <h1 className="text-3xl font-bold underline"> Hello world! </h1>;
+  return <Sidebar />;
 }
 export default App;
