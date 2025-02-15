@@ -4,8 +4,10 @@ import viteLogo from "/vite.svg";
 import "tailwindcss";
 import "./App.css";
 import Sidebar from "./components/Sidebar/Sidebar.tsx";
+import Landing from "./pages/Landing/Landing.tsx";
 
 function App() {
-  return <Sidebar />;
+    return <Landing />;
+//   return <Sidebar />;
 }
 export default App;
