@@ -12,7 +12,7 @@ function Landing() {
   return (
     <>
       <div className="flex flex-col items-center justify-center">
-        <LandingHeader />
+        {/* <LandingHeader /> */}
         <div className="herowrapper text-center">
           <h1 className="font-bold text-white">
             Create and evolve music through open-source collaboration

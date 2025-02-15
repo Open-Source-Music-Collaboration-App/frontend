@@ -5,14 +5,13 @@
 
 #root
 {
-    background: linear-gradient(180deg, #1C001F 0%, #320036 100%);
 }
 
 
 .herowrapper
 {
     max-width: 1200px;
-    height: 100vh;
+    height: calc(100vh);
     display: flex;
     flex-direction: column;
     justify-content: center;
