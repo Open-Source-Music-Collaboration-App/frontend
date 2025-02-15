@@ -1,12 +1,14 @@
+import { useNavigate } from "react-router-dom";
 import "./Landing.css";
 
 import LandingHeader from "../../components/LandingHeader/LandingHeader";
 import LandingFooter from "../../components/LandingFooter/LandingFooter";
 
-import repository from '../../assets/repository.png' 
-
+import repository from '../../assets/repository.png';
 
 function Landing() {
+  const navigate = useNavigate(); // React Router navigation hook
+
   return (
     <>
       <div className="flex flex-col items-center justify-center">
@@ -27,16 +29,17 @@ function Landing() {
                 className="p-3 text-black w-72 border-none outline-none"
                 placeholder="Enter your email"
               />
-              <button className="buttonfill">
+              <button className="buttonfill" onClick={() => navigate("/login")}>
                 Sign up for [name]
               </button>
             </div>
 
-          <button className="buttonoutline ml-4">
-            Explore projects
-          </button>
+            <button className="buttonoutline ml-4" onClick={() => navigate("/dashboard")}>
+              Explore projects
+            </button>
           </div>
         </div>
+        
         <div className="sectionwrapper text-center">
             <h1 className="font-bold text-white">
                 Collaborate with musicians from around the world
@@ -51,7 +54,7 @@ function Landing() {
                 
                 }}/>
         </div>
-      <LandingFooter />
+        <LandingFooter />
       </div>
     </>
   );

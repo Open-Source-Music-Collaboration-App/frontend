@@ -1,6 +1,9 @@
 import "./LandingHeader.css";
+import { useNavigate } from "react-router-dom";
+
 
 function LandingHeader() {
+const navigate = useNavigate(); // React Router navigation hook
   return (
     <header className="header">
       <div className="header-container">
@@ -13,7 +16,7 @@ function LandingHeader() {
           </ul>
         </nav>
         <div className="auth-buttons">
-          <a href="#" className={"sign-in"}>Sign in</a>
+          <a className={"sign-in"} onClick={() => navigate("/login")}>Sign in</a>
           <a href="#" className="sign-up ml-3">Sign up</a>
         </div>
       </div>
