@@ -26,7 +26,7 @@ function Header() {
             
         </nav>
         <div className="auth-buttons flex justify-center" style = {{paddingRight: "20px"}}>
-          <img src={user ? user.photos[0].value : ""} alt="GitHub Avatar" className="" style = {{borderRadius: "50%", width: "30px", height:"30px", paddingRight: "10px"}}/>
+          <img src={user ? user.photos[0].value : ""} alt="GitHub Avatar" className="" style = {{borderRadius: "50%", width: "30px", height:"30px", marginRight: "10px"}}/>
           <a className={"user"} onClick={() => navigate("/dashboard")} style = {{whiteSpace:"nowrap"}}>{user ? user.username : "Sign in"}</a>
         </div>
       </div>

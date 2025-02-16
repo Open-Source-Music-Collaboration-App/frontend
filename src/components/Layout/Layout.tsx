@@ -10,7 +10,7 @@ const Layout = () => {
         (location.pathname === '/login' || location.pathname === '/')
           ? <LandingHeader />
           : <Header />
-      }``
+      }
       <main><Outlet /></main>
     </>
   )
