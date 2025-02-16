@@ -4,17 +4,20 @@ import { useContext, createContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface ProviderProps {
+  loading: boolean,
   user: object | null,
   logout(): void,
 }
 
 const AuthContext = createContext<ProviderProps>({
+  loading: true,
   user: null,
-  logout: () => { }
+  logout: () => { },
 });
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<object | null>(null)
+  const [user, setUser] = useState<object | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   useEffect(() => {
     if (!user) {
       axios.get("http://localhost:3333/api/me", { withCredentials: true })
@@ -22,6 +25,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setUser(resp.data.user);
         })
         .catch(() => console.log('Not authenticated'))
+        .finally(() => setLoading(false))
     }
   }, [])
 
@@ -31,7 +35,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
   return (
-    <AuthContext.Provider value={{ user, logout }}>
+    <AuthContext.Provider value={{ loading, user, logout }}>
       {children}
     </AuthContext.Provider>)
 }
