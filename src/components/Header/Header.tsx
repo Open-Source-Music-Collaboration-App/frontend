@@ -3,18 +3,13 @@ import "./Header.css";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "../../context/AuthProvider";
 
 
 function Header() {
   const navigate = useNavigate(); // React Router navigation hook
 
-  const [user, setUser] = useState(null);
-
-    useEffect(() => {
-        axios.get("http://localhost:3333/api/me", { withCredentials: true })
-        .then((res) => setUser(res.data.user))
-        .catch(() => navigate("/login"));
-    }, [navigate]);
+  const { user } = useAuth();
 
   return (
     <header className="header" style = {{position: "relative", height: "100px", backgroundColor: "transparent"}}>

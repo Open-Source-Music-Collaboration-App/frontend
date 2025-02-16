@@ -9,6 +9,7 @@ import Sidebar from "./components/Sidebar/Sidebar";
 import LandingHeader from "./components/LandingHeader/LandingHeader";
 import Header from "./components/Header/Header";
 import Layout from "./components/Layout/Layout";
+import AuthProvider from "./context/AuthProvider";
 
 function App() {
   return (

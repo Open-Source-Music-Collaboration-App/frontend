@@ -3,25 +3,10 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import "./Dashboard.css";
+import { useAuth } from "../../context/AuthProvider";
 
 function Dashboard() {
-    const [user, setUser] = useState(null);
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        axios.get("http://localhost:3333/api/me", { withCredentials: true })
-        .then((res) => setUser(res.data.user))
-        .catch(() => navigate("/login"));
-    }, [navigate]);
-
-    const handleLogout = () => {
-        axios.get("http://localhost:3333/logout", { withCredentials: true })
-            .then(() => {
-                setUser(null);
-                navigate("/");
-            })
-            .catch((error) => console.error("Logout error:", error));
-    };
+    const { user } = useAuth();
 
     return (
         <div className="dashboard-container">
