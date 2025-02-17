@@ -48,9 +48,10 @@
     background: linear-gradient(135deg, #7500A5 0%, #58007D 100%);
     transform: scale(1.05);
 }
-
-
-
-
-
-
+main
+{
+    transition: margin-left 0.4s cubic-bezier(.69,-0.22,.39,1.18);
+}
+.content-shifted {
+    margin-left: 250px;
+}

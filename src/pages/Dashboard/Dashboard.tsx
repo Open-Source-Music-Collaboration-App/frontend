@@ -10,7 +10,9 @@ function Dashboard() {
 
     return (
         <div className="dashboard-container">
-            
+            <div>
+                <h1>Dashboard</h1>
+            </div>
         </div>
     );
 }
