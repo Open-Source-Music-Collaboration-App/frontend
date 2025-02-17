@@ -11,23 +11,23 @@ import Header from "./components/Header/Header";
 import Layout from "./components/Layout/Layout";
 import AuthProvider from "./context/AuthProvider";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 
 function App() {
   return (
     <>
       <Router>
-        {/* if in Landing or Login page then show LandingHeader otherwise show Header */}
-        {/* { (window.location.pathname === "/login" || window.location.pathname === "/")  ? <LandingHeader /> : <Header />} */}
-        {/* <Header /> */}
-        <Routes>
-          <Route path="/" element={<Layout />}> 
-            <Route index element={<Landing />} /> {/* Landing Page */}
-            <Route path="/login" element={<Login />} /> {/* Login Page */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} /> {/* Dashboard Page */}
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<Layout />}> 
+              <Route index element={<Landing />} /> {/* Landing Page */}
+              <Route path="/login" element={<Login />} /> {/* Login Page */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} /> {/* Dashboard Page */}
+              </Route>
             </Route>
-          </Route>
-        </Routes>
+          </Routes>
+        </ErrorBoundary>
       </Router>
     </>
   );

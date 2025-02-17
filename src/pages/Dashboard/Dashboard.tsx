@@ -10,16 +10,7 @@ function Dashboard() {
 
     return (
         <div className="dashboard-container">
-            <Sidebar />
-        {/* {user ? (
-            <div className="dashboard-box">
-            <h1>Welcome, {user.username} 👋</h1>
-            <img src={user.photos[0].value} alt="GitHub Avatar" className="github-avatar" />
-            <button className="logout-btn" onClick={handleLogout}>Log Out</button>
-            </div>
-        ) : (
-            <p>Loading...</p>
-        )} */}
+            
         </div>
     );
 }

@@ -34,7 +34,7 @@ function Landing() {
               </button>
             </div>
 
-            <button className="buttonoutline ml-4" onClick={() => navigate("/dashboard")}>
+            <button className="buttonoutline ml-4" onClick={() => navigate("/dashboard")} style={{ width: "200px" }}>
               Explore projects
             </button>
           </div>

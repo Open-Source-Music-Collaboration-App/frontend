@@ -85,8 +85,11 @@ h3.subtitle
     padding: 12px 30px;
     background-color: #9300D7;
     border-radius: 8px;
+    border: none;
 
 }
+
+
 [class *= "button"]:hover
 {
     cursor: pointer;

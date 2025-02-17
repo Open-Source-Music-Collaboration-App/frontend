@@ -13,3 +13,12 @@
     font-family: 'Inter', sans-serif;
     background: linear-gradient(180deg, #1C001F 0%, #320036 100%);
 }
+
+.main-container
+{
+    display: flex;
+    flex-direction: column;
+    /* height: 100vh; */
+    width: 100vw;
+    /* overflow: hidden; */
+}
