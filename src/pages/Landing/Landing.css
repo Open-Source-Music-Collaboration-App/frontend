@@ -52,7 +52,8 @@ h3.subtitle
     opacity: 0.8;
     border-radius: 10px;
     transition: opacity 0.2s;
-    width: 45%
+    width: 45%;
+    align-items: stretch;
 }  
 
 .inputwrapper:hover
@@ -79,6 +80,7 @@ h3.subtitle
     border-radius: 8px;
     font-weight: 500;
     transition: background-color 0.2s;
+    height: auto;
 }
 .buttonfill
 {
@@ -86,7 +88,6 @@ h3.subtitle
     background-color: #9300D7;
     border-radius: 8px;
     border: none;
-
 }
 
 
