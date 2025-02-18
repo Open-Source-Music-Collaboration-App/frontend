@@ -10,6 +10,12 @@
     position: relative;
 }
 
+.dashboard-container .buttonoutline
+{
+  width: auto;
+  padding: 5px 20px;
+}
+
 .dashboard-box {
     background: rgba(255, 255, 255, 0.15);
     padding: 50px;
@@ -54,4 +60,75 @@ main
 }
 .content-shifted {
     margin-left: 250px;
+}
+
+
+/* Dashboard Page Styling */
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  height: 100vh;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Project List Styling */
+.dashboard-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%
+}
+
+.dashboard-container li {
+  /* background: rgba(255, 255, 255, 0.1); */
+  padding: 20px;
+  /* border-radius: 12px; */
+  margin-bottom: 15px;
+  /* backdrop-filter: blur(8px); */
+  /* box-shadow: 0px 4px 12px rgba(255, 255, 255, 0.15); */
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  /* border: 1px solid #fff2; */
+  padding-bottom: 40px;
+  border-bottom: 1px solid #fff3;
+}
+
+.dashboard-container li:last-of-type
+{
+  border-bottom: none;
+}
+
+/* Project Title */
+.dashboard-container h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #fff;
+}
+
+/* Project Metadata */
+.dashboard-container p {
+  margin: 8px 0;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Hashtags Styling */
+.dashboard-container p:last-of-type {
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #c4b5fd;
+}
+/* Ensure Main Content Shifts Properly */
+.dashboard-container main {
+  transition: margin-left 0.4s cubic-bezier(.69,-0.22,.39,1.18);
+}
+
+.dashboard-container .content-shifted {
+  margin-left: 250px;
 }
