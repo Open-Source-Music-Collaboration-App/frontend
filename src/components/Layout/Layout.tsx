@@ -26,7 +26,7 @@ const Layout = () => {
       }
       <div className="main-container">
         { !landingOrLogin && <Sidebar isOpen={isSidebarOpen} /> }
-        <main className={isSidebarOpen ? "content-shifted" : ""}>
+        <main className={isSidebarOpen && !landingOrLogin ? "content-shifted" : ""}>
           <Outlet />
         </main>
       </div>

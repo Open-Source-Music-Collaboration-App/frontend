@@ -5,7 +5,7 @@ import "./Login.css";
 import LandingHeader from "../../components/LandingHeader/LandingHeader";
 import { useAuth } from "../../context/AuthProvider";
 function Login() {
-  const { user, logout } = useAuth()
+const { user, logout } = useAuth()
 
   const handleLogin = () => {
     window.location.href = "http://localhost:3333/auth/github"; // Redirect to GitHub OAuth

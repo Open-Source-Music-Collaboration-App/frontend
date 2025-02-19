@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import axios from "axios";
 import { useContext, createContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 interface ProviderProps {
   loading: boolean,
@@ -32,6 +31,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     axios.get("http://localhost:3333/logout", { withCredentials: true }).then(() => {
       setUser(null);
+      // navigate("/");
     });
   };
   return (
