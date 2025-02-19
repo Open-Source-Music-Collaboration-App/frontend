@@ -9,7 +9,7 @@
     position: fixed;
     /* top: 0; */
     left: 0;
-    background-color: #fff1;
+    background-color: #ffffff1c;
     margin: 15px;
     padding: 10px;
     border-radius: 15px;
@@ -18,7 +18,26 @@
     box-shadow: 0px 0px 25px #fff1;
     margin-top: 90px;
     top: 0;
-    transition: transform 0.4s cubic-bezier(.69,-0.22,.39,1.18);
+    transition: transform 0.4s;
+}
+
+.sidebar .top{
+    display: flex;
+    flex-direction: column; 
+    height: 100%;
+}
+
+.sidebar .bottom .buttonoutline{
+    display: flex;
+    flex: 1
+}
+
+.sidebar .bottom{
+    display: flex;
+    gap: 7px;
+    justify-content: stretch;
+    align-items: center;
+
 }
 
 .sidebar-btn
@@ -70,7 +89,7 @@
 
   
   .sidebar-closed {
-    transform: translateX(-120%);
+    transform: translateX(-115%);
   }
   
   .sidebar-open {

@@ -46,10 +46,10 @@
 }
 main
 {
-    transition: margin-left 0.4s cubic-bezier(.69,-0.22,.39,1.18);
+    transition: margin-left 0.4s;
 }
 .content-shifted {
-    margin-left: 250px;
+    margin-left: 220px;
 }
 
 
@@ -115,10 +115,6 @@ main
   color: #c4b5fd;
 }
 /* Ensure Main Content Shifts Properly */
-
-.dashboard-container .content-shifted {
-  margin-left: 250px;
-}
 
 .spinner {
   border: 4px solid rgba(255, 255, 255, 0.3);
