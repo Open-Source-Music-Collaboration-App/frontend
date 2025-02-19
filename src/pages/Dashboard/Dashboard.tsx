@@ -8,8 +8,8 @@ function Dashboard() {
     interface Project {
         id: string;
         title: string;
-        createdBy: string;
-        updatedAt: string;
+        created_by: string;
+        updated_at: string;
         hashtags?: string[];
     }
 
@@ -20,7 +20,7 @@ function Dashboard() {
     useEffect(() => {
         if (user && !hasFetchedProjects.current) {
             console.log("Fetching projects for user:", user);
-            axios.get(`http://localhost:3333/api/user_projects/${user.id}`, { withCredentials: true })
+            axios.get(`http://localhost:3333/api/projects/?owner_id=${user.id}`, { withCredentials: true })
                 .then(response => setProjects(response.data))
                 .catch(error => console.error("Error fetching projects:", error))
                 .finally(() => setLoading(false));
@@ -37,7 +37,7 @@ function Dashboard() {
                     {projects.map((project) => (
                         <li key={project.id}>
                             <h3>{project.title}</h3>
-                            <p>{project.createdBy} Last Updated: {new Date(project.updatedAt).toLocaleDateString()}</p>
+                            <p>{project.createdBy} Last Updated: {new Date(project.updated_at).toLocaleDateString()}</p>
                             {project.hashtags && (
                                 <p>Tags: {project.hashtags.join(", ")}</p>
                             )}

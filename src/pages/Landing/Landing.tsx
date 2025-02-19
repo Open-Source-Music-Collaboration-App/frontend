@@ -11,7 +11,7 @@ function Landing() {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center">
+      <div className="flex flex-col items-center justify-center landingcontainer">
         {/* <LandingHeader /> */}
         <div className="herowrapper text-center">
           <h1 className="font-bold text-white">

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 function LandingHeader() {
 const navigate = useNavigate(); // React Router navigation hook
   return (
-    <header className="header">
+    <header className="landingheader">
       <div className="header-container">
         <div className="logo">🎧</div>
         <nav className="nav">

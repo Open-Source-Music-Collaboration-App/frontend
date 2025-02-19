@@ -12,6 +12,7 @@ import settingsSvg from "../../assets/settings.svg";
 
 import pullRequestIcon from "../../assets/pull-request.svg";
 
+
 /*
 A dropdown that shows a column of options when the profile picture is clicked.
 The column of options includes Profile, Settings, and Logout.
@@ -38,9 +39,15 @@ function ProfileDropdown({ toggleProfileDropdown, handleLogout }) {
     );
 }
 
-function Header({ toggleSidebar, page }) {
+interface User {
+    photos?: { value: string }[],
+    username: string,
+    id: string,
+}
+
+function Header({ toggleSidebar, page }: { toggleSidebar: () => void; page: string }) {
     const navigate = useNavigate();
-    const { user, logout } = useAuth();
+    const { user, logout } = useAuth() as { user: User; logout: () => void };
 
     const [toggleProfileDropdown, setToggleProfileDropdown] = useState(false);
 
@@ -50,7 +57,7 @@ function Header({ toggleSidebar, page }) {
     };
 
     useEffect(() => {
-        function handleClickOutside(event) {
+        function handleClickOutside(event: any) {
             if (!event.target.closest(".profile-dropdown") && !event.target.closest(".profile-picture")) {
                 setToggleProfileDropdown(false);
             }
@@ -61,7 +68,7 @@ function Header({ toggleSidebar, page }) {
     }, []);
 
     return (
-        <header className="header" style={{ position: "relative", backgroundColor: "transparent" }}>
+        <header className="header">
             <div className="header-container">
                 <button
                     className="buttonoutline"

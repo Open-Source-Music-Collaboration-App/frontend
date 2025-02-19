@@ -3,8 +3,9 @@
     font-family: 'Inter', sans-serif;
 }
 
-#root
+.landingcontainer
 {
+  background: radial-gradient(circle at top, #3d004a, #1c001f);
 }
 
 

@@ -1,14 +1,4 @@
-/* Dashboard Page Styling */
-.dashboard-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    /* background: radial-gradient(circle at top, #3d004a, #1c001f); */
-    color: white;
-    font-family: 'Inter', sans-serif;
-    position: relative;
-}
+
 
 .dashboard-container .buttonoutline
 {
@@ -70,12 +60,12 @@ main
   justify-content: flex-start;
   align-items: flex-start;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   color: white;
   font-family: 'Inter', sans-serif;
-  position: relative;
+  /* position: relative; */
   padding: 20px;
-  overflow-y: auto;
+  margin-top: 80px;
 }
 
 /* Project List Styling */
@@ -125,9 +115,6 @@ main
   color: #c4b5fd;
 }
 /* Ensure Main Content Shifts Properly */
-.dashboard-container main {
-  transition: margin-left 0.4s cubic-bezier(.69,-0.22,.39,1.18);
-}
 
 .dashboard-container .content-shifted {
   margin-left: 250px;

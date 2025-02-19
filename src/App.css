@@ -8,10 +8,11 @@
     --accent: #9300D7
 }
 
-#root
+html
 {
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(180deg, #1C001F 0%, #320036 100%);
+    /* background: radial-gradient(circle at top, #3d004a, #1c001f); */
+    background-color: #1C001F;
 }
 
 .main-container
