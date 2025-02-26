@@ -27,6 +27,7 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} /> {/* Dashboard Page */}
               </Route>
               <Route path="/new-project" element={<NewProject />} /> {/* New Project Page */}
+              <Route path="/project/:id" element={<Project />} /> {/* Project Page */}
             </Route>
           </Routes>
         </ErrorBoundary>

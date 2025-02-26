@@ -20,15 +20,6 @@ const Layout = () => {
   else if (location.pathname === "/new-project") {
     headerLocationText = "New project";
   }
-  else if (location.pathname === "/settings") {
-    headerLocationText = "Settings";
-  }
-  else if (location.pathname === "/profile") {
-    headerLocationText = "Profile";
-  }
-  else if (location.pathname === "/projects") {
-    headerLocationText = "Projects";
-  }
 
   return (
     <>

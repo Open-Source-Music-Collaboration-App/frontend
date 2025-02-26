@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useAuth } from "../../context/AuthProvider";
 import "./Dashboard.css";
+import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
     const { user } = useAuth();
@@ -16,6 +17,7 @@ function Dashboard() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const hasFetchedProjects = useRef(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (user && !hasFetchedProjects.current) {
@@ -35,7 +37,8 @@ function Dashboard() {
             ) : (
                 <ul>
                     {projects.map((project) => (
-                        <li key={project.id}>
+                        <li key={project.id}
+                            onClick={() => navigate(`/project/${project.id}`)}>
                             <h3>{project.title}</h3>
                             <p>{project.createdBy} Last Updated: {new Date(project.updated_at).toLocaleDateString()}</p>
                             {project.hashtags && (
