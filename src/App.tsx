@@ -12,6 +12,7 @@ import Layout from "./components/Layout/Layout";
 import AuthProvider from "./context/AuthProvider";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
+import NewProject from './pages/NewProject/NewProject';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} /> {/* Dashboard Page */}
               </Route>
+              <Route path="/new-project" element={<NewProject />} /> {/* New Project Page */}
             </Route>
           </Routes>
         </ErrorBoundary>

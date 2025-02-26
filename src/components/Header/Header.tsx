@@ -86,7 +86,7 @@ function Header({ toggleSidebar, page }: { toggleSidebar: () => void; page: stri
                     </div>
                 </nav>
                 <div className="right">
-                    <button className="buttonfill" type="button" aria-label="New Project">
+                    <button className="buttonfill" type="button" aria-label="New Project" onClick={() => navigate("/new-project")}>
                         <span style={{ marginRight: "4px" }}>＋</span> New Project
                     </button>
                     <button className="buttonoutline" type="button" aria-label="Collab Requests">

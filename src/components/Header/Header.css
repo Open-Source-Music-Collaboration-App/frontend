@@ -64,6 +64,7 @@
     background: #1c001f;
     position:fixed;
     border-bottom: 1px solid #fff2;
+    z-index: 110;
 }
 
 .header-container {
@@ -156,7 +157,7 @@ function ProfileDropdown()
   /* visibility: hidden; */
   top: 40px;
   transition: opacity 0.1s, top 0.1s;
-  z-index: 10;
+  z-index: 100;
   border: 1px solid #fff2;
 }
 
