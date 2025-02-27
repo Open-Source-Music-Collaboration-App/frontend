@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthProvider";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 //add the useEffect
 import { useEffect } from "react";
 import "./NewProject.css";
+
 
 
 function NewProject() {
@@ -19,14 +22,46 @@ function NewProject() {
   const [ownerDropdownOpen, setOwnerDropdownOpen] = useState(false);
   const [selectedOwner, setSelectedOwner] = useState("user");
 
+  const navigate = useNavigate(); // For redirecting after success
   const { user } = useAuth() as { user: any };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault(); // Prevent form submission if event exists
+    
     console.log("Create project", { 
       projectName, description, isPublic, 
       initWithReadme, tags, template, bpm, key,
       selectedOwner 
+    });
+    
+    // Make sure we have the required fields
+    if (!projectName || !user?.id) {
+      console.error("Missing required fields");
+      return;
+    }
+    
+    // Ensure user.id exists and is properly formatted
+    console.log("User ID being sent:", user.id);
+    
+    axios.post("http://localhost:3333/api/projects/", {
+      title: projectName,
+      hashtags: tags,
+      userId: user.id, // Make sure this matches the expected format
+    }, {
+      withCredentials: true // Include cookies if needed for authentication
+    })
+    .then((response) => {
+      console.log("Project created successfully", response.data);
+      // Redirect to the project page
+      if (response.data && response.data[0]?.id) {
+        navigate(`/project/${response.data[0].id}`);
+      } else {
+        navigate("/dashboard");
+      }
+    })
+    .catch((error) => {
+      console.error("Error creating project", error);
+      alert("Failed to create project. Please try again.");
     });
   };
 
@@ -267,7 +302,11 @@ function NewProject() {
           </div>
 
           <div className="form-actions">
-            <button type="submit" className="buttonfill create-btn">
+            <button 
+              type="submit" 
+              className="buttonfill create-btn"
+              disabled={!projectName || !selectedOwner}
+            >
               Create project
             </button>
           </div>
