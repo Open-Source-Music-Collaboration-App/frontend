@@ -1,0 +1,27 @@
+/* src/components/PageTransition/PageTransition.css */
+.page-transition {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  will-change: opacity; /* Performance optimization */
+}
+
+.page-transition.hidden {
+  opacity: 0;
+}
+
+.page-transition.fadeIn {
+  animation-name: fadeIn;
+  animation-duration: 300ms;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

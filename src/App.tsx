@@ -1,3 +1,4 @@
+// src/App.tsx
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -13,6 +14,8 @@ import AuthProvider from "./context/AuthProvider";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 import NewProject from './pages/NewProject/NewProject';
+import Project from './pages/Project/Project';
+import PageTransition from "./components/PageTransition/PageTransition";
 
 function App() {
   return (
@@ -20,7 +23,9 @@ function App() {
       <Router>
         <ErrorBoundary>
           <Routes>
-            <Route path="/" element={<Layout />}> 
+            <Route path="/" element={
+                <Layout />
+            }> 
               <Route index element={<Landing />} /> {/* Landing Page */}
               <Route path="/login" element={<Login />} /> {/* Login Page */}
               <Route element={<ProtectedRoute />}>

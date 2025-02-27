@@ -11,33 +11,8 @@ import profileSvg from "../../assets/profile.svg";
 import settingsSvg from "../../assets/settings.svg";
 
 import pullRequestIcon from "../../assets/pull-request.svg";
+import ProfileDropdown from "../ProfileDropdown/ProfileDropdown";
 
-
-/*
-A dropdown that shows a column of options when the profile picture is clicked.
-The column of options includes Profile, Settings, and Logout.
-*/
-function ProfileDropdown({ toggleProfileDropdown, handleLogout }) {
-    return (
-        <div className={`profile-dropdown ${toggleProfileDropdown ? "active" : ""}`}>
-            <div className="profile-dropdown-option">
-                <img src={profileSvg} alt="Profile" />
-                <a href="/profile">Profile</a>
-            </div>
-            <div className="profile-dropdown-option" >
-                <img src={settingsSvg} alt="Settings" />
-                <a href="/settings">Settings</a>
-            </div>
-
-            <hr/>
-
-            <div className="profile-dropdown-option" onClick={handleLogout}>
-                <img src={logoutSvg} alt="Logout" />
-                <a>Sign out</a>
-            </div>
-        </div>
-    );
-}
 
 interface User {
     photos?: { value: string }[],
@@ -47,15 +22,9 @@ interface User {
 
 function Header({ toggleSidebar, page }: { toggleSidebar: () => void; page: string }) {
     const navigate = useNavigate();
-    const { user, logout } = useAuth() as { user: User; logout: () => void };
+    const { user } = useAuth() as { user: User; logout: () => void };
 
     const [toggleProfileDropdown, setToggleProfileDropdown] = useState(false);
-
-    const handleLogout = () => {
-        logout();
-        navigate("/login");
-    };
-
     useEffect(() => {
         function handleClickOutside(event: any) {
             if (!event.target.closest(".profile-dropdown") && !event.target.closest(".profile-picture")) {
@@ -107,7 +76,7 @@ function Header({ toggleSidebar, page }: { toggleSidebar: () => void; page: stri
                                 }}
                                 onClick={() => setToggleProfileDropdown(!toggleProfileDropdown)}
                             />
-                            {toggleProfileDropdown && <ProfileDropdown toggleProfileDropdown={toggleProfileDropdown} handleLogout={handleLogout} />}
+                            {toggleProfileDropdown && <ProfileDropdown toggleProfileDropdown={toggleProfileDropdown} />}
                         </div>
                     ) : null}
                 </div>

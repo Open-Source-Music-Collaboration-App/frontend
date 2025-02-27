@@ -1,0 +1,32 @@
+.project-container
+{
+  width: 100%;
+}
+
+.project-abstract
+{
+  width: 100%;
+  border-bottom: 1px solid #fff2;
+  padding: 20px 30px;
+  display: flex;
+  color: white;
+  align-items: center;
+  gap: 20px;
+}
+
+.project-abstract .project-title
+{
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.project-abstract .project-visibility
+{
+  font-size: 0.8rem;
+  font-weight: 400;
+  opacity: 0.7;
+  background-color: #47f3;
+  padding: 3px 10px;
+  border-radius: 100px;
+  border: 1px solid #47fa;
+}
