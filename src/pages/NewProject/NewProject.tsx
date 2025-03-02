@@ -53,8 +53,8 @@ function NewProject() {
     .then((response) => {
       console.log("Project created successfully", response.data);
       // Redirect to the project page
-      if (response.data && response.data[0]?.id) {
-        navigate(`/project/${response.data[0].id}`);
+      if (response.data && response.data?.id) {
+        navigate(`/project/${response.data?.id}`);
       } else {
         navigate("/dashboard");
       }
