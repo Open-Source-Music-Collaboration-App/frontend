@@ -53,6 +53,61 @@ function Project() {
           <h2 className="project-title">{project ? project[0].title : ""}</h2>
           <span className="project-visibility public">Public</span>
       </div>
+      <div className = "upload-container">
+          <div className="upload-box">
+              <h3 className="upload-title">Upload Folder</h3>
+              <p className="upload-description">Upload your folder here</p>
+              <input 
+                type="file" className="upload-input" webkitdirectory="true" directory="true"
+
+                />
+              <button className="upload-btn"
+                onClick={async () => {
+                  const formData = new FormData();
+                  const fileInput = document.querySelector(".upload-input") as HTMLInputElement;
+                  const files = fileInput?.files;
+
+                  if (files) {
+                    for (let i = 0; i < files.length; i++) {
+                      //if file name ends with .json or .wav then append it to the formData
+                      if (files[i].name.endsWith(".json") || files[i].name.endsWith(".wav") || files[i].name.endsWith(".als")) {
+                        formData.append("files", files[i]); // Append each file
+                      }
+                    }
+                  }
+
+                  // ✅ Convert JSON body to a Blob before appending to FormData
+                  const jsonBlob = new Blob([JSON.stringify({
+                    projectId: id,
+                    userId: user.username,
+                    commitMessage: "commit placeholder",
+                  })], { type: "application/json" });
+
+                  formData.append("jsonData", jsonBlob); // Append JSON as a Blob
+
+                  
+
+                  try {
+                    const response = await axios.post("http://localhost:3333/api/upload", formData, {
+                      withCredentials: true,
+                      headers: {
+                        "Content-Type": "multipart/form-data",
+                      }
+                    });
+
+                    console.log("Upload successful:", response.data);
+                  } catch (error) {
+                    console.error("Error uploading files:", error);
+                  }
+                }}
+              >
+                Upload
+              </button>
+
+
+          </div>
+      </div>
+
     </motion.div>
    )
 }
