@@ -161,7 +161,7 @@
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border-radius: 16px;
-  border: 1px solid rgba(147, 0, 215, 0.2);
+  border: 1px solid #fff3;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3),
               0 0 30px rgba(147, 0, 215, 0.2);
