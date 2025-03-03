@@ -413,3 +413,33 @@
 .timeline-scroll-container::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+
+.als-view-content {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.extended-playhead {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background-color: #9300D7;
+  box-shadow: 0px 0px 10px rgba(147, 0, 215, 0.8);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.extended-playhead::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -4px;
+  width: 10px;
+  height: 10px;
+  background-color: #9300D7;
+  border-radius: 50%;
+}

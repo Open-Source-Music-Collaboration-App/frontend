@@ -49,17 +49,17 @@ interface ProjectData {
 /**
  * ALSView
  *
- * Now the height of MIDI notes depends on the entire track's note range,
- * not just each event. Velocity affects only the opacity (not the height).
- * Also, we assume the timeline is in beats and we convert to measures visually
- * if desired, or simply keep it in beats. For demonstration, we do measures = beats / 4.
+ * Height of MIDI notes depends on the entire track's note range (not velocity),
+ * while velocity only affects opacity. The timeline is in beats, with optional
+ * measure-based markers. Audio and timeline are synced: if the playhead moves
+ * too fast, ensure we only update currentBeat in one place (the animation loop).
  */
 function ALSView({ projectData }: { projectData: ProjectData }) {
   // --------------------- STATE ---------------------
   const [isPlaying, setIsPlaying] = useState(false);
 
   // We'll store the earliest and latest beats across ALL tracks, plus each
-  // track's minimum and maximum MIDI note (for sizing).
+  // track's overall MIDI note range (if any).
   const [minBeat, setMinBeat] = useState(0);
   const [maxBeat, setMaxBeat] = useState(0);
   const [totalBeats, setTotalBeats] = useState(0); // maxBeat - minBeat
@@ -71,15 +71,14 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
   const [soloTrack, setSoloTrack] = useState<number | null>(null);
   const [mutedTracks, setMutedTracks] = useState<number[]>([]);
 
-  // For audio loading
+  // For audio loading (optional usage)
   const [audioLoaded, setAudioLoaded] = useState(false);
   const [loadingState, setLoadingState] = useState<{ total: number; loaded: number }>({
     total: 0,
     loaded: 0,
   });
 
-  // We'll store each MIDI track's global note range in an array: [trackIndex => {minNote, maxNote}].
-  // This way we can size the MIDI notes for the entire track consistently.
+  // We'll store each MIDI track's note range in trackMidiRanges[trackIndex].
   const [trackMidiRanges, setTrackMidiRanges] = useState<{ minNote: number; maxNote: number }[]>([]);
 
   // --------------------- REFS ---------------------
@@ -88,11 +87,18 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
   const timelineRef = useRef<HTMLDivElement>(null);
   const playheadRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const startTimeRef = useRef<number | null>(null);
+  const startBeatRef = useRef<number>(0);
+
+  // We'll store a reference to our animation frame so we can cancel it
   const animationRef = useRef<number | null>(null);
   const isPlayingRef = useRef(false);
 
-  const tempo = projectData.tempo || 120; // Default if not specified
-  const BEATS_PER_MEASURE = 4; // for 4/4 time
+  // BPM (beats per minute)
+  const tempo = projectData.tempo || 120;
+  // If you want to consider 4 beats per measure for time markers:
+  const BEATS_PER_MEASURE = 4;
 
   // -------------- UTIL: Beats <-> Seconds --------------
   const beatsToSeconds = (b: number) => (b / tempo) * 60;
@@ -106,8 +112,7 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
   };
 
   // -------------------------------------------------
-  // 1) Determine minBeat & maxBeat, and also gather
-  //    each MIDI track's global note range.
+  // 1) Determine minBeat & maxBeat, gather track note ranges
   // -------------------------------------------------
   useEffect(() => {
     if (!projectData?.tracks) return;
@@ -115,7 +120,6 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
     let minB = Infinity;
     let maxB = 0;
 
-    // We'll build an array that matches track indices
     const newTrackRanges: { minNote: number; maxNote: number }[] = [];
 
     projectData.tracks.forEach((track, trackIndex) => {
@@ -127,12 +131,11 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
         if (e > maxB) maxB = e;
       });
 
-      // For the MIDI note range (only if it's a MIDI track):
+      // For MIDI note range:
       if (track.type === "MidiTrack") {
         let trackMin = 127;
         let trackMax = 0;
 
-        // Scan all events and notes to find the overall min/max note for the entire track
         track.events.forEach((ev) => {
           if (!ev.notes) return;
           ev.notes.forEach((n) => {
@@ -142,20 +145,20 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
           });
         });
 
-        // Ensure a small range of at least 12 if we want a minimum
+        // Ensure at least a 12-semitone range
         if (trackMax - trackMin < 12) {
           const mid = Math.floor((trackMax + trackMin) / 2);
           trackMin = Math.max(0, mid - 6);
           trackMax = Math.min(127, mid + 6);
         }
 
-        newTrackRanges[trackIndex] = {
-          minNote: trackMin === 127 ? 36 : trackMin, // fallback if no notes found
-          maxNote: trackMax === 0 ? 52 : trackMax,
-        };
+        if (trackMin === 127) trackMin = 36; // fallback if no actual notes found
+        if (trackMax === 0) trackMax = 52;   // fallback
+
+        newTrackRanges[trackIndex] = { minNote: trackMin, maxNote: trackMax };
       } else {
-        // Audio track => no note range needed, store a dummy
-        newTrackRanges[trackIndex] = { minNote: 60, maxNote: 72 }; // arbitrary
+        // Audio track => store dummy range
+        newTrackRanges[trackIndex] = { minNote: 60, maxNote: 72 };
       }
     });
 
@@ -167,12 +170,15 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
     const totalB = maxB - minB;
     setTotalBeats(totalB);
 
-    setCurrentBeat(minB); // start playhead at earliest
+    // Start the playhead at the earliest beat
+    setCurrentBeat(minB);
+
+    // Store the new track ranges
     setTrackMidiRanges(newTrackRanges);
   }, [projectData]);
 
   // -------------------------------------------------
-  // 2) Audio loaded handler
+  // 2) Audio onLoad
   // -------------------------------------------------
   const handleAudioLoaded = () => {
     setLoadingState((prev) => {
@@ -185,42 +191,67 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
   };
 
   // -------------------------------------------------
-  // 3) Main animation loop: track playhead => update currentBeat
+  // 3) Main animation loop -> update playhead from active audio
   // -------------------------------------------------
-  const updatePlayhead = () => {
+  const updatePlayhead = (timestamp: number) => {
     if (!isPlayingRef.current) return;
 
-    const activeAudio = audioRefs.current.find((audio, idx) => {
-      return audio && !mutedTracks.includes(idx) && (soloTrack === null || soloTrack === idx);
-    });
+    // First time through, store start time and beat
+    if (startTimeRef.current === null) {
+      startTimeRef.current = timestamp;
+      startBeatRef.current = currentBeat;
+    }
+
+    // Calculate elapsed time and corresponding beat position
+    const elapsedMs = timestamp - startTimeRef.current;
+    const elapsedSeconds = elapsedMs / 1000;
+    const elapsedBeats = secondsToBeats(elapsedSeconds);
+    
+    // Calculate current beat based on starting beat plus elapsed beats
+    let updatedBeat = startBeatRef.current + elapsedBeats;
+    
+    // Ensure we don't exceed maxBeat
+    updatedBeat = Math.min(updatedBeat, maxBeat);
+    setCurrentBeat(updatedBeat);
+
+    // Auto-scroll the timeline so the playhead stays visible
+    if (scrollContainerRef.current && timelineRef.current) {
+      const scrollContainer = scrollContainerRef.current;
+      const timelineWidthPx = timelineRef.current.scrollWidth;
+
+      const fraction = (updatedBeat - minBeat) / totalBeats;
+      const playheadPx = fraction * timelineWidthPx;
+
+      const containerWidth = scrollContainer.clientWidth;
+      const scrollLeft = scrollContainer.scrollLeft;
+
+      if (playheadPx > scrollLeft + containerWidth * 0.7) {
+        scrollContainer.scrollLeft = playheadPx - containerWidth * 0.3;
+      } else if (playheadPx < scrollLeft + containerWidth * 0.3 && scrollLeft > 0) {
+        scrollContainer.scrollLeft = Math.max(0, playheadPx - containerWidth * 0.3);
+      }
+    }
+
+    // If we reach or exceed maxBeat, stop playback
+    if (updatedBeat >= maxBeat) {
+      stopPlayback();
+      return;
+    }
+
+    // Update audio times to stay in sync with the visual playhead if needed
+    const beatSec = beatsToSeconds(updatedBeat);
+    const activeAudio = audioRefs.current.find(
+      (audio, idx) => audio && !mutedTracks.includes(idx) && (soloTrack === null || soloTrack === idx)
+    );
 
     if (activeAudio) {
-      const sec = activeAudio.currentTime;
-      const b = secondsToBeats(sec);
-      setCurrentBeat(b);
-
-      // Auto-scroll to keep playhead in view
-      if (scrollContainerRef.current && timelineRef.current && playheadRef.current) {
-        const scrollContainer = scrollContainerRef.current;
-        const timelineWidthPx = timelineRef.current.scrollWidth;
-
-        const fraction = (b - minBeat) / totalBeats;
-        const playheadPx = fraction * timelineWidthPx;
-
-        const containerWidth = scrollContainer.clientWidth;
-        const scrollLeft = scrollContainer.scrollLeft;
-
-        if (playheadPx > scrollLeft + containerWidth * 0.7) {
-          scrollContainer.scrollLeft = playheadPx - containerWidth * 0.3;
-        } else if (playheadPx < scrollLeft + containerWidth * 0.3 && scrollLeft > 0) {
-          scrollContainer.scrollLeft = Math.max(0, playheadPx - containerWidth * 0.3);
-        }
-      }
-
-      // If we go beyond maxBeat, stop
-      if (b >= maxBeat) {
-        stopPlayback();
-        return;
+      const audioDiff = Math.abs(activeAudio.currentTime - beatSec);
+      if (audioDiff > 0.1) { // Only correct if off by more than 100ms
+        audioRefs.current.forEach((audio) => {
+          if (audio && !audio.paused) {
+            audio.currentTime = beatSec;
+          }
+        });
       }
     }
 
@@ -228,19 +259,26 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
   };
 
   // -------------------------------------------------
-  // 4) Start/Stop playback
+  // 4) Start/Stop
   // -------------------------------------------------
   const startPlayback = () => {
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
       animationRef.current = null;
     }
+    
     setIsPlaying(true);
     isPlayingRef.current = true;
+    
+    // Reset timing references
+    startTimeRef.current = null;
+    startBeatRef.current = currentBeat;
 
+    // Convert the current beat to seconds
     const sec = beatsToSeconds(currentBeat);
-    const promises: Promise<void>[] = [];
 
+    // Attempt to play all unmuted (or soloed) tracks from that time
+    const promises: Promise<void>[] = [];
     audioRefs.current.forEach((audio, idx) => {
       if (audio && !mutedTracks.includes(idx) && (soloTrack === null || soloTrack === idx)) {
         try {
@@ -253,6 +291,7 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
       }
     });
 
+    // Once at least one track is playing, begin the animation loop
     Promise.allSettled(promises).finally(() => {
       if (isPlayingRef.current) {
         animationRef.current = requestAnimationFrame(updatePlayhead);
@@ -265,6 +304,8 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
       cancelAnimationFrame(animationRef.current);
       animationRef.current = null;
     }
+    
+    startTimeRef.current = null;
     setIsPlaying(false);
     isPlayingRef.current = false;
 
@@ -280,22 +321,43 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
   };
 
   // -------------------------------------------------
-  // 5) Handle timeline click => jump to that location
+  // 5) Timeline click => jump
   // -------------------------------------------------
   const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!timelineRef.current || totalBeats <= 0) return;
+
     const rect = timelineRef.current.getBoundingClientRect();
     const offsetX = e.clientX - rect.left + (scrollContainerRef.current?.scrollLeft || 0);
     const timelineWidthPx = timelineRef.current.scrollWidth;
 
     const fraction = offsetX / timelineWidthPx;
-    const newBeatPos = minBeat + fraction * totalBeats;
+    
+    // Calculate new beat position bounded by min and max
+    const newBeatPos = Math.min(
+      Math.max(minBeat, minBeat + fraction * totalBeats),
+      maxBeat
+    );
+    
     setCurrentBeat(newBeatPos);
+    startBeatRef.current = newBeatPos;
+    startTimeRef.current = null;
 
+    // Also set audio positions
     const sec = beatsToSeconds(newBeatPos);
     audioRefs.current.forEach((audio) => {
       if (audio) audio.currentTime = sec;
     });
+  };
+
+  // Keep timeline & tracks scrolled in sync horizontally
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    // If user scrolls the top timeline container, match the bottom tracks container, or vice versa
+    if (target === scrollContainerRef.current && containerRef.current) {
+      containerRef.current.scrollLeft = target.scrollLeft;
+    } else if (target === containerRef.current && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = target.scrollLeft;
+    }
   };
 
   // -------------------------------------------------
@@ -353,10 +415,9 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
   };
 
   // -------------------------------------------------
-  // 7) For each track event, we place it on the timeline
+  // 7) Rendering track events
   // -------------------------------------------------
   const renderTrackEvents = (track: Track, trackIndex: number) => {
-    // We'll get the track's global note range for MIDI height calculations
     const trackMinNote = trackMidiRanges[trackIndex]?.minNote ?? 36;
     const trackMaxNote = trackMidiRanges[trackIndex]?.maxNote ?? 84;
 
@@ -368,7 +429,6 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
       const endLocal = eEnd - minBeat;
       const lengthBeats = endLocal - startLocal;
 
-      // fraction along totalBeats
       const leftFrac = startLocal / totalBeats;
       const widthFrac = lengthBeats / totalBeats;
 
@@ -392,7 +452,7 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
           </div>
         );
       } else {
-        // Audio
+        // Audio track
         return (
           <div
             key={`event-${trackIndex}-${eventIndex}`}
@@ -414,8 +474,7 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
   };
 
   // -------------------------------------------------
-  // 8) Render MIDI notes. The entire track's note range is used
-  //    to compute vertical positions. Velocity => only affects opacity.
+  // 8) Rendering MIDI notes
   // -------------------------------------------------
   const renderMidiNotes = (
     event: Event,
@@ -432,20 +491,16 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
       <div className="midi-notes-container" style={{ position: "absolute", width: "100%", height: "100%" }}>
         {event.notes.map((note, noteIdx) => {
           const keyValue = parseInt(note.key.Value, 10);
-          // figure out the top position from track range
-          // e.g. 0% => bottom, 100% => top, or vice versa
-          const relPosition = (keyValue - trackMinNote) / trackRange; // 0..1
-          // We'll invert so a bigger pitch is higher up:
+          // figure out the vertical position
+          const relPosition = trackRange <= 0 ? 0 : (keyValue - trackMinNote) / trackRange;
           const topPercent = (1 - relPosition) * 100;
 
           return note.occurences.map((occ, occIdx) => {
             if (occ.enabled === "false") return null;
-
             const velocity = parseFloat(occ.velocity);
-            // We'll let velocity only influence opacity
             const noteOpacity = Math.max(0.2, velocity / 127);
 
-            // Local start/duration in beats, relative to event
+            // local start/duration in beats
             const eStart = parseFloat(event.start);
             const eEnd = parseFloat(event.end);
             const eventLengthBeats = eEnd - eStart;
@@ -453,20 +508,15 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
             const occStartBeats = parseFloat(occ.start);
             const occDurBeats = parseFloat(occ.duration);
 
-            // Left/width fraction of the event
-            const leftFrac = occStartBeats / eventLengthBeats;
-            const widthFrac = occDurBeats / eventLengthBeats;
+            const leftFrac = eventLengthBeats > 0 ? occStartBeats / eventLengthBeats : 0;
+            const widthFrac = eventLengthBeats > 0 ? occDurBeats / eventLengthBeats : 0;
 
             const leftPercent = leftFrac * 100;
             const widthPercent = widthFrac * 100;
 
-            // We'll set a "max note height" in px or in percent
-            // For example, if you want the note to be up to 20% of track height
-            const maxPercentHeight = 20; // up to you
-            // We'll do a single-lane "normalized" height for each note, e.g. 8% if you want
-            // to differentiate them. Or you can base it on trackRange:
-            const baseHeight = trackRange <= 0 ? 5 : (100 / trackRange);
-            // Then clamp it
+            // We'll set a small band for each note
+            const maxPercentHeight = 20;
+            const baseHeight = trackRange <= 0 ? 5 : 100 / trackRange;
             const finalHeight = Math.min(baseHeight, maxPercentHeight);
 
             return (
@@ -477,10 +527,9 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
                   position: "absolute",
                   left: `${leftPercent}%`,
                   width: `${widthPercent}%`,
-                  // top is where the pitch is; the "height" is a small band
                   top: `${topPercent - finalHeight}%`,
-                  height: `${finalHeight}%`, // clamp
-                  backgroundColor: `rgba(147, 0, 215, 1)`,
+                  height: `${finalHeight}%`,
+                  backgroundColor: "rgba(147, 0, 215, 1)",
                   opacity: noteOpacity,
                   border: "1px solid rgba(200, 120, 255, 0.7)",
                   borderRadius: "2px",
@@ -495,41 +544,39 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
   };
 
   // -------------------------------------------------
-  // 9) Timeupdate, loadeddata, cleanup
+  // 9) Audio load and cleanup
   // -------------------------------------------------
   useEffect(() => {
-    const handlers: { [key: number]: EventListener } = {};
+    const loadedDataHandlers: { [key: number]: EventListener } = {};
+
     audioRefs.current.forEach((audio, idx) => {
       if (!audio) return;
-      const handler = () => {
-        if (isPlayingRef.current && !mutedTracks.includes(idx) && (soloTrack === null || soloTrack === idx)) {
-          const b = secondsToBeats(audio.currentTime);
-          setCurrentBeat(b);
-        }
-      };
-      handlers[idx] = handler;
-      audio.addEventListener("timeupdate", handler);
-      audio.addEventListener("loadeddata", handleAudioLoaded);
+
+      // Only attach loadeddata or canplay events
+      const loadHandler = () => handleAudioLoaded();
+      loadedDataHandlers[idx] = loadHandler;
+
+      audio.addEventListener("loadeddata", loadHandler);
     });
 
     return () => {
       audioRefs.current.forEach((audio, idx) => {
         if (!audio) return;
-        const h = handlers[idx];
-        if (h) {
-          audio.removeEventListener("timeupdate", h);
-          audio.removeEventListener("loadeddata", handleAudioLoaded);
+        const lh = loadedDataHandlers[idx];
+        if (lh) {
+          audio.removeEventListener("loadeddata", lh);
         }
       });
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
-    };
-  }, [mutedTracks, soloTrack]);
-
-  useEffect(() => {
-    return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
       audioRefs.current.forEach((audio) => {
         if (audio) audio.pause();
       });
@@ -537,19 +584,17 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
   }, []);
 
   // -------------------------------------------------
-  // 10) Render timeline markers from 0..(maxBeat - minBeat)
-  //     or in measures if you prefer
+  // 10) Markers along the timeline
   // -------------------------------------------------
   const renderTimelineMarkers = () => {
     if (totalBeats <= 0) return null;
 
-    // Convert total beats -> total measures if you want measure lines
+    // We'll do measure-based markers:
     const totalMeasures = (maxBeat - minBeat) / BEATS_PER_MEASURE;
     const measureCount = Math.ceil(totalMeasures);
 
     const markers = [];
     for (let m = 0; m <= measureCount; m++) {
-      // fraction across total measures
       const fraction = m / totalMeasures;
       const leftPct = fraction * 100;
       markers.push(
@@ -567,15 +612,17 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
   };
 
   // -------------------------------------------------
-  // 11) Compute playhead position in %
+  // 11) Playhead position
   // -------------------------------------------------
   let playheadLeftPercent = 0;
   if (totalBeats > 0) {
-    const fraction = (currentBeat - minBeat) / totalBeats;
+    // Ensure currentBeat stays between minBeat and maxBeat
+    const boundedBeat = Math.min(Math.max(currentBeat, minBeat), maxBeat);
+    const fraction = (boundedBeat - minBeat) / totalBeats;
     playheadLeftPercent = fraction * 100;
   }
 
-  // For bottom-left display in mm:ss
+  // For display
   const currentSec = beatsToSeconds(currentBeat);
   const totalSec = beatsToSeconds(maxBeat - minBeat);
 
@@ -596,17 +643,25 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
             onClick={() => {
               // Jump to start
               setCurrentBeat(minBeat);
+              startBeatRef.current = minBeat;
+              startTimeRef.current = null;
+              
               const sec = beatsToSeconds(minBeat);
               audioRefs.current.forEach((audio) => {
                 if (audio) audio.currentTime = sec;
               });
-              if (scrollContainerRef.current) scrollContainerRef.current.scrollLeft = 0;
+              if (scrollContainerRef.current) {
+                scrollContainerRef.current.scrollLeft = 0;
+              }
             }}
           >
             <FaStepBackward />
           </button>
 
-          <button className={`transport-btn play-btn ${isPlaying ? "playing" : ""}`} onClick={isPlaying ? stopPlayback : startPlayback}>
+          <button
+            className={`transport-btn play-btn ${isPlaying ? "playing" : ""}`}
+            onClick={isPlaying ? stopPlayback : startPlayback}
+          >
             {isPlaying ? <FaPause /> : <FaPlay />}
           </button>
 
@@ -628,90 +683,92 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
         </div>
       </div>
 
-      {/* TIMELINE */}
-      <div className="timeline-scroll-container" ref={scrollContainerRef}>
+      {/* Content wrapper for timeline + tracks + extended playhead */}
+      <div className="als-view-content" ref={contentRef}>
+        {/* The extended playhead line going from timeline down through tracks */}
         <div
-          className="timeline"
-          ref={timelineRef}
-          onClick={handleTimelineClick}
-          style={{ width: `${zoom}%` }}
-        >
-          {renderTimelineMarkers()}
-          {/* Playhead */}
-          <div
-            className="playhead"
-            ref={playheadRef}
-            style={{ left: `${playheadLeftPercent}%` }}
-          ></div>
+          className="extended-playhead"
+          style={{
+            left: `calc(200px + ${playheadLeftPercent}% * ${zoom / 100} - ${
+              scrollContainerRef.current?.scrollLeft || 0
+            }px)`,
+          }}
+        />
+
+        {/* TIMELINE */}
+        <div className="timeline-scroll-container" ref={scrollContainerRef} onScroll={handleScroll}>
+          <div className="timeline" ref={timelineRef} onClick={handleTimelineClick} style={{ width: `${zoom}%` }}>
+            {renderTimelineMarkers()}
+          </div>
         </div>
-      </div>
 
-      {/* TRACKS */}
-      <div className="tracks-scroll-container">
-        <div className="tracks-container" ref={containerRef} style={{ width: `${zoom}%` }}>
-          {projectData.tracks.map((track, trackIndex) => (
-            <div
-              key={`track-${track.id}`}
-              className={`track ${
-                activeTrack === trackIndex ? "active" : ""
-              } ${mutedTracks.includes(trackIndex) ? "muted" : ""} ${
-                soloTrack === trackIndex ? "solo" : ""
-              }`}
-              onClick={() => setActiveTrack(trackIndex)}
-            >
-              <div className="track-header">
-                <div className="track-info">
-                  <span className="track-number">{trackIndex + 1}</span>
-                  <h3 className="track-name">{track.name}</h3>
-                  <span className={`track-type ${track.type === "MidiTrack" ? "midi" : "audio"}`}>
-                    {track.type === "MidiTrack" ? "MIDI" : "Audio"}
-                  </span>
+        {/* TRACKS */}
+        <div className="tracks-scroll-container" onScroll={handleScroll}>
+          <div className="tracks-container" ref={containerRef} style={{ width: `${zoom}%` }}>
+            {projectData.tracks.map((track, trackIndex) => (
+              <div
+                key={`track-${track.id}`}
+                className={`track ${
+                  activeTrack === trackIndex ? "active" : ""
+                } ${mutedTracks.includes(trackIndex) ? "muted" : ""} ${
+                  soloTrack === trackIndex ? "solo" : ""
+                }`}
+                onClick={() => setActiveTrack(trackIndex)}
+              >
+                <div className="track-header">
+                  <div className="track-info">
+                    <span className="track-number">{trackIndex + 1}</span>
+                    <h3 className="track-name">{track.name}</h3>
+                    <span className={`track-type ${track.type === "MidiTrack" ? "midi" : "audio"}`}>
+                      {track.type === "MidiTrack" ? "MIDI" : "Audio"}
+                    </span>
+                  </div>
+                  <div className="track-controls">
+                    <button
+                      className={`track-btn mute-btn ${mutedTracks.includes(trackIndex) ? "active" : ""}`}
+                      onClick={(e) => toggleMute(trackIndex, e)}
+                      title="Mute track"
+                    >
+                      M
+                    </button>
+                    <button
+                      className={`track-btn solo-btn ${soloTrack === trackIndex ? "active" : ""}`}
+                      onClick={(e) => toggleSolo(trackIndex, e)}
+                      title="Solo track"
+                    >
+                      S
+                    </button>
+                  </div>
                 </div>
-                <div className="track-controls">
-                  <button
-                    className={`track-btn mute-btn ${mutedTracks.includes(trackIndex) ? "active" : ""}`}
-                    onClick={(e) => toggleMute(trackIndex, e)}
-                    title="Mute track"
-                  >
-                    M
-                  </button>
-                  <button
-                    className={`track-btn solo-btn ${soloTrack === trackIndex ? "active" : ""}`}
-                    onClick={(e) => toggleSolo(trackIndex, e)}
-                    title="Solo track"
-                  >
-                    S
-                  </button>
+
+                <div className="track-content" style={{ position: "relative" }}>
+                  {renderTrackEvents(track, trackIndex)}
                 </div>
-              </div>
 
-              <div className="track-content" style={{ position: "relative" }}>
-                {renderTrackEvents(track, trackIndex)}
+                <audio
+                  ref={(el) => (audioRefs.current[trackIndex] = el)}
+                  src={`/src/assets/${track.wav_file}`}
+                  preload="auto"
+                  onEnded={() => {
+                    // If no other track is still playing, stop
+                    const anyStillPlaying = audioRefs.current.some((audio, idx) => {
+                      return (
+                        audio &&
+                        idx !== trackIndex &&
+                        !audio.paused &&
+                        !mutedTracks.includes(idx) &&
+                        (soloTrack === null || soloTrack === idx)
+                      );
+                    });
+                    if (!anyStillPlaying) {
+                      stopPlayback();
+                      setCurrentBeat(minBeat);
+                    }
+                  }}
+                />
               </div>
-
-              <audio
-                ref={(el) => (audioRefs.current[trackIndex] = el)}
-                src={`/src/assets/${track.wav_file}`}
-                preload="auto"
-                onEnded={() => {
-                  // If no other track is still playing (and unmuted/unsoloed), stop
-                  const anyStillPlaying = audioRefs.current.some((audio, idx) => {
-                    return (
-                      audio &&
-                      idx !== trackIndex &&
-                      !audio.paused &&
-                      !mutedTracks.includes(idx) &&
-                      (soloTrack === null || soloTrack === idx)
-                    );
-                  });
-                  if (!anyStillPlaying) {
-                    stopPlayback();
-                    setCurrentBeat(minBeat);
-                  }
-                }}
-              />
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>

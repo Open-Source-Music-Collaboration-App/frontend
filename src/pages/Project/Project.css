@@ -185,7 +185,7 @@
   -webkit-backdrop-filter: blur(20px);
   border-radius: 16px;
   padding: 30px;
-  border: 1px solid rgba(147, 0, 215, 0.25);
+  border: 1px solid #fff3;
   box-shadow: 0 0px 40px rgba(0, 0, 0, 0.2),
               0 0 20px rgba(147, 0, 215, 0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -262,7 +262,7 @@
   padding: 30px;
   background-color: rgba(147, 0, 215, 0.05);
   border-radius: 12px;
-  border: 2px dashed rgba(147, 0, 215, 0.3);
+  border: 2px dashed #fff3;
   cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 500;
@@ -287,7 +287,7 @@
 
 .file-input-label:hover {
   background-color: rgba(147, 0, 215, 0.1);
-  border-color: rgba(147, 0, 215, 0.5);
+  border-color: #fff4;
   /* transform: translateY(-3px); */
   /* box-shadow: 0 10px 25px rgba(147, 0, 215, 0.15); */
 }
@@ -437,7 +437,7 @@
 .commit-message-container input {
   padding: 14px 16px;
   background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(147, 0, 215, 0.2);
+  border: 1px solid #fff3;
   border-radius: 10px;
   color: white;
   font-size: 1rem;
@@ -450,8 +450,8 @@
 
 .commit-message-container input:focus {
   outline: none;
-  border-color: rgba(147, 0, 215, 0.5);
-  box-shadow: 0 0 0 3px rgba(147, 0, 215, 0.2);
+  border-color: #fff4;
+  /* box-shadow: 0 0 0 3px rgba(147, 0, 215, 0.2); */
   background-color: rgba(255, 255, 255, 0.08);
 }
 

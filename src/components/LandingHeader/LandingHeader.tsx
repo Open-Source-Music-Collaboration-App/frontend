@@ -11,8 +11,8 @@ const navigate = useNavigate(); // React Router navigation hook
         <nav className="nav">
           <ul>
             <li><a href="#">About</a></li>
-            <li><a href="#">Open Source</a></li>
-            <li><a href="#">Pricing</a></li>
+            {/* <li><a href="#">Open Source</a></li> */}
+            {/* <li><a href="#">Pricing</a></li> */}
           </ul>
         </nav>
         <div className="auth-buttons">
