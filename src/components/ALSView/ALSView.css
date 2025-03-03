@@ -1,0 +1,415 @@
+.als-view-container {
+  width: 100%;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  background-color: #1C001F;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.als-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 10;
+}
+
+.project-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.project-info h2 {
+  font-size: 1.5rem;
+  text-transform: capitalize;
+  font-weight: 600;
+  margin: 0;
+  text-shadow: 0px 0px 10px rgba(147, 0, 215, 0.5);
+}
+
+.tracks-count {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+
+.transport-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.transport-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.transport-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.transport-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.transport-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.transport-btn.play-btn {
+  width: 50px;
+  height: 50px;
+  background-color: #9300D7;
+  border: none;
+  font-size: 1.2rem;
+}
+
+.transport-btn.play-btn:hover:not(:disabled) {
+  background-color: #a714e9;
+  box-shadow: 0px 0px 15px rgba(147, 0, 215, 0.4);
+}
+
+.transport-btn.play-btn.playing {
+  background-color: #6b00a0;
+}
+
+.time-display {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 1.1rem;
+  padding: 0 10px;
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  gap: 5px;
+  min-width: 110px;
+}
+
+.time-divider {
+  opacity: 0.5;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.zoom-value {
+  font-size: 0.9rem;
+  min-width: 40px;
+  text-align: center;
+}
+
+.timeline-scroll-container {
+  overflow-x: auto;
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 5px 0;
+  margin-left: 200px; /* Align with track headers */
+}
+
+.timeline {
+  height: 30px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-width: 100%;
+  box-sizing: content-box;
+  padding-bottom: 10px;
+}
+
+.timeline-marker {
+  position: absolute;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.marker-line {
+  background-color: rgba(255, 255, 255, 0.2);
+  width: 1px;
+  height: 8px;
+}
+
+.timeline-marker.major .marker-line {
+  background-color: rgba(255, 255, 255, 0.4);
+  height: 15px;
+}
+
+.marker-time {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.6);
+  position: absolute;
+  top: 18px;
+}
+
+.playhead {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background-color: #9300D7;
+  box-shadow: 0px 0px 10px rgba(147, 0, 215, 0.8);
+  z-index: 10;
+  pointer-events: none;
+  padding-bottom: 20px;
+}
+
+.playhead::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -4px;
+  width: 10px;
+  height: 10px;
+  background-color: #9300D7;
+  border-radius: 50%;
+  box-shadow: 0px 0px 10px rgba(147, 0, 215, 0.8);
+}
+
+.tracks-scroll-container {
+  overflow-x: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+}
+
+.tracks-container {
+  position: relative;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.track {
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  transition: background-color 0.2s ease;
+  height: 100px;
+}
+
+.track:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.track.active {
+  background-color: rgba(147, 0, 215, 0.1);
+}
+
+.track.muted .track-content {
+  opacity: 0.4;
+}
+
+.track-header {
+  width: 200px;
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 5;
+}
+
+.track-info {
+  /* display: flex; */
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+.track-number {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  padding: 1px 5px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.track-name {
+  margin: 5px 0px;
+  font-size: 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+}
+
+.track-type {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: fit-content;
+}
+
+.track-type.midi {
+  background-color: rgba(147, 0, 215, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.track-type.audio {
+  background-color: rgba(33, 150, 243, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.track-controls {
+  display: flex;
+  gap: 5px;
+  margin-top: auto;
+  margin-bottom: 10px;
+}
+
+.track-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.track-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.track-btn:active {
+  transform: translateY(0);
+}
+
+.track-btn.mute-btn.active {
+  background-color: rgba(255, 50, 50, 0.6);
+  box-shadow: 0 0 5px rgba(255, 50, 50, 0.5);
+}
+
+.track-btn.solo-btn.active {
+  background-color: rgba(50, 200, 50, 0.6);
+  box-shadow: 0 0 5px rgba(50, 200, 50, 0.5);
+}
+
+.track-content {
+  position: relative;
+  margin-left: 200px;
+  padding: 0;
+  width: calc(100% - 200px);
+  height: 100%;
+  overflow: hidden;
+}
+
+.midi-event, .audio-event {
+  position: absolute;
+  height: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.midi-event {
+  background-color: rgba(147, 0, 215, 0.08);
+  border: 1px solid rgba(147, 0, 215, 0.3);
+}
+
+.audio-event {
+  background-color: rgba(33, 150, 243, 0.1);
+  border: 1px solid rgba(33, 150, 243, 0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+.note-group {
+  position: absolute;
+  height: 10px;
+  width: 100%;
+}
+
+.midi-note {
+  position: absolute;
+  bottom: 0;
+  background-color: rgba(147, 0, 215, 0.5);
+  min-height: 3px;
+  border-radius: 2px 2px 0 0;
+}
+
+.audio-name {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 4px 8px;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Waveform styling for audio events */
+.waveform {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Scrollbar styling */
+.tracks-container::-webkit-scrollbar,
+.timeline-container::-webkit-scrollbar,
+.timeline-scroll-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.tracks-container::-webkit-scrollbar-track,
+.timeline-container::-webkit-scrollbar-track,
+.timeline-scroll-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tracks-container::-webkit-scrollbar-thumb,
+.timeline-container::-webkit-scrollbar-thumb,
+.timeline-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.tracks-container::-webkit-scrollbar-thumb:hover,
+.timeline-container::-webkit-scrollbar-thumb:hover,
+.timeline-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
