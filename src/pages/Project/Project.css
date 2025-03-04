@@ -28,8 +28,8 @@
   width: 55px;
   height: 55px;
   border-radius: 50%;
-  border: 2px solid rgba(147, 0, 215, 0.4);
-  box-shadow: 0 0 15px rgba(147, 0, 215, 0.3);
+  border: 2px solid #fff5;
+  box-shadow: 0 0 15px #fff3;
 }
 
 .project-title-container {
