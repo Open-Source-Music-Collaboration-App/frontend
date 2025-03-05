@@ -1,0 +1,515 @@
+.history-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px 20px 60px;
+  color: white;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.history-back {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(-3px);
+}
+
+.history-title-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.history-icon {
+  font-size: 1.6rem;
+  color: rgba(147, 0, 215, 0.9);
+}
+
+.history-title {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  text-shadow: 0 0 15px rgba(147, 0, 215, 0.5);
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: -0.5px;
+}
+
+.history-stats {
+  padding: 5px 15px;
+  background-color: rgba(147, 0, 215, 0.15);
+  border-radius: 20px;
+  border: 1px solid rgba(147, 0, 215, 0.3);
+}
+
+.history-version-count {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.history-description {
+  margin-bottom: 30px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #fff3;
+}
+
+.history-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.history-timeline:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 25px;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    rgba(147, 0, 215, 0.7),
+    rgba(147, 0, 215, 0.1)
+  );
+  z-index: 0;
+}
+
+.version-card {
+  position: relative;
+  background: rgba(20, 0, 35, 0.4);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 12px;
+  padding: 20px;
+  margin-left: 55px;
+  border: 1px solid rgba(147, 0, 215, 0.2);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ;
+}
+
+.version-card:hover {
+  /* transform: translateY(-3px); */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3),
+              0 0 15px rgba(147, 0, 215, 0.2);
+  border-color: rgba(147, 0, 215, 0.3);
+}
+
+.version-badge {
+  position: absolute;
+  left: -30px;
+  top: 20px;
+  width: 40px;
+  height: 40px;
+  background: rgb(152, 6, 219);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: 3px solid rgba(20, 0, 35, 0.8);
+  box-shadow: 0 0 10px rgba(147, 0, 215, 0.6);
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.version-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.version-message {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: white;
+  flex-grow: 1;
+  margin-right: 15px;
+}
+
+.version-date {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 5px 12px;
+}
+
+.version-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 15px;
+}
+
+.version-author,
+.version-type {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+.version-type {
+  background-color: rgba(147, 0, 215, 0.1);
+}
+
+.version-icon {
+  opacity: 0.7;
+  font-size: 0.9em;
+}
+
+.version-body {
+  background-color: rgba(0, 0, 0, 0.15);
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+  border-left: 3px solid rgba(147, 0, 215, 0.5);
+  margin-bottom: 15px;
+}
+
+.version-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.version-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ;
+}
+
+.revert-btn {
+  background: rgba(147, 0, 215, 0.2);
+  color: white;
+  border: 1px solid rgba(147, 0, 215, 0.3);
+}
+
+.revert-btn:hover {
+  background: rgba(147, 0, 215, 0.3);
+  border-color: rgba(147, 0, 215, 0.5);
+}
+
+.download-btn {
+  background: transparent;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.download-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.history-loading,
+.history-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  padding: 50px 20px;
+  text-align: center;
+  gap: 15px;
+}
+
+.history-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid #9300D7;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: history-spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+.no-versions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 20px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  opacity: 0.3;
+  margin-bottom: 15px;
+  color: rgba(147, 0, 215, 0.6);
+}
+
+.empty-subtitle {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  margin-top: 5px;
+}
+
+/* Add these styles to your existing History.css file */
+
+.version-tracks {
+  background-color: rgba(20, 0, 35, 0.3);
+  border-radius: 12px;
+  margin: 10px 0;
+  padding: 5px 0px;
+  border: 1px solid rgba(147, 0, 215, 0.15);
+}
+
+.version-tracks h4 {
+  font-size: 0.8rem;
+  margin: 5px 15px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tracks-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+.track-change {
+  display: flex;
+  align-items: center;
+  gap: 0px;
+  padding: 0px 15px;
+  /* border-radius: 8px; */
+  /* background: rgba(20, 0, 35, 0.5); */
+  /* border-top: 1px solid #fff1; */
+  /* padding-bottom: */
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  margin: 0px;
+  /* background: rgba(147, 0, 215, 0.1); */
+}
+
+.track-change::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  /* background: linear-gradient(to bottom, rgba(147, 0, 215, 0.7), rgba(71, 187, 255, 0.7)); */
+}
+
+.track-change:hover {
+  /* transform: translateY(-2px); */
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); */
+}
+
+.track-number {
+  font-size: 0.8rem;
+  background-color: rgba(147, 0, 215, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.track-info {
+  flex: 1;
+}
+
+.track-name {
+  font-weight: 400;
+  font-size: 0.8rem;
+  /* margin-bottom: 2px; */
+  opacity: 0.5;
+  margin: 3px 0px;
+}
+
+.track-detail {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.track-type {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 5px;
+  border-radius: 5px;
+  font-size: 0.6rem;
+  font-weight: 500;
+
+}
+
+.track-type.audio {
+  background-color: rgba(33, 150, 243, 0.15);
+  color: rgba(33, 150, 243, 0.9);
+  border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.track-type.midi {
+  background-color: rgba(156, 39, 176, 0.15);
+  color: rgba(156, 39, 176, 0.9);
+  border: 1px solid rgba(156, 39, 176, 0.3);
+}
+
+.track-type.automation {
+  background-color: rgba(255, 193, 7, 0.15);
+  color: rgba(255, 193, 7, 0.9);
+}
+
+.track-waveform {
+  width: 80px;
+  height: 30px;
+  background: linear-gradient(to bottom, 
+    rgba(147, 0, 215, 0.1) 0%,
+    rgba(147, 0, 215, 0.2) 50%, 
+    rgba(147, 0, 215, 0.1) 100%
+  );
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.track-waveform::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.3) 0px,
+    rgba(255, 255, 255, 0.5) 2px,
+    rgba(255, 255, 255, 0.2) 3px,
+    rgba(255, 255, 255, 0) 6px
+  );
+  opacity: 0.4;
+  border-radius: 4px;
+}
+
+
+@keyframes history-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+  .history-container {
+    padding: 20px 15px 40px;
+  }
+  
+  .version-card {
+    padding: 15px;
+    margin-left: 40px;
+  }
+  
+  .version-badge {
+    left: -40px;
+    width: 35px;
+    height: 35px;
+    font-size: 0.8rem;
+  }
+  
+  .history-timeline:before {
+    left: 17px;
+  }
+  
+  .version-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .version-date {
+    align-self: flex-start;
+  }
+  
+  .version-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .version-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .version-tracks {
+    padding: 12px;
+  }
+  
+  .track-change {
+    padding: 8px 10px;
+  }
+  
+  .track-waveform {
+    display: none;
+  }
+  
+  .track-name {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

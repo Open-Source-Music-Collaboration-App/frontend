@@ -26,20 +26,18 @@ function Project() {
   const [commitMessage, setCommitMessage] = useState<string>("");
 
   useEffect(() => {
-    if (user && id) {
-      axios.get(`http://localhost:3333/api/projects/${id}`, { withCredentials: true })
-        .then(response => {
-          console.log("Project data:", response.data);
-          setProject(response.data);
-        })
-        .catch(error => {
-          console.error("Error fetching project:", error);
-          setError("Project not found or you don't have permission to access it.");
-          setTimeout(() => navigate("/dashboard"), 3000);
-        })
-        .finally(() => setLoading(false));
-    }
-  }, [user, id, navigate]);
+    axios.get(`http://localhost:3333/api/projects/${id}`, { withCredentials: true })
+      .then(response => {
+        console.log("Project data:", response.data);
+        setProject(response.data);
+      })
+      .catch(error => {
+        console.error("Error fetching project:", error);
+        setError("Project not found or you don't have permission to access it.");
+        setTimeout(() => navigate("/dashboard"), 3000);
+      })
+      .finally(() => setLoading(false));
+  }, [id, navigate]);
 
   if (!user) {
     navigate("/login");
@@ -159,7 +157,14 @@ function Project() {
     <div className="project-title-container">
       <div className="project-title-row">
         <h2 className="project-title">{project ? project[0].title : ""}</h2>
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', display: 'flex', flexWrap: "nowrap" }}>
+            <button 
+              className="project-action-btn history-btn" 
+              onClick={() => navigate(`/project/${id}/history`)}
+            >
+              <FaHistory className="btn-icon" />
+              <span>View Version History</span>
+            </button>
           <button className="project-share-btn" aria-label="Share project">
             <FaShareAlt />
           </button>

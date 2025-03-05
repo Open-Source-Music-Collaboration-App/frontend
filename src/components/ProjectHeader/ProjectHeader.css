@@ -64,52 +64,173 @@
     
 }
 
-
-
-.project-header .btn-container
-{
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    margin-top: 0px;
-    
+.project-header .btn-container .header-btn .history-icon {
+  width: 17px;
+  height: 17px;
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
 }
 
-.project-header .btn-container .header-btn
-{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 5px;
-    padding-right: 14px;
+.project-header .btn-container .header-btn:hover .history-icon {
+  opacity: 1;
+  /* color: white; */
 }
 
-.project-header .btn-container .header-btn img
-{
-    width: 17px;
-    height: 17px;
-    filter: brightness(0) invert(1);
-    opacity: 0.6;
-    /* margin-left: -10px; */
-}
-.project-header .btn-container .header-btn span
-{
-    font-size: 1rem;
+
+
+
+.project-header .btn-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 10px;
+  position: relative;
 }
 
-.project-header .btn-container .header-btn:hover
-{
-    opacity: 0.8;
+.project-header .btn-container .header-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 5px;
+  padding-right: 14px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-size: 14px;
+}
+.project-header .btn-container .header-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(147, 0, 215, 0.8), rgba(147, 0, 215, 0.4));
+  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+  opacity: 0;
+  transform-origin: left;
+}
+.project-header .btn-container .header-btn span {
+  /* font-size: 1rem; */
+  transition: transform 0.3s ease, font-weight 0.3s ease;
 }
 
-.project-header .btn-container .header-btn.selected
-{
-    border-bottom: 2px solid #9300D7;
-    opacity: 1;
-    font-weight: 600;
+.project-header .btn-container .header-btn:hover {
+  opacity: 1;
 }
 
+.project-header .btn-container .header-btn:hover::after {
+  width: 40%;
+  opacity: 0.5;
+}
+
+.project-header .btn-container .header-btn img {
+  width: 17px;
+  height: 17px;
+  filter: brightness(0) invert(1);
+  opacity: 0.6;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Selected state with animated underline */
+.project-header .btn-container .header-btn.selected {
+  opacity: 1;
+  /* font-weight: 600; */
+  border-bottom: none;
+}
+
+.project-header .btn-container .header-btn.selected::after {
+  width: 100%;
+  opacity: 1;
+  box-shadow: 0 0 15px rgba(147, 0, 215, 0.5);
+}
+
+.project-header .btn-container .header-btn.selected span {
+  transform: translateY(-2px);
+  /* font-weight: 600; */
+}
+
+.project-header .btn-container .header-btn.selected img {
+  opacity: 1;
+  transform: translateY(-2px) scale(1);
+}
+
+/* Animation for tab switching */
+@keyframes tabFadeIn {
+  from {
+      opacity: 0;
+      transform: translateY(5px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+@keyframes tabFadeOut {
+  from {
+      opacity: 1;
+      transform: translateY(0);
+  }
+  to {
+      opacity: 0;
+      transform: translateY(-5px);
+  }
+}
+
+/* Add subtle shine effect on hover */
+/* Replace the current shine effect with this text-based shine effect */
+.project-header .btn-container .header-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 5px;
+  padding-right: 14px;
+  position: relative;
+  overflow: visible; /* Changed from hidden to visible to allow the shine to overflow */
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: white;
+}
+
+/* Remove the previous shine ::before element */
+.project-header .btn-container .header-btn::before {
+  display: none;
+}
+
+/* Enhanced style for selected state with shining text */
+.project-header .btn-container .header-btn.selected span {
+  /* transform: translateY(-1px); */
+  /* font-weight: 600; */
+  text-shadow: 0 0 10px rgba(147, 0, 215, 0.5);
+}
+.project-header .btn-container .header-btn:hover span {
+  /* transform: translateY(-1px); */
+  /* font-weight: 600; */
+  text-shadow: 0 0 10px rgba(147, 0, 215, 0.5);
+}
+
+/* Keep the underline effect for selected items */
+.project-header .btn-container .header-btn.selected::after {
+  width: 100%;
+  opacity: 1;
+  box-shadow: 0 0 15px rgba(147, 0, 215, 0.5);
+}
+
+/* Enhance hover image effect */
+.project-header .btn-container .header-btn:hover img {
+  opacity: 1;
+  /* transform: translateY(-1px) scale(1); */
+  filter: brightness(0) invert(1) drop-shadow(0 0 2px rgba(255,255,255,0.5));
+}
 
 
 

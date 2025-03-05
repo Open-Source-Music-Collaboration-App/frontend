@@ -15,7 +15,9 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 import NewProject from './pages/NewProject/NewProject';
 import Project from './pages/Project/Project';
+import History from './pages/History/History';
 import PageTransition from "./components/PageTransition/PageTransition";
+import Settings from "./pages/Settings/Settings";
 
 function App() {
   return (
@@ -30,9 +32,12 @@ function App() {
               <Route path="/login" element={<Login />} /> {/* Login Page */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} /> {/* Dashboard Page */}
+                <Route path="/new-project" element={<NewProject />} /> {/* New Project Page */}
+                <Route path="/project/:id" element={<Project />} /> {/* Project Page */}
+                <Route path="/project/:id/history" element={<History />} />
+                <Route path="/project/:id/settings" element={<Settings />} />
+                <Route path="*" element={<h1>Not Found</h1>} /> {/* 404 Page */}
               </Route>
-              <Route path="/new-project" element={<NewProject />} /> {/* New Project Page */}
-              <Route path="/project/:id" element={<Project />} /> {/* Project Page */}
             </Route>
           </Routes>
         </ErrorBoundary>
