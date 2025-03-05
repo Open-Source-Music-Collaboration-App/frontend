@@ -36,20 +36,31 @@ main{
 
 .dashboard-header-left {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  /* width: 100%; */
 }
 
 .dashboard-header-left h1 {
-  font-size: 2.4rem;
-  font-weight: 600;
+  font-size: 2rem;
+  font-weight: 700;
   color: white;
   margin: 0;
-  margin-bottom: 8px;
+  margin-bottom: 0px;
+  text-shadow: 0 0 15px rgba(147, 0, 215, 0.5);
 }
 
 .project-count {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 1rem;
+  color: #fffd;
+  font-size: 0.9rem;
+  background: rgba(147, 0, 215, 0.2);
+  padding: 5px 12px;
+  border-radius: 100px;
+  border: 1px solid rgba(147, 0, 215, 0.4);
+  font-weight: 500;
+
 }
 
 .dashboard-header-right {
@@ -79,8 +90,8 @@ main{
 .search-input {
   width: 100%;
   padding: 12px 12px 12px 40px;
-  background: rgba(30, 5, 45, 0.4);
-  border: 1px solid rgba(147, 0, 215, 0.2);
+  background: #0002;
+  border: 1px solid #fff2;
   border-radius: 8px;
   color: white;
   font-size: 0.95rem;
@@ -89,8 +100,7 @@ main{
 
 .search-input:focus {
   outline: none;
-  border-color: rgba(147, 0, 215, 0.5);
-  box-shadow: 0 0 0 2px rgba(147, 0, 215, 0.2);
+  border-color: #fff5;
 }
 
 .search-input::placeholder {
@@ -103,7 +113,7 @@ main{
   align-items: center;
   gap: 10px;
   padding: 12px 20px;
-  background: rgba(20, 5, 35, 0.6);
+  background: rgba(147, 0, 215, 0.1);
   border: 1px solid rgba(147, 0, 215, 0.5);
   color: white;
   border-radius: 8px;
