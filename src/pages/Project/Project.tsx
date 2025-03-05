@@ -134,7 +134,6 @@ function Project() {
     return (
       <div className="project-loading">
         <div className="spinner"></div>
-        <p>Loading project...</p>
       </div>
     );
   }
