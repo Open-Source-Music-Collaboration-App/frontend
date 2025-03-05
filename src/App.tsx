@@ -18,6 +18,7 @@ import Project from './pages/Project/Project';
 import History from './pages/History/History';
 import PageTransition from "./components/PageTransition/PageTransition";
 import Settings from "./pages/Settings/Settings";
+import NotFound from "./pages/NotFound/NotFound";
 
 function App() {
   return (
@@ -36,7 +37,7 @@ function App() {
                 <Route path="/project/:id" element={<Project />} /> {/* Project Page */}
                 <Route path="/project/:id/history" element={<History />} />
                 <Route path="/project/:id/settings" element={<Settings />} />
-                <Route path="*" element={<h1>Not Found</h1>} /> {/* 404 Page */}
+                <Route path="*" element={<NotFound />} />
               </Route>
             </Route>
           </Routes>
