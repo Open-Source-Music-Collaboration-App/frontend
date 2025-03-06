@@ -250,14 +250,16 @@
   width: fit-content;
 }
 
-.track-name {
+.track .track-name {
   margin: 5px 0px;
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 130px;
+  color: #fff;
+  opacity: 1;
 }
 
 .track-type {

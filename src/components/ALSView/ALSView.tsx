@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "./ALSView.css";
 import { FaPlay, FaPause, FaStepBackward, FaSearchMinus, FaSearchPlus } from "react-icons/fa";
+import { motion } from "framer-motion";
 
 interface Note {
   key: { Value: string };
@@ -520,7 +521,11 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
             const finalHeight = Math.min(baseHeight, maxPercentHeight);
 
             return (
-              <div
+              <motion.div
+                initial={{ opacity: 0, scaleX: 0, transformOrigin: "0 50%" }}
+                transition={{ duration: 0.3, delay: 0.2 + 0.1 * occStartBeats - 0.1 * noteIdx + trackIndex * 0.1, ease: "easeOut" }}
+                animate={audioLoaded ? { opacity: noteOpacity, scaleX: 1 } : {}}
+
                 key={`note-${trackIndex}-${eventIndex}-${noteIdx}-${occIdx}`}
                 className="midi-note"
                 style={{
@@ -706,7 +711,10 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
         <div className="tracks-scroll-container" onScroll={handleScroll}>
           <div className="tracks-container" ref={containerRef} style={{ width: `${zoom}%` }}>
             {projectData.tracks.map((track, trackIndex) => (
-              <div
+              <motion.div
+                initial={{ opacity: 0, y: 0 }}
+                animate={audioLoaded ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.3, delay: 0.15 * trackIndex }}
                 key={`track-${track.id}`}
                 className={`track ${
                   activeTrack === trackIndex ? "active" : ""
@@ -766,7 +774,7 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
                     }
                   }}
                 />
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
