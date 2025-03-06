@@ -28,13 +28,17 @@ function Project() {
   const [commitMessage, setCommitMessage] = useState<string>("");
   const [dataReady, setDataReady] = useState<boolean>(false);
   const [isEmptyRepo, setIsEmptyRepo] = useState<boolean>(false);
+  const [retryCount, setRetryCount] = useState<number>(0);
+  const maxRetries = 3;
 
   useEffect(() => {
     const fetchProject = async () => {
       try {
         // Step 1: Fetch project metadata
+        console.log("Fetching project data for project ID:", id);
         const metadataResponse = await axios.get(`http://localhost:3333/api/projects/${id}`, { 
-          withCredentials: true 
+          withCredentials: true,
+          timeout: 10000 // 10 seconds timeout
         });
         console.log("Project metadata:", metadataResponse.data);
         setProject(metadataResponse.data);
@@ -43,18 +47,26 @@ function Project() {
           throw new Error("Project not found or not authorized");
         }
         
+      
+
         // Step 2: Fetch project content as ZIP
         try {
+          console.log("Fetching project content for project ID:", id);
           const contentResponse = await axios.get(
             `http://localhost:3333/api/history/latest/${user.username}/${id}`, 
             { 
               withCredentials: true,
               responseType: 'blob', // Important: we need to get the response as a blob
+              timeout: 3000000, // 30 seconds timeout for potentially large files
               validateStatus: (status) => {
+                console.log("Response status:", status);
                 return status === 200 || status === 204; // Accept both success and no-content
               }
             }
           );
+
+          console.log("Project content loaded:", contentResponse);
+          
           
           // Handle empty repository case (status 204)
           if (contentResponse.status === 204) {
@@ -119,8 +131,6 @@ function Project() {
         }
       } catch (error) {
         console.error("Error loading project:", error);
-        setError("Failed to load project data. Please try again later.");
-        setTimeout(() => navigate("/dashboard"), 6000);
       } finally {
         setLoading(false);
       }
@@ -135,7 +145,7 @@ function Project() {
       if (alsFile) URL.revokeObjectURL(alsFile);
       Object.values(trackFiles).forEach(url => URL.revokeObjectURL(url));
     };
-  }, [id, user, navigate]);
+  }, [id, user, navigate, retryCount]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -145,7 +155,8 @@ function Project() {
         if (!files[i].webkitRelativePath.includes("Backup") && 
             (files[i].name.endsWith(".json") || 
              files[i].name.endsWith(".wav") || 
-             files[i].name.endsWith(".als"))) {
+             files[i].name.endsWith(".als") ||
+             files[i].name.endsWith(".flac"))) {
           fileList.push({
             name: files[i].webkitRelativePath,
             type: files[i].name.split('.').pop() || "",
@@ -180,7 +191,8 @@ function Project() {
       for (let i = 0; i < files.length; i++) {
         if (!files[i].webkitRelativePath.includes("Backup") && 
             (files[i].name.endsWith(".wav") || 
-             files[i].name.endsWith(".als"))) {
+             files[i].name.endsWith(".als") ||
+             files[i].name.endsWith(".flac"))) {
           formData.append("files", files[i]);
         }
       }
@@ -203,19 +215,16 @@ function Project() {
             (progressEvent.loaded * 100) / (progressEvent.total || 100)
           );
           setUploadProgress(percentCompleted);
-        }
+        },
+        timeout: 60000 // 60 seconds timeout for uploads
       });
 
       console.log("Upload successful:", response.data);
-      setUploadSuccess("Project files uploaded successfully! Refesh to see changes.");
+      setUploadSuccess("Project files uploaded successfully!");
       
-      // Clear form and show success message briefly
+      // Clear form and show success message briefly, then refresh the page
       setTimeout(() => {
-        setUploadSuccess(false);
-        setSelectedFiles([]);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-        setCommitMessage("");
-      
+        window.location.reload();
       }, 2000);
     } catch (error) {
       console.error("Error uploading files:", error);
@@ -230,6 +239,8 @@ function Project() {
     return (
       <div className="project-loading">
         <div className="spinner"></div>
+        <p>Loading project data...</p>
+        {retryCount > 0 && <p>Retry attempt {retryCount}/{maxRetries}...</p>}
       </div>
     );
   }
@@ -340,7 +351,7 @@ function Project() {
               <label htmlFor="file-upload" className="file-input-label">
                 <FaMusic className="file-input-icon" />
                 <div className="file-input-text">Drag project folder here or click to browse</div>
-                <div className="file-input-subtext">Upload project folder which includes .als and .wav files</div>
+                <div className="file-input-subtext">Upload project folder which includes .als and audio files (.wav or .flac)</div>
               </label>
               <input
                 id="file-upload"
