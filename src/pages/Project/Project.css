@@ -593,6 +593,42 @@
   box-shadow: 0 0 15px rgba(147, 0, 215, 0.3);
 }
 
+.empty-project-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 300px;
+  text-align: center;
+  padding: 30px;
+  background-color: rgba(20, 0, 35, 0.3);
+  border-radius: 8px;
+}
+
+.empty-project-icon {
+  font-size: 48px;
+  color: rgba(147, 0, 215, 0.7);
+  margin-bottom: 20px;
+}
+
+.empty-project-notice h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.empty-project-notice p {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 400px;
+}
+
+.loading-project-data p {
+  margin-top: 15px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }

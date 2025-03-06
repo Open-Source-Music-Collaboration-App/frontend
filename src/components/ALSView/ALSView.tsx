@@ -38,13 +38,19 @@ interface Track {
   volumeMin: string;
   volumeMax: string;
   events: Event[];
-  wav_file: string;
+  audio_file: string;
+  audio_format: "wav" | "flac" | "mp3";
 }
 
 interface ProjectData {
   project: string;
   tempo: number;   // BPM
   tracks: Track[];
+}
+
+interface ALSViewProps {
+  projectData: ProjectData;
+  trackFiles: {[key: string]: string};
 }
 
 /**
@@ -55,7 +61,7 @@ interface ProjectData {
  * measure-based markers. Audio and timeline are synced: if the playhead moves
  * too fast, ensure we only update currentBeat in one place (the animation loop).
  */
-function ALSView({ projectData }: { projectData: ProjectData }) {
+function ALSView({ projectData, trackFiles }: ALSViewProps) {
   // --------------------- STATE ---------------------
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -65,6 +71,7 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
   const [maxBeat, setMaxBeat] = useState(0);
   const [totalBeats, setTotalBeats] = useState(0); // maxBeat - minBeat
   const [currentBeat, setCurrentBeat] = useState(0); // "playhead" in beats
+
   const [zoom, setZoom] = useState(100);
 
   // Mute / Solo / Active track
@@ -112,6 +119,42 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
+  // Update the audio file sources to use the trackFiles prop
+  useEffect(() => {
+    // Initialize loading state
+    if (projectData?.tracks) {
+      setLoadingState(prev => ({
+        ...prev,
+        total: projectData.tracks.length
+      }));
+    }
+  }, [projectData]);
+
+  // Update audio element sources with the fetched track files
+  useEffect(() => {
+    if (audioRefs.current && projectData?.tracks) {
+      console.log("Updating audio sources with track files");
+      projectData.tracks.forEach((track, index) => {
+        const audioEl = audioRefs.current[index];
+        console.log(`Setting audio file for track: ${track.name}`);
+        if (audioEl && track.audio_file) {
+          console.log("audioel exists and track has audio file");
+          // Get file name from track.audio_file (might be a full path)
+          const fileName = track.audio_file.split('/').pop() || track.audio_file;
+          
+          // Look for the file in trackFiles using the track.audio_file as key
+          if (trackFiles[fileName]) {
+            // Set the source to the blob URL
+            audioEl.src = trackFiles[fileName];
+            console.log(`Set source for ${track.name} to ${fileName}`);
+          } else {            
+            console.warn(`No matching audio file found for track: ${track.name}, looking for: ${fileName}`);
+          }
+        }
+      });
+    }
+  }, [projectData]);
+
   // -------------------------------------------------
   // 1) Determine minBeat & maxBeat, gather track note ranges
   // -------------------------------------------------
@@ -125,6 +168,7 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
 
     projectData.tracks.forEach((track, trackIndex) => {
       // For beats:
+      if (!track.events) return;
       track.events.forEach((event) => {
         const s = parseFloat(event.start);
         const e = parseFloat(event.end);
@@ -184,12 +228,21 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
   const handleAudioLoaded = () => {
     setLoadingState((prev) => {
       const newLoaded = prev.loaded + 1;
+      console.log(`Audio loaded: ${newLoaded} / ${prev.total}`);
       if (newLoaded >= prev.total) {
         setAudioLoaded(true);
       }
       return { ...prev, loaded: newLoaded };
     });
   };
+
+  useEffect(() => {
+    // Check if we've loaded all audio tracks
+    if (loadingState.total > 0 && loadingState.loaded >= loadingState.total) {
+      setAudioLoaded(true);
+      console.log("All audio tracks loaded, setting audioLoaded to true");
+    }
+  }, [loadingState.loaded, loadingState.total]);
 
   // -------------------------------------------------
   // 3) Main animation loop -> update playhead from active audio
@@ -422,6 +475,11 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
     const trackMinNote = trackMidiRanges[trackIndex]?.minNote ?? 36;
     const trackMaxNote = trackMidiRanges[trackIndex]?.maxNote ?? 84;
 
+    // Guard against undefined events
+    if (!track.events || !Array.isArray(track.events)) {
+      track.events = [];
+    }
+
     return track.events.map((event, eventIndex) => {
       const eStart = parseFloat(event.start);
       const eEnd = parseFloat(event.end);
@@ -524,7 +582,7 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
               <motion.div
                 initial={{ opacity: 0, scaleX: 0, transformOrigin: "0 50%" }}
                 transition={{ duration: 0.3, delay: 0.2 + 0.1 * occStartBeats - 0.1 * noteIdx + trackIndex * 0.1, ease: "easeOut" }}
-                animate={audioLoaded ? { opacity: noteOpacity, scaleX: 1 } : {}}
+                animate={{ opacity: 1, scaleX: 1 }}
 
                 key={`note-${trackIndex}-${eventIndex}-${noteIdx}-${occIdx}`}
                 className="midi-note"
@@ -712,17 +770,17 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
           <div className="tracks-container" ref={containerRef} style={{ width: `${zoom}%` }}>
             {projectData.tracks.map((track, trackIndex) => (
               <motion.div
-                initial={{ opacity: 0, y: 0 }}
-                animate={audioLoaded ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.3, delay: 0.15 * trackIndex }}
-                key={`track-${track.id}`}
-                className={`track ${
-                  activeTrack === trackIndex ? "active" : ""
-                } ${mutedTracks.includes(trackIndex) ? "muted" : ""} ${
-                  soloTrack === trackIndex ? "solo" : ""
-                }`}
-                onClick={() => setActiveTrack(trackIndex)}
-              >
+              initial={{ opacity: 0, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.15 * trackIndex }}
+              key={`track-${track.id}`}
+              className={`track ${
+                activeTrack === trackIndex ? "active" : ""
+              } ${mutedTracks.includes(trackIndex) ? "muted" : ""} ${
+                soloTrack === trackIndex ? "solo" : ""
+              }`}
+              onClick={() => setActiveTrack(trackIndex)}
+            >
                 <div className="track-header">
                   <div className="track-info">
                     <span className="track-number">{trackIndex + 1}</span>
@@ -755,7 +813,6 @@ function ALSView({ projectData }: { projectData: ProjectData }) {
 
                 <audio
                   ref={(el) => (audioRefs.current[trackIndex] = el)}
-                  src={`/src/assets/${track.wav_file}`}
                   preload="auto"
                   onEnded={() => {
                     // If no other track is still playing, stop
