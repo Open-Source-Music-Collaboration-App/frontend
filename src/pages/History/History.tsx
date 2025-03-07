@@ -6,8 +6,10 @@ import { motion } from 'framer-motion';
 import { 
   FaHistory, FaCalendarAlt, FaUser, FaMusic, FaSave, 
   FaArrowLeft, FaDownload, FaFileAlt, FaFileAudio, 
-  FaFileCode, FaPlus, FaMinus, FaEdit, FaKeyboard } from 'react-icons/fa';
+  FaFileCode, FaPlus, FaMinus, FaEdit, FaUserFriends } from 'react-icons/fa';
 import './History.css';
+import JSZip from 'jszip';
+
 
 interface Version {
   hash: string;
@@ -53,6 +55,8 @@ function History() {
   const [history, setHistory] = useState<HistoryResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [projectOwner, setProjectOwner] = useState<string>("");
+
 
   const parseTrackChanges = (body: string): TrackChanges | null => {
     if (!body) return null;
@@ -178,6 +182,12 @@ function History() {
       })
         .then(response => {
           setHistory(response.data);
+
+          if (response.data.history.all.length > 0) {
+            const commits = response.data.history.all;
+            const oldestCommit = commits[commits.length - 1]; // Get the last item (oldest commit)
+            setProjectOwner(oldestCommit.author_name);
+          }
           setError(null);
         })
         .catch(error => {
@@ -211,9 +221,59 @@ function History() {
     alert(`Revert to version with ID: ${versionHash} - Feature coming soon!`);
   };
 
-  const handleDownload = (versionHash: string) => {
-    // Implementation for downloading a specific version would go here
-    alert(`Download version with ID: ${versionHash} - Feature coming soon!`);
+  const handleDownload = async (version: Version) => {
+    try {
+      // Show loading indicator or disable button during download
+      const downloadButton = document.getElementById(`download-${version.hash}`) as HTMLButtonElement;
+      if (downloadButton) {
+        downloadButton.disabled = true;
+        downloadButton.innerHTML = '<span class="spinner-small"></span>';
+      }
+  
+      // Make request to download files - the API will return a zip file
+      const response = await axios.get(
+        `http://localhost:3333/api/history/${user?.username}/${id}/${version.hash}`, 
+        {
+          withCredentials: true,
+          responseType: 'blob', // Important: we need the response as a blob
+        }
+      );
+      
+      // Create a download link and trigger it
+      const downloadUrl = URL.createObjectURL(response.data);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = downloadUrl;
+      
+      // Set the filename to something meaningful
+      const filename = `project-${id}-v${version.hash.substring(0, 7)}.zip`;
+      downloadLink.setAttribute('download', filename);
+      
+      // Append to body, trigger click and remove
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      
+      // Clean up
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(downloadUrl);
+      
+      // Reset button state
+      if (downloadButton) {
+        downloadButton.disabled = false;
+        downloadButton.innerHTML = '<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M216 0h80c13.3 0 24 10.7 24 24v168h87.7c17.8 0 26.7 21.5 14.1 34.1L269.7 378.3c-7.5 7.5-19.8 7.5-27.3 0L90.1 226.1c-12.6-12.6-3.7-34.1 14.1-34.1H192V24c0-13.3 10.7-24 24-24zm296 376v112c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V376c0-13.3 10.7-24 24-24h146.7l49 49c20.1 20.1 52.5 20.1 72.6 0l49-49H488c13.3 0 24 10.7 24 24zm-124 88c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20zm64 0c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20z"></path></svg> Download Files';
+      }
+    } catch (error) {
+      console.error('Error downloading version:', error);
+      
+      // Show error notification
+      alert('Failed to download the files. Please try again.');
+      
+      // Reset button state
+      const downloadButton = document.getElementById(`download-${version.hash}`) as HTMLButtonElement;
+      if (downloadButton) {
+        downloadButton.disabled = false;
+        downloadButton.innerHTML = '<svg class="svg-inline--fa fa-download" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="download" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V274.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7V32zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V416c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352H64zM432 456c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"></path></svg> Download Files';
+      }
+    }
   };
 
   const getFileIcon = (fileType: string) => {
@@ -291,8 +351,9 @@ function History() {
 
       <div className="history-timeline">
         {history?.history.all.map((version, index) => {
-          const fileChanges = getPlaceholderFileChanges(version.hash, index);
-          
+          // const fileChanges = getPlaceholderFileChanges(version.hash, index);
+          const isCollaborator = version.author_name !== projectOwner;
+
           return (
             <motion.div 
               key={version.hash}
@@ -319,9 +380,14 @@ function History() {
                   <span>{version.author_name}</span>
                 </div>
                 
-                <div className="version-type">
-                  <FaMusic className="version-icon" />
-                  <span>Project Update</span>
+                <div className={`version-type ${isCollaborator ? 'collaborator' : ''}`}>
+                  {isCollaborator ? 
+                    <FaUserFriends className="version-icon" /> : 
+                    <FaMusic className="version-icon" />
+                  }
+                  <span>
+                    {isCollaborator ? 'Collaborator Update' : 'Project Update'}
+                  </span>
                 </div>
               </div>
 
@@ -353,8 +419,9 @@ function History() {
                 </button>
                 
                 <button 
+                  id={`download-${version.hash}`}
                   className="version-btn download-btn" 
-                  onClick={() => handleDownload(version.hash)}
+                  onClick={() => handleDownload(version)}
                   title="Download this version's files"
                 >
                   <FaDownload /> Download Files

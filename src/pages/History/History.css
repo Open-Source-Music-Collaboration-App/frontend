@@ -197,6 +197,17 @@
   background-color: rgba(147, 0, 215, 0.1);
 }
 
+
+.version-type.collaborator {
+  background-color: rgba(33, 150, 243, 0.1);
+  border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.version-type.collaborator .version-icon,
+.version-type.collaborator span {
+  color: #2196f3;
+}
+
 .version-icon {
   opacity: 0.7;
   font-size: 0.9em;
@@ -448,10 +459,6 @@
   border-radius: 4px;
 }
 
-/* Add to History.css */
-.track-changes-section {
-  /* margin-bottom: 1rem; */
-}
 
 .track-changes-section h4 {
   display: flex;
@@ -557,4 +564,17 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+}
+
+/* Add to History.css */
+.spinner-small {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid #fff;
+  border-radius: 50%;
+  animation: history-spin 1s linear infinite;
+  /* margin-right: 8px; */
+  vertical-align: middle;
 }

@@ -29,6 +29,7 @@ function Project() {
   const [dataReady, setDataReady] = useState<boolean>(false);
   const [isEmptyRepo, setIsEmptyRepo] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
+  const [numCommits, setNumCommits] = useState<number>(0);
   const maxRetries = 3;
 
   useEffect(() => {
@@ -46,6 +47,17 @@ function Project() {
         if (!metadataResponse.data || !user) {
           throw new Error("Project not found or not authorized");
         }
+
+
+        // fetch all commits for the project
+        const commitsRes = await axios.get(`http://localhost:3333/api/history/all/${user.username}/${id}`, {
+          withCredentials: true,
+          timeout: 10000
+        });
+
+        setNumCommits(commitsRes.data.history.total);
+      
+        
         
       
 
@@ -299,13 +311,13 @@ function Project() {
                   <FaStar />
                   <span>0</span>
                 </div>
-                <div className="stat-item">
+                {/* <div className="stat-item">
                   <FaCodeBranch />
                   <span>0</span>
-                </div>
-                <div className="stat-item">
+                </div> */}
+                <div className="stat-item pointer" onClick={() => navigate(`/project/${id}/history`)}>
                   <FaHistory />
-                  <span>1 commit</span>
+                  <span>{numCommits} Versions</span>
                 </div>
               </div>
             </div>
