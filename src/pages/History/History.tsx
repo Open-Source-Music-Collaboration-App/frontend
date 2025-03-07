@@ -257,7 +257,7 @@ function History() {
         <div className="track-change">
           {/* <div className="track-number">1</div> */}
           <div className="track-info">
-            <div className="track-name">Orbit Ray</div>
+            <div className="track-name">Placeholder MIDI Track</div>
             {/* <div className="track-detail">
               <span className="change-type modified">Modified</span>
               <span className="duration">2:45</span>
@@ -268,25 +268,12 @@ function History() {
           </div>
         </div>
         
-        <div className="track-change">
-          {/* <div className="track-number">4</div> */}
-          <div className="track-info">
-            <div className="track-name">FM Four Pluck</div>
-            {/* <div className="track-detail">
-              <span className="change-type added">New</span>
-              <span className="duration">3:12</span>
-            </div> */}
-          </div>
-          <div className="track-type midi">
-            MIDI
-          </div>
-        </div>
         
         {index === 0 && (
           <div className="track-change">
             {/* <div className="track-number">8</div> */}
             <div className="track-info">
-              <div className="track-name">Dilla Snare 03</div>
+              <div className="track-name">Placeholder Audio Track</div>
               {/* <div className="track-detail">
                 <span className="change-type added">New</span>
                 <span className="duration">0:45</span>
