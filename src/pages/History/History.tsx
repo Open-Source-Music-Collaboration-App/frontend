@@ -493,23 +493,28 @@ function History() {
               )} */}
 
               <div className="version-actions">
-              <button 
-                className={`version-btn revert-btn ${restoring && restoringVersion === version.hash ? 'restoring' : ''}`}
-                onClick={() => handleRevert(version.hash, getVersionNumber(index, history.history.total))}
-                title="Restore this version"
-                disabled={restoring}
-              >
-                {restoring && restoringVersion === version.hash ? (
-                  <>
-                    <span className="spinner-small"></span> Restoring...
-                  </>
-                ) : (
-                  <>
-                    <FaSave /> Restore Version
-                  </>
-                )}
-              </button>
-                
+              { // Only show restore button if the user is the project owner
+                user?.username === projectOwner &&
+                index !== 0 && // Don't allow restoring the latest version
+                !version.message.toLowerCase().includes('restored to') &&
+                !version.message.toLowerCase().includes('reverted to') && 
+                <button 
+                  className={`version-btn revert-btn ${restoring && restoringVersion === version.hash ? 'restoring' : ''}`}
+                  onClick={() => handleRevert(version.hash, getVersionNumber(index, history.history.total))}
+                  title="Restore this version"
+                  disabled={restoring}
+                >
+                  {restoring && restoringVersion === version.hash ? (
+                    <>
+                      <span className="spinner-small"></span> Restoring...
+                    </>
+                  ) : (
+                    <>
+                      <FaSave /> Restore Version
+                    </>
+                  )}
+                </button>
+            }     
                 <button 
                   id={`download-${version.hash}`}
                   className="version-btn download-btn" 

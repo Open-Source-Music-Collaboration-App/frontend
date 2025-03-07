@@ -129,14 +129,14 @@ function Dashboard() {
                                     <FaStar className="stat-icon" />
                                     <span>0</span>
                                 </div>
-                                <div className="stat-item">
+                                {/* <div className="stat-item">
                                     <FaCodeBranch className="stat-icon" />
                                     <span>0</span>
                                 </div>
                                 <div className="stat-item">
                                     <FaHistory className="stat-icon" />
                                     <span>1 commit</span>
-                                </div>
+                                </div> */}
                             </div>
                         </motion.div>
                     ))}
