@@ -8,7 +8,7 @@ function Login() {
 const { user, logout } = useAuth()
 
   const handleLogin = () => {
-    window.location.href = "http://localhost:3333/auth/github"; // Redirect to GitHub OAuth
+    window.location.href = `http://${window.location.hostname}:3333/auth/github`; // Redirect to GitHub OAuth
   };
 
   const handleLogout = () => {

@@ -19,7 +19,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState<boolean>(true);
   useEffect(() => {
     if (!user) {
-      axios.get("http://localhost:3333/api/me", { withCredentials: true })
+      axios.get(`http://${window.location.hostname}:3333/api/me`, { withCredentials: true })
         .then(resp => {
           setUser(resp.data.user);
         })
@@ -29,7 +29,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
   const logout = () => {
-    axios.get("http://localhost:3333/logout", { withCredentials: true }).then(() => {
+    axios.get(`http://${window.location.hostname}:3333/logout`, { withCredentials: true }).then(() => {
       setUser(null);
       // navigate("/");
     });

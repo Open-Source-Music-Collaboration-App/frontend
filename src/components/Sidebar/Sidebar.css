@@ -9,16 +9,16 @@
     position: fixed;
     /* top: 0; */
     left: 0;
-    background-color: #ffffff1c;
-    margin: 15px;
+    background-color: #fff1;
+    margin: 20px;
     padding: 10px;
     border-radius: 15px;
     backdrop-filter: blur(10px);
-    border: 1px solid #fff1;
+    border: 1px solid #fff2;
     box-shadow: 0px 0px 25px #fff1;
-    margin-top: 90px;
+    margin-top: 100px;
     top: 0;
-    transition: transform 0.4s;
+    transition: transform 0.3s;
 }
 
 .sidebar .top{

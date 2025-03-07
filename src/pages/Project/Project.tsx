@@ -37,7 +37,7 @@ function Project() {
       try {
         // Step 1: Fetch project metadata
         console.log("Fetching project data for project ID:", id);
-        const metadataResponse = await axios.get(`http://localhost:3333/api/projects/${id}`, { 
+        const metadataResponse = await axios.get(`http://${window.location.hostname}:3333/api/projects/${id}`, { 
           withCredentials: true,
           timeout: 10000 // 10 seconds timeout
         });
@@ -50,12 +50,13 @@ function Project() {
 
 
         // fetch all commits for the project
-        const commitsRes = await axios.get(`http://localhost:3333/api/history/all/${user.username}/${id}`, {
+        const commitsRes = await axios.get(`http://${window.location.hostname}:3333/api/history/all/${user.username}/${id}`, {
           withCredentials: true,
           timeout: 10000
         });
 
-        setNumCommits(commitsRes.data.history.total);
+        if(commitsRes.status !== 204)
+          setNumCommits(commitsRes.data.history.total);
       
         
         
@@ -65,7 +66,7 @@ function Project() {
         try {
           console.log("Fetching project content for project ID:", id);
           const contentResponse = await axios.get(
-            `http://localhost:3333/api/history/latest/${user.username}/${id}`, 
+            `http://${window.location.hostname}:3333/api/history/latest/${user.username}/${id}`, 
             { 
               withCredentials: true,
               responseType: 'blob', // Important: we need to get the response as a blob
@@ -219,7 +220,7 @@ function Project() {
       formData.append("jsonData", jsonBlob);
 
       // Upload with progress tracking
-      const response = await axios.post("http://localhost:3333/api/upload", formData, {
+      const response = await axios.post(`http://${window.location.hostname}:3333/api/upload`, formData, {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (progressEvent) => {

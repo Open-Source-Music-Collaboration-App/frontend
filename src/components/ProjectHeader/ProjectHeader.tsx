@@ -51,7 +51,8 @@ function ProjectHeader() {
 
   useEffect(() => {
     if (user && id) {
-      axios.get(`http://localhost:3333/api/projects/${id}`, { withCredentials: true })
+      let domain = window.location.hostname;     
+      axios.get(`http://${domain}:3333/api/projects/${id}`, { withCredentials: true })
         .then(response => {
           console.log("Project data:", response.data);
           setProject(response.data);

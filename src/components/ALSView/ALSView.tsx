@@ -810,25 +810,25 @@ function ALSView({ projectData, trackFiles }: ALSViewProps) {
 
       {/* Content wrapper for timeline + tracks + extended playhead */}
       <div className="als-view-content" ref={contentRef}>
-        {/* The extended playhead line going from timeline down through tracks */}
-        <div
-          className="extended-playhead"
-          style={{
-            left: `calc(200px + ${playheadLeftPercent}% * ${zoom / 100} - ${
-              scrollContainerRef.current?.scrollLeft || 0
-            }px)`,
-          }}
-        />
 
         {/* TIMELINE */}
-        <div className="timeline-scroll-container" ref={scrollContainerRef} onScroll={handleScroll}>
-          <div className="timeline" ref={timelineRef} onClick={handleTimelineClick} style={{ width: `${zoom}%` }}>
-            {renderTimelineMarkers()}
-          </div>
-        </div>
 
         {/* TRACKS */}
         <div className="tracks-scroll-container" onScroll={handleScroll}>
+          {/* <div className="timeline-scroll-container" ref={scrollContainerRef} onScroll={handleScroll}> */}
+            {/* The extended playhead line going from timeline down through tracks */}
+            <div className="timeline" ref={timelineRef} onClick={handleTimelineClick} style={{ width: `calc(${zoom}% - 200px)` }}>
+              {renderTimelineMarkers()}
+              <div
+            className="extended-playhead"
+            style={{
+              left: `calc(${playheadLeftPercent}% * ${zoom / 100} - ${
+                scrollContainerRef.current?.scrollLeft || 0
+              }px)`,
+            }}
+          />
+            </div>
+          {/* </div> */}
           <div className="tracks-container" ref={containerRef} style={{ width: `${zoom}%` }}>
             {projectData.tracks.map((track, trackIndex) => (
               <motion.div
