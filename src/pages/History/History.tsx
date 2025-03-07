@@ -35,12 +35,114 @@ interface HistoryResponse {
   };
 }
 
+interface TrackChange {
+  id: string;
+  name: string;
+  type: string;
+}
+
+interface TrackChanges {
+  added: TrackChange[];
+  modified: TrackChange[];
+  removed: TrackChange[];
+}
+
 function History() {
   const { id } = useParams();
   const { user } = useAuth();
   const [history, setHistory] = useState<HistoryResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const parseTrackChanges = (body: string): TrackChanges | null => {
+    if (!body) return null;
+    
+    const trackChangesMatch = body.match(/Track-Changes: (\{.*\})/);
+    if (!trackChangesMatch || !trackChangesMatch[1]) return null;
+    
+    try {
+      return JSON.parse(trackChangesMatch[1]);
+    } catch (e) {
+      console.error("Failed to parse track changes:", e);
+      return null;
+    }
+  };
+
+  const renderTrackChanges = (version: Version) => {
+    const trackChanges = parseTrackChanges(version.body);
+    
+    if (!trackChanges) return null;
+    
+    const hasChanges = trackChanges.added.length > 0 || 
+                      trackChanges.modified.length > 0 || 
+                      trackChanges.removed.length > 0;
+    
+    if (!hasChanges) return null;
+    
+    return (
+      <div className="version-tracks">
+        {trackChanges.added.length > 0 && (
+          <div className="track-changes-section">
+            <h4>
+              <FaPlus className="change-icon added" /> Added ({trackChanges.added.length})
+            </h4>
+            <div className="tracks-timeline">
+              {trackChanges.added.map((track) => (
+                <div key={track.id} className="track-change">
+                  <div className="track-info">
+                    <div className="track-name">{track.name}</div>
+                  </div>
+                  <div className={`track-type ${track.type.toLowerCase().includes('midi') ? 'midi' : 'audio'}`}>
+                    {track.type.toLowerCase().includes('midi') ? 'MIDI' : 'AUDIO'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {trackChanges.modified.length > 0 && (
+          <div className="track-changes-section">
+            <h4>
+              <FaEdit className="change-icon modified" /> Modified ({trackChanges.modified.length})
+            </h4>
+            <div className="tracks-timeline">
+              {trackChanges.modified.map((track) => (
+                <div key={track.id} className="track-change">
+                  <div className="track-info">
+                    <div className="track-name">{track.name}</div>
+                  </div>
+                  <div className={`track-type ${track.type.toLowerCase().includes('midi') ? 'midi' : 'audio'}`}>
+                    {track.type.toLowerCase().includes('midi') ? 'MIDI' : 'AUDIO'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {trackChanges.removed.length > 0 && (
+          <div className="track-changes-section">
+            <h4>
+              <FaMinus className="change-icon deleted" /> Removed ({trackChanges.removed.length})
+            </h4>
+            <div className="tracks-timeline">
+              {trackChanges.removed.map((track) => (
+                <div key={track.id} className="track-change">
+                  <div className="track-info">
+                    <div className="track-name">{track.name}</div>
+                  </div>
+                  <div className={`track-type ${track.type.toLowerCase().includes('midi') ? 'midi' : 'audio'}`}>
+                    {track.type.toLowerCase().includes('midi') ? 'MIDI' : 'AUDIO'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // Placeholder file changes for each version - to be replaced with actual API data later
   const getPlaceholderFileChanges = (hash: string, index: number): FileChange[] => {
@@ -226,73 +328,20 @@ function History() {
               {/* File changes section */}
               {/* Track changes section */}
 
-<div className="version-tracks">
-  <h4>
-    Modified:
-  </h4>
-  <div className="tracks-timeline">
-    {version.tracks && version.tracks.map((track, trackIndex) => (
-      <div key={trackIndex} className="track-change">
-        <div className="track-number">{track.number}</div>
-        <div className="track-info">
-          <div className="track-name">{track.name}</div>
-          {/* <div className="track-detail">
-            <span className={`change-type ${track.changeType}`}>
-              {track.changeType === 'modified' ? 'Modified' : track.changeType === 'added' ? 'New' : 'Removed'}
-            </span>
-            {track.duration && <span className="duration">{track.duration}</span>}
-          </div> */}
-        </div>
-        <div className={`track-type ${track.type}`}>
-          {track.type === 'midi' && <FaMusic size={10} />}
-          {track.type === 'audio' && <FaFileAudio size={10} />}
-          {track.type === 'automation' && <FaSliders size={10} />}
-        </div>
-      </div>
-    ))}
-    
-    {/* For demo/placeholder purposes since the backend doesn't provide track data yet */}
-    {!version.tracks && (
-      <>
-        <div className="track-change">
-          {/* <div className="track-number">1</div> */}
-          <div className="track-info">
-            <div className="track-name">Placeholder MIDI Track</div>
-            {/* <div className="track-detail">
-              <span className="change-type modified">Modified</span>
-              <span className="duration">2:45</span>
-            </div> */}
-          </div>
-          <div className="track-type midi">
-            MIDI
-          </div>
-        </div>
-        
-        
-        {index === 0 && (
-          <div className="track-change">
-            {/* <div className="track-number">8</div> */}
-            <div className="track-info">
-              <div className="track-name">Placeholder Audio Track</div>
-              {/* <div className="track-detail">
-                <span className="change-type added">New</span>
-                <span className="duration">0:45</span>
-              </div> */}
-            </div>
-            <div className="track-type audio">
-              AUDIO
-            </div>
-          </div>
-        )}
-      </>
-    )}
-  </div>
-</div>
-              {version.body && (
+              {renderTrackChanges(version) || (
+                <div className="version-tracks">
+                  <h4>Track Changes</h4>
+                  <div className="track-changes-empty">
+                    <FaMusic className="empty-tracks-icon" />
+                    <p>No track changes information available for this version.</p>
+                  </div>
+                </div>
+              )}
+              {/* {version.body && (
                 <div className="version-body">
                   {version.body}
                 </div>
-              )}
+              )} */}
 
               <div className="version-actions">
                 <button 

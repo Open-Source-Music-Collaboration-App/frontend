@@ -448,6 +448,51 @@
   border-radius: 4px;
 }
 
+/* Add to History.css */
+.track-changes-section {
+  /* margin-bottom: 1rem; */
+}
+
+.track-changes-section h4 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #e0e0e0;
+}
+
+.track-changes-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0,0,0,0.1);
+  border-radius: 6px;
+}
+
+.empty-tracks-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.5;
+}
+
+.change-icon {
+  margin-right: 0.5rem;
+}
+
+.change-icon.added {
+  color: #4caf50;
+}
+
+.change-icon.modified {
+  color: #2196f3;
+}
+
+.change-icon.deleted {
+  color: #f44336;
+}
+
 
 @keyframes history-spin {
   0% { transform: rotate(0deg); }
