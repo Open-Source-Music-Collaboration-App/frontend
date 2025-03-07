@@ -13,7 +13,7 @@
 
 .als-view-header {
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   align-items: center;
   padding: 15px 20px;
   background-color: rgba(255, 255, 255, 0.05);
@@ -28,7 +28,7 @@
 
 .project-info h2 {
   font-size: 1.5rem;
-  text-transform: capitalize;
+  /* text-transform: capitalize; */
   font-weight: 600;
   margin: 0;
   text-shadow: 0px 0px 10px rgba(147, 0, 215, 0.5);
@@ -44,6 +44,8 @@
   display: flex;
   align-items: center;
   gap: 15px;
+  width: 100%;
+  justify-content: flex-end;
 }
 
 .transport-btn {
@@ -444,4 +446,75 @@
   height: 10px;
   background-color: #9300D7;
   border-radius: 50%;
+}
+
+.tempo-display {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-self: flex-start;
+  background: linear-gradient(135deg, rgba(147, 0, 215, 0.15), rgba(147, 0, 215, 0.3));
+  border: 1px solid rgba(147, 0, 215, 0.4);
+  border-radius: 5px;
+  padding: 6px 14px;
+  box-shadow: 0 4px 15px rgba(147, 0, 215, 0.2), inset 0 0 20px rgba(147, 0, 215, 0.05);
+  margin: 0 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.tempo-display:hover {
+  box-shadow: 0 6px 20px rgba(147, 0, 215, 0.3), inset 0 0 25px rgba(147, 0, 215, 0.1);
+  transform: translateY(-2px);
+}
+
+.tempo-display::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tempo-display:hover::after {
+  opacity: 1;
+}
+
+.tempo {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  color: #fffe;
+  /* margin-right:6px; */
+  text-shadow: 0 0 10px rgba(147, 0, 215, 0.7);
+}
+
+.bpm {
+  font-size: 0.5rem;
+  font-weight: 400;
+  color: #fff8;
+  border-radius: 8px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+
+.beat-icon {
+  display: none;
+  margin-right: 12px;
+  color: rgba(147, 0, 215, 0.7);
+  filter: drop-shadow(0 0 3px rgba(147, 0, 215, 0.5));
+  animation: pulse 1.2s infinite;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pulse {
+  /* 0% { transform: scale(1); opacity: 0.7; } */
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.5; }
 }

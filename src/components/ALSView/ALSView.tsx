@@ -696,8 +696,18 @@ function ALSView({ projectData, trackFiles }: ALSViewProps) {
     <div className="als-view-container">
       <div className="als-view-header">
         <div className="project-info">
-          <h2>{projectData.project.toUpperCase()} Project</h2>
+          <h2>{projectData.project}.als</h2>
           <div className="tracks-count">{projectData.tracks.length} tracks</div>
+        </div>
+        <div className="tempo-display" style = {{
+            animation: `${isPlaying ? "pulse " + (60/tempo) + "s infinite" : "none"}`,
+            animationTimingFunction: "linear"
+          }}>
+          <svg className="beat-icon" width="18" height="18" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M3,12H6V19H9V12H12V19H15V12H18V19H21V12H24V9H21V2H18V9H15V2H12V9H9V2H6V9H3V12Z" />
+          </svg>
+          <span className="tempo">{Math.round(tempo)}</span>
+          <span className="bpm">Tempo</span>
         </div>
 
         <div className="transport-controls">
