@@ -1,3 +1,10 @@
+/**
+ * @file History.tsx
+ * @description Project version history component that displays a timeline of project versions.
+ * This component allows users to view commit history, compare versions, restore previous versions,
+ * and download files from specific versions of their music projects.
+ */
+
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthProvider';
@@ -8,9 +15,19 @@ import {
   FaArrowLeft, FaDownload, FaFileAlt, FaFileAudio, 
   FaFileCode, FaPlus, FaMinus, FaEdit, FaUserFriends } from 'react-icons/fa';
 import './History.css';
-import JSZip from 'jszip';
 
-
+/**
+ * @interface Version
+ * @description Defines the structure of a single commit/version in the project history.
+ * 
+ * @property {string} hash - Unique identifier/hash for the commit
+ * @property {string} date - Timestamp when the commit was created
+ * @property {string} message - Commit message describing the changes
+ * @property {string} refs - Reference information (branches, tags)
+ * @property {string} body - Additional commit information including track changes
+ * @property {string} author_name - Name of the user who created the commit
+ * @property {string} author_email - Email of the user who created the commit
+ */
 interface Version {
   hash: string;
   date: string;
@@ -21,12 +38,31 @@ interface Version {
   author_email: string;
 }
 
+/**
+ * @interface FileChange
+ * @description Defines the structure of a file change in a version.
+ * 
+ * @property {string} name - Name of the file that was changed
+ * @property {string} type - Type of change: "added", "modified", or "deleted"
+ * @property {string} fileType - File extension/type: "als", "wav", "json", etc.
+ */
 interface FileChange {
   name: string;
   type: string; // "added", "modified", "deleted"
   fileType: string; // "als", "wav", "json", etc.
 }
 
+/**
+ * @interface HistoryResponse
+ * @description Defines the structure of the API response for project history.
+ * 
+ * @property {string} projectId - ID of the project
+ * @property {string} userId - ID of the project owner
+ * @property {object} history - Object containing version history data
+ * @property {Version[]} history.all - Array of all versions
+ * @property {Version} history.latest - Latest version of the project
+ * @property {number} history.total - Total number of versions
+ */
 interface HistoryResponse {
   projectId: string;
   userId: string;
@@ -37,32 +73,109 @@ interface HistoryResponse {
   };
 }
 
+/**
+ * @interface TrackChange
+ * @description Defines the structure of a track change in a version.
+ * 
+ * @property {string} id - Unique identifier for the track
+ * @property {string} name - Name of the track
+ * @property {string} type - Type of the track (audio, MIDI, etc.)
+ */
 interface TrackChange {
   id: string;
   name: string;
   type: string;
 }
 
+/**
+ * @interface TrackChanges
+ * @description Defines the structure of track changes in a version.
+ * 
+ * @property {TrackChange[]} added - Array of tracks that were added
+ * @property {TrackChange[]} modified - Array of tracks that were modified
+ * @property {TrackChange[]} removed - Array of tracks that were removed
+ */
 interface TrackChanges {
   added: TrackChange[];
   modified: TrackChange[];
   removed: TrackChange[];
 }
 
+/**
+ * @function History
+ * @description Component that displays the version history of a project with the ability
+ * to restore to previous versions and download version files.
+ * 
+ * @returns {JSX.Element} The rendered history component
+ */
 function History() {
+  /**
+   * @hook useParams
+   * @description Hook to access URL parameters, used to get the project ID
+   */
   const { id } = useParams();
+  
+  /**
+   * @hook useAuth
+   * @description Hook to access authentication context and user information
+   */
   const { user } = useAuth();
+  
+  /**
+   * @state history
+   * @description State that stores the project history data from the API
+   */
   const [history, setHistory] = useState<HistoryResponse | null>(null);
+  
+  /**
+   * @state loading
+   * @description State that tracks whether history data is currently being loaded
+   */
   const [loading, setLoading] = useState<boolean>(true);
+  
+  /**
+   * @state error
+   * @description State that stores any error message that occurs during data fetching
+   */
   const [error, setError] = useState<string | null>(null);
+  
+  /**
+   * @state projectOwner
+   * @description State that stores the username of the project owner
+   */
   const [projectOwner, setProjectOwner] = useState<string>("");
+  
+  /**
+   * @state restoring
+   * @description State that tracks whether a version restore operation is in progress
+   */
   const [restoring, setRestoring] = useState<boolean>(false);
+  
+  /**
+   * @state restoringVersion
+   * @description State that stores the hash of the version being restored
+   */
   const [restoringVersion, setRestoringVersion] = useState<string | null>(null);
+  
+  /**
+   * @state restoreError
+   * @description State that stores any error message during version restoration
+   */
   const [restoreError, setRestoreError] = useState<string | null>(null);
+  
+  /**
+   * @state restoreSuccess
+   * @description State that stores success message after a successful restore
+   */
   const [restoreSuccess, setRestoreSuccess] = useState<string | null>(null);
 
-
-
+  /**
+   * @function parseTrackChanges
+   * @description Parses track changes from the commit body string
+   * 
+   * @param {string} body - The commit body text containing track changes JSON
+   * @returns {TrackChanges | null} Parsed track changes or null if not available
+   */
   const parseTrackChanges = (body: string): TrackChanges | null => {
     if (!body) return null;
     
@@ -77,6 +190,13 @@ function History() {
     }
   };
 
+  /**
+   * @function renderTrackChanges
+   * @description Renders UI elements showing track changes for a version
+   * 
+   * @param {Version} version - The version object containing track changes
+   * @returns {JSX.Element | null} Track changes UI or null if no changes
+   */
   const renderTrackChanges = (version: Version) => {
     const trackChanges = parseTrackChanges(version.body);
     
@@ -153,7 +273,14 @@ function History() {
     );
   };
 
-  // Placeholder file changes for each version - to be replaced with actual API data later
+  /**
+   * @function getPlaceholderFileChanges
+   * @description Generates placeholder file changes for display purposes
+   * 
+   * @param {string} hash - Version hash used for deterministic generation
+   * @param {number} index - Version index in the history
+   * @returns {FileChange[]} Array of file changes
+   */
   const getPlaceholderFileChanges = (hash: string, index: number): FileChange[] => {
     // Generate some placeholder file changes based on hash and index for variety
     const changes: FileChange[] = [];
@@ -179,6 +306,13 @@ function History() {
     return changes;
   };
 
+  /**
+   * @hook useEffect
+   * @description Effect hook that fetches project history data when the component mounts
+   * 
+   * @dependency id - Project ID from URL parameters
+   * @dependency user - Current authenticated user
+   */
   useEffect(() => {
     if (user && id) {
       setLoading(true);
@@ -205,6 +339,13 @@ function History() {
     }
   }, [id, user]);
 
+  /**
+   * @function formatDate
+   * @description Formats a date string into a user-friendly format
+   * 
+   * @param {string} dateString - ISO date string to format
+   * @returns {string} Formatted date string
+   */
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('en-US', {
@@ -216,11 +357,27 @@ function History() {
     }).format(date);
   };
 
+  /**
+   * @function getVersionNumber
+   * @description Generates a user-friendly version number based on index and total count
+   * 
+   * @param {number} index - Index of the version in the array
+   * @param {number} total - Total number of versions
+   * @returns {string} Version number in format "vX"
+   */
   const getVersionNumber = (index: number, total: number) => {
     // Show versions in reverse order (newest first)
     return `v${total - index}`;
   };
 
+  /**
+   * @function handleRevert
+   * @description Handles the restoration of a project to a previous version
+   * 
+   * @param {string} versionHash - Hash of the version to restore
+   * @param {string} versionNumber - User-friendly version number for display
+   * @returns {Promise<void>}
+   */
   const handleRevert = async (versionHash: string, versionNumber: string) => {
     // Show confirmation dialog
     const confirmRestore = window.confirm(
@@ -284,6 +441,13 @@ function History() {
     }
   };
 
+  /**
+   * @function handleDownload
+   * @description Initiates download of files from a specific version
+   * 
+   * @param {Version} version - Version object containing file information
+   * @returns {Promise<void>}
+   */
   const handleDownload = async (version: Version) => {
     try {
       // Show loading indicator or disable button during download
@@ -339,6 +503,13 @@ function History() {
     }
   };
 
+  /**
+   * @function getFileIcon
+   * @description Returns the appropriate icon component based on file type
+   * 
+   * @param {string} fileType - Type/extension of the file
+   * @returns {JSX.Element} Icon component for the file type
+   */
   const getFileIcon = (fileType: string) => {
     switch(fileType) {
       case 'als':
@@ -350,6 +521,13 @@ function History() {
     }
   };
 
+  /**
+   * @function getChangeIcon
+   * @description Returns the appropriate icon component based on change type
+   * 
+   * @param {string} changeType - Type of change (added, deleted, modified)
+   * @returns {JSX.Element} Icon component for the change type
+   */
   const getChangeIcon = (changeType: string) => {
     switch(changeType) {
       case 'added':
@@ -361,6 +539,7 @@ function History() {
     }
   };
 
+  // Conditional rendering based on loading and error states
   if (loading) {
     return (
       <div className="history-loading">
@@ -381,6 +560,7 @@ function History() {
     );
   }
 
+  // Main component render
   return (
     <motion.div
       className="history-container"

@@ -1,3 +1,9 @@
+/**
+ * @file Dashboard.tsx
+ * @description Dashboard component that displays a list of user projects with search and filtering capabilities.
+ * This is the main landing page after authentication where users can view, search, and create projects.
+ */
+
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useAuth } from "../../context/AuthProvider";
@@ -6,8 +12,26 @@ import { useNavigate } from "react-router-dom";
 import { FaPlus, FaStar, FaHistory, FaCodeBranch, FaSearch } from "react-icons/fa";
 import { motion } from "framer-motion";
 
+/**
+ * @function Dashboard
+ * @description Main dashboard component that presents the user's projects in a grid layout.
+ * Provides functionality for searching projects, creating new projects, and navigating to existing ones.
+ * 
+ * @returns {JSX.Element} The rendered dashboard interface
+ */
 function Dashboard() {
     const { user } = useAuth();
+    
+    /**
+     * @interface Project
+     * @description Defines the structure of project data retrieved from the API.
+     * 
+     * @property {string} id - Unique identifier for the project
+     * @property {string} title - The name/title of the project
+     * @property {string} created_by - ID of the user who created the project
+     * @property {string} updated_at - ISO timestamp of when the project was last updated
+     * @property {string[]} [hashtags] - Optional array of hashtags associated with the project
+     */
     interface Project {
         id: string;
         title: string;
@@ -16,12 +40,43 @@ function Dashboard() {
         hashtags?: string[];
     }
 
+    /**
+     * @state projects
+     * @description State that stores the list of user projects
+     */
     const [projects, setProjects] = useState<Project[]>([]);
+    
+    /**
+     * @state loading
+     * @description State that tracks whether projects are currently being fetched
+     */
     const [loading, setLoading] = useState<boolean>(true);
+    
+    /**
+     * @state searchTerm
+     * @description State that stores the current search query for filtering projects
+     */
     const [searchTerm, setSearchTerm] = useState<string>("");
+    
+    /**
+     * @ref hasFetchedProjects
+     * @description Reference to track whether projects have already been fetched to prevent duplicate requests
+     */
     const hasFetchedProjects = useRef(false);
+    
+    /**
+     * @hook navigate
+     * @description Hook for programmatic navigation between routes
+     */
     const navigate = useNavigate();
 
+    /**
+     * @hook useEffect
+     * @description Effect hook that fetches user's projects when the component mounts.
+     * Uses a ref to prevent duplicate API calls on re-renders.
+     * 
+     * @dependency user - Re-runs when the user object changes
+     */
     useEffect(() => {
         if (user && !hasFetchedProjects.current) {
             console.log("Fetching projects for user:", user);
@@ -33,10 +88,23 @@ function Dashboard() {
         }
     }, [user]);
 
+    /**
+     * @function handleCreateProject
+     * @description Navigates to the new project creation page
+     * 
+     * @returns {void}
+     */
     const handleCreateProject = () => {
         navigate("/new-project");
     };
 
+    /**
+     * @computed filteredProjects
+     * @description Filters the projects array based on the current search term.
+     * Matches against project titles and hashtags.
+     * 
+     * @returns {Project[]} Filtered list of projects
+     */
     const filteredProjects = searchTerm 
         ? projects.filter(project => 
             project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

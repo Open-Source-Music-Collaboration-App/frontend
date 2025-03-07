@@ -1,8 +1,35 @@
-import { useState, useEffect, useRef } from "react";
-import "./ALSView.css";
-import { FaPlay, FaPause, FaStepBackward, FaSearchMinus, FaSearchPlus } from "react-icons/fa";
-import { motion } from "framer-motion";
+/**
+ * ALSView.tsx
+ * 
+ * A simple Ableton Live Set (ALS) viewer component that displays MIDI and audio tracks
+ * with a timeline. It supports playback synchronization and basic track controls.
+ * 
+ * This component is meant to be used with a parent component that fetches the ALS file,
+ * audio files, and JSON-formatted project data. 
+ * 
+ * TODO:
+ * - Fix playhead position, its not accurate and gets increasingly less accurate as time goes on
+ * - Show audio waveform for audio tracks
+ * - Render automation data
+ * - Plugin support
+ * - Track color coding
+ */
 
+import { useState, useEffect, useRef } from "react"; // React hooks
+import "./ALSView.css";
+import { FaPlay, FaPause, FaStepBackward, FaSearchMinus, FaSearchPlus } from "react-icons/fa"; // Icons for controls
+import { motion } from "framer-motion"; // Animation library
+
+
+
+
+// -------------------------------------------------
+// TYPES
+// -------------------------------------------------
+
+/**
+ * Project data structure
+ */
 interface Note {
   key: { Value: string };
   num_occurences: number;
@@ -30,6 +57,7 @@ interface Event {
   audio_file?: string;
 }
 
+
 interface Track {
   type: "MidiTrack" | "AudioTrack";
   id: string;
@@ -48,18 +76,42 @@ interface ProjectData {
   tracks: Track[];
 }
 
+
+/**
+ * ALSViewProps
+ * 
+ * Props for the ALSView component
+ */
 interface ALSViewProps {
   projectData: ProjectData;
   trackFiles: {[key: string]: string};
 }
 
 /**
- * ALSView
- *
+ * ALSView Component
+ * 
+ * This component visualizes an Ableton Live Set (ALS) with MIDI and audio tracks.
+ * It provides basic playback functionality with transport controls and track
+ * management (mute/solo).
+ * 
+ * Features:
+ * - Timeline visualization with measure markers
+ * - MIDI note visualization with velocity-based opacity
+ * - Audio track playback synchronization
+ * - Mute/Solo functionality for individual tracks
+ * - Zoom controls for timeline
+ * - Responsive playhead that follows current playback position
+ * 
+ * Props:
+ * - projectData: Contains all track information, tempo, and MIDI note data
+ * - trackFiles: Mapping of audio filenames to blob URLs for playback
+ * 
  * Height of MIDI notes depends on the entire track's note range (not velocity),
  * while velocity only affects opacity. The timeline is in beats, with optional
  * measure-based markers. Audio and timeline are synced: if the playhead moves
  * too fast, ensure we only update currentBeat in one place (the animation loop).
+ * 
+ * @component
  */
 function ALSView({ projectData, trackFiles }: ALSViewProps) {
   // --------------------- STATE ---------------------
