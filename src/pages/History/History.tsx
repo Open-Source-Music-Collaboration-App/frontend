@@ -56,6 +56,11 @@ function History() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [projectOwner, setProjectOwner] = useState<string>("");
+  const [restoring, setRestoring] = useState<boolean>(false);
+  const [restoringVersion, setRestoringVersion] = useState<string | null>(null);
+  const [restoreError, setRestoreError] = useState<string | null>(null);
+  const [restoreSuccess, setRestoreSuccess] = useState<string | null>(null);
+
 
 
   const parseTrackChanges = (body: string): TrackChanges | null => {
@@ -216,9 +221,67 @@ function History() {
     return `v${total - index}`;
   };
 
-  const handleRevert = (versionHash: string) => {
-    // Implementation for reverting to a specific version would go here
-    alert(`Revert to version with ID: ${versionHash} - Feature coming soon!`);
+  const handleRevert = async (versionHash: string, versionNumber: string) => {
+    // Show confirmation dialog
+    const confirmRestore = window.confirm(
+      `Are you sure you want to restore to version ${versionNumber}? This will create a new version with these files as the current state.`
+    );
+    
+    if (!confirmRestore) return;
+    
+    // Set loading state
+    setRestoring(true);
+    setRestoringVersion(versionHash);
+    setRestoreError(null);
+    
+    try {
+      // Call the API endpoint to restore this version
+      const response = await axios.post(
+        `http://localhost:3333/api/history/restore/${user?.username}/${id}/${versionHash}`,
+        {
+          message: `Restored to ${versionNumber}`
+        },
+        { 
+          withCredentials: true,
+          timeout: 60000 // 60 seconds timeout for potentially large operations
+        }
+      );
+      
+      // Handle success
+      setRestoreSuccess(`Successfully restored to ${versionNumber}. A new version has been created.`);
+      
+      // Refresh history data after a short delay
+      setTimeout(() => {
+        // Refetch history to show the new restoration commit
+        axios.get(`http://localhost:3333/api/history/all/${user?.username}/${id}`, {
+          withCredentials: true
+        })
+          .then(response => {
+            setHistory(response.data);
+            
+            if (response.data.history.all.length > 0) {
+              const commits = response.data.history.all;
+              const oldestCommit = commits[commits.length - 1];
+              setProjectOwner(oldestCommit.author_name);
+            }
+          })
+          .catch(error => {
+            console.error('Error refreshing history:', error);
+          })
+          .finally(() => {
+            // Clear success message after refresh
+            setTimeout(() => setRestoreSuccess(null), 3000);
+          });
+      }, 1500);
+      
+    } catch (error) {
+      console.error("Error restoring version:", error);
+      setRestoreError("Failed to restore version. Please try again.");
+      setTimeout(() => setRestoreError(null), 5000);
+    } finally {
+      setRestoring(false);
+      setRestoringVersion(null);
+    }
   };
 
   const handleDownload = async (version: Version) => {
@@ -349,6 +412,18 @@ function History() {
         <p>Each time you save your project, a new version is created. You can revert to any previous version or download files from past versions.</p>
       </div>
 
+      {restoreSuccess && (
+        <div className="restore-success-message">
+          <span className="success-icon">✓</span> {restoreSuccess}
+        </div>
+      )}
+
+      {restoreError && (
+        <div className="restore-error-message">
+          <span className="error-icon">!</span> {restoreError}
+        </div>
+      )}
+
       <div className="history-timeline">
         {history?.history.all.map((version, index) => {
           // const fileChanges = getPlaceholderFileChanges(version.hash, index);
@@ -367,7 +442,15 @@ function History() {
               </div>
               
               <div className="version-header">
-                <div className="version-message">{version.message}</div>
+              <div className="version-message">
+                {version.message}
+                {version.message.toLowerCase().includes('restored to') && (
+                  <span className="version-restored-badge">
+                    <FaHistory className="restore-icon" />
+                    Restoration
+                  </span>
+                )}
+              </div>
                 <div className="version-date">
                   <FaCalendarAlt className="version-icon" />
                   {formatDate(version.date)}
@@ -410,13 +493,22 @@ function History() {
               )} */}
 
               <div className="version-actions">
-                <button 
-                  className="version-btn revert-btn" 
-                  onClick={() => handleRevert(version.hash)}
-                  title="Restore this version"
-                >
-                  <FaSave /> Restore Version
-                </button>
+              <button 
+                className={`version-btn revert-btn ${restoring && restoringVersion === version.hash ? 'restoring' : ''}`}
+                onClick={() => handleRevert(version.hash, getVersionNumber(index, history.history.total))}
+                title="Restore this version"
+                disabled={restoring}
+              >
+                {restoring && restoringVersion === version.hash ? (
+                  <>
+                    <span className="spinner-small"></span> Restoring...
+                  </>
+                ) : (
+                  <>
+                    <FaSave /> Restore Version
+                  </>
+                )}
+              </button>
                 
                 <button 
                   id={`download-${version.hash}`}

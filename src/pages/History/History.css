@@ -578,3 +578,86 @@
   /* margin-right: 8px; */
   vertical-align: middle;
 }
+
+/* Add to History.css */
+.restore-success-message,
+.restore-error-message {
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: fadeInOut 5s forwards;
+}
+
+.restore-success-message {
+  background-color: rgba(71, 187, 95, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(71, 187, 95, 0.3);
+  color: rgba(71, 187, 95, 0.9);
+  box-shadow: 0 5px 15px rgba(71, 187, 95, 0.1);
+}
+
+.restore-error-message {
+  background-color: rgba(255, 82, 82, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 82, 82, 0.3);
+  color: rgba(255, 82, 82, 0.9);
+  box-shadow: 0 5px 15px rgba(255, 82, 82, 0.1);
+}
+
+.success-icon,
+.error-icon {
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.success-icon {
+  background-color: rgba(71, 187, 95, 0.2);
+  border: 1px solid rgba(71, 187, 95, 0.4);
+}
+
+.error-icon {
+  background-color: rgba(255, 82, 82, 0.2);
+  border: 1px solid rgba(255, 82, 82, 0.4);
+}
+
+.version-btn.restoring {
+  background: rgba(147, 0, 215, 0.1);
+  cursor: progress;
+}
+
+/* And modify your version-restored-badge to highlight restoration commits */
+.version-restored-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background-color: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 16px;
+  margin-left: 10px;
+  font-size: 0.7rem;
+  color: #4caf50;
+  vertical-align: middle;
+}
+
+.restore-icon {
+  font-size: 0.7rem;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(-10px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(10px); }
+}
