@@ -444,12 +444,6 @@ function History() {
               <div className="version-header">
               <div className="version-message">
                 {version.message}
-                {version.message.toLowerCase().includes('restored to') && (
-                  <span className="version-restored-badge">
-                    <FaHistory className="restore-icon" />
-                    Restoration
-                  </span>
-                )}
               </div>
                 <div className="version-date">
                   <FaCalendarAlt className="version-icon" />
@@ -463,13 +457,21 @@ function History() {
                   <span>{version.author_name}</span>
                 </div>
                 
-                <div className={`version-type ${isCollaborator ? 'collaborator' : ''}`}>
+                <div className={`version-type ${isCollaborator ? 'collaborator' : version.message.toLowerCase().includes('restored to') || version.message.toLowerCase().includes('reverted to') ? 'restored' : 'update'}`}>
                   {isCollaborator ? 
                     <FaUserFriends className="version-icon" /> : 
-                    <FaMusic className="version-icon" />
+                    version.message.toLowerCase().includes('restored to') || version.message.toLowerCase().includes('reverted to')
+                      ? <FaHistory className="version-icon" />
+                      : <FaMusic className="version-icon" />
                   }
                   <span>
-                    {isCollaborator ? 'Collaborator Update' : 'Project Update'}
+                  {
+                    isCollaborator
+                      ? 'Collaborator Update'
+                      : version.message.toLowerCase().includes('restored to') || version.message.toLowerCase().includes('reverted to')
+                        ? 'Restoration'
+                        : 'Project Update'
+                  }
                   </span>
                 </div>
               </div>

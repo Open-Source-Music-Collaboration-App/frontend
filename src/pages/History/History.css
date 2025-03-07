@@ -208,6 +208,17 @@
   color: #2196f3;
 }
 
+.version-type.restored
+{
+  background-color: #4caf5033;
+  border: 1px solid #4caf504e;
+}
+
+.version-type.restored .version-icon,
+.version-type.restored span {
+  color: #4caf50;
+}
+
 .version-icon {
   opacity: 0.7;
   font-size: 0.9em;
