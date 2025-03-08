@@ -103,18 +103,6 @@
   transform-origin: left;
 }
 
-/* Button text & image transitions */
-.project-header .btn-container .header-btn span {
-  transition: transform 0.3s ease, font-weight 0.3s ease, text-shadow 0.3s ease;
-}
-.project-header .btn-container .header-btn img {
-  width: 17px;
-  height: 17px;
-  filter: brightness(0) invert(1);
-  opacity: 0.6;
-  transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
-}
-
 /*Hover Effect Glows White */
 .project-header .btn-container .header-btn:hover {
   opacity: 1;
@@ -124,10 +112,7 @@
   width: 45%;
   opacity: 1;
 }
-.project-header .btn-container .header-btn:hover img {
-  opacity: 1;
-  filter: brightness(2) drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
-}
+
 .project-header .btn-container .header-btn:hover span {
   text-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
 }
@@ -158,9 +143,7 @@
   filter: brightness(0) invert(1);
   opacity: 0.8;
 }
-.project-header .btn-container .header-btn:hover .history-icon {
-  opacity: 1;
-}
+
 
 /* Fade in the entire button container */
 @keyframes tabFadeIn {
