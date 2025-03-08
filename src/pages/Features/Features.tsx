@@ -11,18 +11,23 @@ import {
   FaFilter, FaSort, FaEllipsisV, FaInfoCircle
 } from "react-icons/fa";
 
+import Comments from '../../components/Comments/Comments';
+
 import featuresicon from '../../assets/plus-circle-svgrepo-com.svg';
 
 interface Feature {
   id: number;
-  title: string;
+  project_id: string;
+  author_id: string;
+  message: string;
   description: string;
   label: string;
-  author: string;
-  date: string;
-  status: "open" | "closed";
-  priority?: "low" | "medium" | "high";
-  votes?: number;
+  open: boolean;
+  created_at: string;
+  updated_at: string;
+  author?: string; // For display purposes
+  votes?: number; // For future implementation
+  priority?: "low" | "medium" | "high"; // For future implementation
 }
 
 const FEATURE_CATEGORIES = [
@@ -59,6 +64,8 @@ function Features() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
   const [showFeatureDetails, setShowFeatureDetails] = useState(false);
+  const [loadingFeatures, setLoadingFeatures] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // Form states
   const [newTitle, setNewTitle] = useState("");
@@ -66,57 +73,42 @@ function Features() {
   const [selectedLabel, setSelectedLabel] = useState(FEATURE_CATEGORIES[0].name);
   const [selectedPriority, setSelectedPriority] = useState<"low" | "medium" | "high">("medium");
 
+  // Fetch features from the backend
   useEffect(() => {
     if (!user || !id) return;
+    
+    const fetchFeatures = async () => {
+      setLoadingFeatures(true);
+      setError(null);
+      
+      try {
+        const response = await axios.get(
+          `http://${window.location.hostname}:3333/api/features/project/${id}`,
+          { withCredentials: true }
+        );
+        
+        // Process the data to fit our interface
+        const fetchedFeatures = response.data.map(feature => ({
+          ...feature,
+          author: feature.User.name,
+          status: feature.open ? "open" : "closed", // Map 'open' boolean to status string for UI
+          title: feature.message, // Map message field to title for UI
+          date: feature.created_at, // Use created_at as date for sorting/display
+          // Default values for future implementation
+          votes: feature.votes || 0,
+          priority: feature.priority || "medium"
+        }));
+        
+        setFeatures(fetchedFeatures);
+      } catch (err) {
+        console.error("Failed to fetch features:", err);
+        setError("Failed to load features. Please try again.");
+      } finally {
+        setLoadingFeatures(false);
+      }
+    };
 
-    // Simulated data with expanded properties
-    const fakeFeatures: Feature[] = [
-      {
-        id: 1,
-        title: "Enhance drums & create variations",
-        description: "Need additional percussions and snare rolls for the second verse. The current drum pattern is too repetitive and doesn't have enough energy for the chorus sections.",
-        label: "Instrumental Layer",
-        author: user?.username || "Kanye West",
-        date: "2025-02-01",
-        status: "open",
-        priority: "high",
-        votes: 5
-      },
-      {
-        id: 2,
-        title: "Add ambiance - make it more bright",
-        description: "Layer some ethereal pads to fill the gaps. The track feels too dry and needs more atmosphere, especially in the intro and outro sections.",
-        label: "Sound Design",
-        author: "Travis Scott",
-        date: "2025-02-05", 
-        status: "open",
-        priority: "medium",
-        votes: 3
-      },
-      {
-        id: 3,
-        title: "Tweak Autotune on vocals",
-        description: "Need a natural but processed autotune effect on the lead vocals. Currently, it's either too robotic or too natural - we need to find a middle ground.",
-        label: "Autotune / Pitch Correction",
-        author: "Lil aki",
-        date: "2025-02-12",
-        status: "closed",
-        priority: "low", 
-        votes: 2
-      },
-      {
-        id: 4,
-        title: "Add strings section to bridge",
-        description: "The bridge section (1:45-2:15) needs some strings to elevate the emotional impact. Something cinematic but not overwhelming.",
-        label: "Instrumental Layer",
-        author: user?.username || "Quincy Jones",
-        date: "2025-02-14",
-        status: "open",
-        priority: "medium",
-        votes: 4
-      },
-    ];
-    setFeatures(fakeFeatures);
+    fetchFeatures();
   }, [user, id]);
 
   // Click outside handler for modals
@@ -137,8 +129,10 @@ function Features() {
 
   // Apply sorting and filtering
   const getFilteredAndSortedFeatures = () => {
-    // First filter by tab status
-    let result = features.filter(f => f.status === activeTab);
+    // First filter by tab status (open/closed)
+    let result = features.filter(f => 
+      (activeTab === "open" && f.open) || (activeTab === "closed" && !f.open)
+    );
     
     // Then filter by category if one is selected
     if (filterCategory) {
@@ -148,7 +142,7 @@ function Features() {
     // Then filter by search query
     if (searchQuery) {
       result = result.filter(f => 
-        f.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        f.message.toLowerCase().includes(searchQuery.toLowerCase()) || 
         f.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
@@ -159,7 +153,7 @@ function Features() {
       
       switch (sortBy) {
         case "title":
-          comparison = a.title.localeCompare(b.title);
+          comparison = a.message.localeCompare(b.message);
           break;
         case "priority":
           const priorityOrder = { high: 3, medium: 2, low: 1 };
@@ -170,7 +164,7 @@ function Features() {
           break;
         case "date":
         default:
-          comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+          comparison = new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime();
           break;
       }
       
@@ -189,15 +183,27 @@ function Features() {
     setIsSubmitting(true);
 
     try {
-      const newFeature: Feature = {
-        id: Math.floor(Math.random() * 10000),
-        title: newTitle,
-        description: newDescription,
-        label: selectedLabel,
-        author: user?.username || "Anonymous",
-        date: new Date().toISOString().split("T")[0],
-        status: "open",
-        priority: selectedPriority,
+      const response = await axios.post(
+        `http://${window.location.hostname}:3333/api/features/`, 
+        {
+          project_id: id,
+          author_id: user?.id,
+          message: newTitle,
+          description: newDescription,
+          label: selectedLabel,
+          open: true,
+          // Additional field for future implementation
+          priority: selectedPriority
+        },
+        { withCredentials: true }
+      );
+      
+      const newFeature = {
+        ...response.data,
+        author: user?.username,
+        status: "open", // Map 'open' boolean to status string for UI
+        title: response.data.message, // Map message field to title for UI
+        date: response.data.created_at, // Use created_at as date for sorting/display
         votes: 0
       };
       
@@ -213,37 +219,62 @@ function Features() {
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
       console.error("Failed to create feature", err);
-      alert("Error creating feature.");
+      alert("Error creating feature. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleCloseFeature = async (featureId: number) => {
-    setFeatures((prev) =>
-      prev.map((f) =>
-        f.id === featureId ? { ...f, status: "closed" } : f
-      )
-    );
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
-    
-    // Close detail view if the closed feature was being viewed
-    if (selectedFeature?.id === featureId) {
-      setShowFeatureDetails(false);
+    try {
+      await axios.put(
+        `http://${window.location.hostname}:3333/api/features/${featureId}`,
+        { open: false },
+        { withCredentials: true }
+      );
+      
+      setFeatures((prev) =>
+        prev.map((f) =>
+          f.id === featureId ? { ...f, open: false, status: "closed" } : f
+        )
+      );
+      
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+      
+      // Close detail view if the closed feature was being viewed
+      if (selectedFeature?.id === featureId) {
+        setShowFeatureDetails(false);
+      }
+    } catch (err) {
+      console.error("Failed to close feature", err);
+      alert("Error closing feature. Please try again.");
     }
   };
 
   const handleDeleteFeature = async (featureId: number) => {
-    setFeatures((prev) => prev.filter((f) => f.id !== featureId));
-    
-    // Close detail view if the deleted feature was being viewed
-    if (selectedFeature?.id === featureId) {
-      setShowFeatureDetails(false);
+    try {
+      console.log("Deleting feature with ID:", featureId);
+      await axios.delete(
+        `http://${window.location.hostname}:3333/api/features/${featureId}`,
+        { withCredentials: true }
+      );
+      
+      setFeatures((prev) => prev.filter((f) => f.id !== featureId));
+      
+      // Close detail view if the deleted feature was being viewed
+      if (selectedFeature?.id === featureId) {
+        setShowFeatureDetails(false);
+      }
+    } catch (err) {
+      console.error("Failed to delete feature", err);
+      alert("Error deleting feature. Please try again.");
     }
   };
 
   const handleVoteFeature = (featureId: number) => {
+    // This would connect to a future API endpoint for voting
+    // For now, we're just updating the UI
     setFeatures((prev) =>
       prev.map((f) =>
         f.id === featureId ? { ...f, votes: (f.votes || 0) + 1 } : f
@@ -279,6 +310,7 @@ function Features() {
     setSortBy("date");
     setSortDirection("desc");
   };
+  
   return (
     <motion.div 
       className="features-container" 
@@ -426,14 +458,14 @@ function Features() {
           className={`tab-btn ${activeTab === "open" ? "active" : ""}`} 
           onClick={() => setActiveTab("open")}
         >
-          Open ({features.filter(f => f.status === "open").length})
+          Open ({features.filter(f => f.open).length})
         </button>
         
         <button 
           className={`tab-btn ${activeTab === "closed" ? "active" : ""}`} 
           onClick={() => setActiveTab("closed")}
         >
-          Closed ({features.filter(f => f.status === "closed").length})
+          Closed ({features.filter(f => !f.open).length})
         </button>
       </div>
 
@@ -450,198 +482,220 @@ function Features() {
           </motion.div>
       )}
 
+      {error && (
+        <motion.div 
+          className="error-notification"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+        >
+          <FaInfoCircle className="error-icon" />
+          <span>{error}</span>
+        </motion.div>
+      )}
+
       <div className="features-list">
-          {filteredFeatures.length === 0 ? (
-            <motion.div 
-              className="no-features"
-              key="empty"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <div className="empty-icon">
-                <FaPuzzlePiece />
-              </div>
-              <h3>No {activeTab} features found</h3>
-              <p className="empty-subtitle">
-                {searchQuery || filterCategory ? 
-                  "Try adjusting your search or filters" :
-                  activeTab === "open" 
-                    ? "Create a new feature request to get started." 
-                    : "Closed features will appear here."
-                }
-              </p>
-              {(searchQuery || filterCategory) && (
-                <button className="reset-search-btn" onClick={resetFilters}>
-                  Reset filters
-                </button>
-              )}
-            </motion.div>
-          ) : (
-            filteredFeatures.map((feature, i) => (
-              <div 
-                key={feature.id} 
-                className="feature-card"
-                custom={i}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                layoutId={`feature-${feature.id}`}
-                onClick={() => openFeatureDetails(feature)}
-              >
-                <div className="feature-header">
-                  <h3 className="feature-title">{feature.title}</h3>
-                  <div className="feature-category" style={{ backgroundColor: FEATURE_CATEGORIES.find(c => c.name === feature.label)?.color }}>
-                    {FEATURE_CATEGORIES.find(c => c.name === feature.label)?.icon} {feature.label}
-                  </div>
-                </div>
-
-                <div className="feature-metadata">
-                  <div className="feature-author">
-                    <FaUser className="metadata-icon" /> 
-                    <span>{feature.author}</span>
-                  </div>
-                  <div className="feature-date">
-                    <FaCalendarAlt className="metadata-icon" />
-                    <span>{new Date(feature.date).toLocaleDateString()}</span>
-                  </div>
-                  {feature.priority && (
-                    <div className={`feature-priority priority-${feature.priority}`}>
-                      {feature.priority}
-                    </div>
-                  )}
-                </div>
-                
-                <p className="feature-description">{feature.description.length > 120 ? `${feature.description.substring(0, 120)}...` : feature.description}</p>
-                
-                <div className="feature-footer">
-                  <div className="feature-id-votes">
-                    <span className="feature-id">#{feature.id}</span>
-                    <div className="feature-votes">
-                      <button 
-                        className="vote-btn" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleVoteFeature(feature.id);
-                        }}
-                      >
-                        ▲
-                      </button>
-                      <span className="vote-count">{feature.votes || 0}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="feature-actions">
-                    {feature.status === "open" ? (
-                      <button 
-                        type="button" 
-                        className="close-btn" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCloseFeature(feature.id);
-                        }}
-                      >
-                        Close Feature
-                      </button>
-                    ) : (
-                      <button 
-                        type="button" 
-                        className="delete-btn" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteFeature(feature.id);
-                        }}
-                      >
-                        <FaTrash /> Delete
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-      </div>
-
-      {/* Feature Details Modal */}
-        {showFeatureDetails && selectedFeature && (
+        {loadingFeatures ? (
+          <div className="loading-features">
+            <div className="spinner"></div>
+            <p>Loading features...</p>
+          </div>
+        ) : filteredFeatures.length === 0 ? (
           <motion.div 
-            className="modal-overlay"
+            className="no-features"
+            key="empty"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
+            <div className="empty-icon">
+              <FaPuzzlePiece />
+            </div>
+            <h3>No {activeTab} features found</h3>
+            <p className="empty-subtitle">
+              {searchQuery || filterCategory ? 
+                "Try adjusting your search or filters" :
+                activeTab === "open" 
+                  ? "Create a new feature request to get started." 
+                  : "Closed features will appear here."
+              }
+            </p>
+            {(searchQuery || filterCategory) && (
+              <button className="reset-search-btn" onClick={resetFilters}>
+                Reset filters
+              </button>
+            )}
+          </motion.div>
+        ) : (
+          filteredFeatures.map((feature, i) => (
             <div 
-              className="feature-detail-modal"
-              ref={modalRef}
+              key={feature.id} 
+              className="feature-card"
+              custom={i}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              layoutId={`feature-${feature.id}`}
+              onClick={() => openFeatureDetails(feature)}
             >
-              <div className="feature-detail-header">
-                <div className="feature-category large" style={{ backgroundColor: FEATURE_CATEGORIES.find(c => c.name === selectedFeature.label)?.color }}>
-                  {FEATURE_CATEGORIES.find(c => c.name === selectedFeature.label)?.icon} {selectedFeature.label}
-                </div>
-                <button className="close-modal-btn" onClick={() => setShowFeatureDetails(false)}>×</button>
-              </div>
-              
-              <h2 className="feature-detail-title">{selectedFeature.title}</h2>
-              
-              <div className="feature-detail-metadata">
-                <div className="feature-id-label">#{selectedFeature.id}</div>
-                
-                <div className="detail-metadata-group">
-                  <div className="detail-author">
-                    <FaUser className="metadata-icon" />
-                    <span>{selectedFeature.author}</span>
-                  </div>
-                  
-                  <div className="detail-date">
-                    <FaCalendarAlt className="metadata-icon" />
-                    <span>{new Date(selectedFeature.date).toLocaleDateString()}</span>
-                  </div>
-                  
-                  {selectedFeature.priority && (
-                    <div className={`feature-priority large priority-${selectedFeature.priority}`}>
-                      {selectedFeature.priority} priority
-                    </div>
-                  )}
-                
-                  <div className="detail-votes">
-                    <button 
-                      className="vote-btn large"
-                      onClick={() => handleVoteFeature(selectedFeature.id)}
-                    >
-                      ▲ Upvote
-                    </button>
-                    <span className="vote-count large">{selectedFeature.votes || 0} votes</span>
-                  </div>
+              <div className="feature-header">
+                <h3 className="feature-title">{feature.message}</h3>
+                <div className="feature-category" style={{ backgroundColor: FEATURE_CATEGORIES.find(c => c.name === feature.label)?.color }}>
+                  {FEATURE_CATEGORIES.find(c => c.name === feature.label)?.icon} {feature.label}
                 </div>
               </div>
-              
-              <div className="feature-detail-description">
-                {/* <h3>Description</h3> */}
-                <p>{selectedFeature.description}</p>
-              </div>
-              
-              <div className="feature-detail-actions">
-                {selectedFeature.status === "open" ? (
-                  <button 
-                    type="button" 
-                    className="close-btn large" 
-                    onClick={() => handleCloseFeature(selectedFeature.id)}
-                  >
-                    <FaCheck /> Mark as Completed
-                  </button>
-                ) : (
-                  <button 
-                    type="button" 
-                    className="delete-btn large" 
-                    onClick={() => handleDeleteFeature(selectedFeature.id)}
-                  >
-                    <FaTrash /> Delete Feature
-                  </button>
+
+              <div className="feature-metadata">
+                <div className="feature-author">
+                  <FaUser className="metadata-icon" /> 
+                  <span>{feature.author}</span>
+                </div>
+                <div className="feature-date">
+                  <FaCalendarAlt className="metadata-icon" />
+                  <span>{new Date(feature.created_at).toLocaleDateString()}</span>
+                </div>
+                {feature.priority && (
+                  <div className={`feature-priority priority-${feature.priority}`}>
+                    {feature.priority}
+                  </div>
                 )}
               </div>
+              
+              <p className="feature-description">{feature.description.length > 120 ? `${feature.description.substring(0, 120)}...` : feature.description}</p>
+              
+              <div className="feature-footer">
+                <div className="feature-id-votes">
+                  <span className="feature-id">#{feature.id}</span>
+                  <div className="feature-votes">
+                    <button 
+                      className="vote-btn" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleVoteFeature(feature.id);
+                      }}
+                    >
+                      ▲
+                    </button>
+                    <span className="vote-count">{feature.votes || 0}</span>
+                  </div>
+                </div>
+                
+                <div className="feature-actions">
+                  {feature.open ? (
+                    <button 
+                      type="button" 
+                      className="close-btn" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCloseFeature(feature.id);
+                      }}
+                    >
+                      Close Feature
+                    </button>
+                  ) : (
+                    <button 
+                      type="button" 
+                      className="delete-btn" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteFeature(feature.id);
+                      }}
+                    >
+                      <FaTrash /> Delete
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
-          </motion.div>
+          ))
         )}
+      </div>
+
+      {/* Feature Details Modal */}
+      {showFeatureDetails && selectedFeature && (
+  <motion.div 
+    className="modal-overlay"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+  >
+    <div 
+      className="feature-detail-modal"
+      ref={modalRef}
+    >
+      <div className="feature-content">
+          <div className="feature-detail-header">
+            <div className="feature-category large" style={{ backgroundColor: FEATURE_CATEGORIES.find(c => c.name === selectedFeature.label)?.color }}>
+              {FEATURE_CATEGORIES.find(c => c.name === selectedFeature.label)?.icon} {selectedFeature.label}
+            </div>
+            <button className="close-modal-btn" onClick={() => setShowFeatureDetails(false)}>×</button>
+          </div>
+          
+          <h2 className="feature-detail-title">{selectedFeature.message}</h2>
+          
+          <div className="feature-detail-metadata">
+            <div className="feature-id-label">#{selectedFeature.id}</div>
+            
+            <div className="detail-metadata-group">
+              <div className="detail-author">
+                <FaUser className="metadata-icon" />
+                <span>{selectedFeature.author}</span>
+              </div>
+              
+              <div className="detail-date">
+                <FaCalendarAlt className="metadata-icon" />
+                <span>{new Date(selectedFeature.created_at).toLocaleDateString()}</span>
+              </div>
+              
+              {selectedFeature.priority && (
+                <div className={`feature-priority large priority-${selectedFeature.priority}`}>
+                  {selectedFeature.priority} priority
+                </div>
+              )}
+            
+              <div className="detail-votes">
+                <button 
+                  className="vote-btn large"
+                  onClick={() => handleVoteFeature(selectedFeature.id)}
+                >
+                  ▲ Upvote
+                </button>
+                <span className="vote-count large">{selectedFeature.votes || 0} votes</span>
+              </div>
+            </div>
+          </div>
+        
+        <div className="feature-detail-description">
+          <p>{selectedFeature.description}</p>
+        </div>
+        
+        <div className="feature-detail-actions">
+          {selectedFeature.open ? (
+            <button 
+              type="button" 
+              className="close-btn large" 
+              onClick={() => handleCloseFeature(selectedFeature.id)}
+            >
+              <FaCheck /> Mark as Completed
+            </button>
+          ) : (
+            <button 
+              type="button" 
+              className="delete-btn large" 
+              onClick={() => handleDeleteFeature(selectedFeature.id)}
+            >
+              <FaTrash /> Delete Feature
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Add the Comments component here */}
+      <Comments featureId={selectedFeature.id} />
+    </div>
+  </motion.div>
+)}
 
       {/* New Feature Modal */}
         {showNewFeatureModal && (
@@ -711,7 +765,7 @@ function Features() {
                         key={priority.name}
                         type="button"
                         className={`priority-btn ${selectedPriority === priority.name ? 'selected' : ''}`}
-                        onClick={() => setSelectedPriority(priority.name as any)}
+                        onClick={() => setSelectedPriority(priority.name.toLowerCase() as "low" | "medium" | "high")}
                         style={{ 
                           backgroundColor: selectedPriority === priority.name ? priority.color : 'transparent',
                           borderColor: priority.color
@@ -748,11 +802,6 @@ function Features() {
                   )}
                 </button>
               </div>
-              
-              {/* <div className="form-tip">
-                <FaInfoCircle className="tip-icon" />
-                <span>Good feature requests include clear titles, detailed descriptions, and proper categorization.</span>
-              </div> */}
             </div>
           </motion.div>
         )}
