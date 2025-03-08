@@ -67,7 +67,7 @@ function ProjectHeader() {
         })
         .catch((err) => {
           console.error(err);
-          navigate("/dashboard"); // Redirect to dashboard if project not found
+          // navigate("/dashboard"); // Redirect to dashboard if project not found
         })
         .finally(() => setLoading(false));
     }
