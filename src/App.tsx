@@ -16,6 +16,7 @@ import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 import NewProject from './pages/NewProject/NewProject';
 import Project from './pages/Project/Project';
 import History from './pages/History/History';
+import CollabRequests from "./pages/CollabRequest/CollabRequests";
 import PageTransition from "./components/PageTransition/PageTransition";
 import Settings from "./pages/Settings/Settings";
 import NotFound from "./pages/NotFound/NotFound";
@@ -36,6 +37,7 @@ function App() {
                 <Route path="/new-project" element={<NewProject />} /> {/* New Project Page */}
                 <Route path="/project/:id" element={<Project />} /> {/* Project Page */}
                 <Route path="/project/:id/history" element={<History />} />
+                <Route path="/project/:id/collabs" element={<CollabRequests/>}/>
                 <Route path="/project/:id/settings" element={<Settings />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
