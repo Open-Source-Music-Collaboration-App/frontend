@@ -37,7 +37,6 @@ function ProjectHeader() {
     else if (path.includes('/collabs')) {
       setActiveTab('collabs');
     } 
-
     else {
       setActiveTab('track');
     }
@@ -91,10 +90,6 @@ function ProjectHeader() {
       navigate(`/project/${id}/collabs`);
     } 
     else {
-    } else if (tab === 'features') {
-      // Correctly use a template literal here:
-      navigate(`/project/${id}/features`);
-    } else {
       // 'track' or any other fallback goes to the main project page
       navigate(`/project/${id}`);
     }
