@@ -117,7 +117,7 @@ function ProjectHeader() {
           onClick={() => handleTabSwitch('track')}
         >
           <img src={musicicon} alt="Music Icon" className="music-icon" />
-          <span>Track</span>
+          <span>Tracks</span>
         </button>
         <button 
           className={`header-btn ${activeTab === 'history' ? 'selected' : ''}`}
