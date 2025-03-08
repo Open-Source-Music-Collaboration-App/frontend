@@ -37,7 +37,7 @@ function CollabRequests() {
       user: "dj_alice",
       message: "Added a new synth lead to the chorus section.",
       date: "2025-03-05T14:30:00Z",
-      tracks_modified: ["synth_lead.wav", "background_harmony.flac"],
+      tracks_modified: ["synth_lead"],
       status: "pending",
     },
     {
@@ -45,7 +45,7 @@ function CollabRequests() {
       user: "beatmaster_bob",
       message: "Tweaked the drum loop and added a new kick pattern.",
       date: "2025-03-04T09:15:00Z",
-      tracks_modified: ["drum_loop.wav"],
+      tracks_modified: ["drums"],
       status: "approved",
     },
     {
@@ -53,7 +53,7 @@ function CollabRequests() {
       user: "vocalist_eve",
       message: "Recorded a vocal track for the bridge.",
       date: "2025-03-03T18:45:00Z",
-      tracks_modified: ["vocals_bridge.wav", "harmony_layer.flac"],
+      tracks_modified: ["vocals bridge", "harmony layer"],
       status: "rejected",
     },
   ];

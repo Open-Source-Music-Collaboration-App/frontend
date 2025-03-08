@@ -12,6 +12,8 @@ import collabrequesticon from '../../assets/pull-request-svgrepo-com.svg';
 import settingsicon from '../../assets/settings-svgrepo-com.svg';
 import historyIcon from "../../assets/history-svgrepo-com.svg"; 
 
+const tabs = ['track', 'history', 'settings', 'features', 'collabs'];
+
 function ProjectHeader() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -27,19 +29,15 @@ function ProjectHeader() {
   // Determine active tab based on URL path
   useEffect(() => {
     const path = window.location.pathname;
-    if (path.includes('/history')) {
-      setActiveTab('history');
-    } else if (path.includes('/settings')) {
-      setActiveTab('settings');[]
-    } else if (path.includes('/features')) {
-      setActiveTab('features');
+    const tab = tabs.find(tab => path.includes(tab));
+    if (tab) {
+      setActiveTab(tab);
     }
-    else if (path.includes('/collabs')) {
-      setActiveTab('collabs');
-    } 
     else {
       setActiveTab('track');
     }
+    // Reset error when navigating to a new tab
+    setError(null);
   }, [window.location.pathname]);
 
   // Close profile dropdown if clicking outside
@@ -76,21 +74,17 @@ function ProjectHeader() {
   }, [user, id]);
 
   // Handle tab switching with smooth animations
-  const handleTabSwitch = (tab: 'track' | 'history' | 'settings' | 'features' | 'collabs') => {
+  const handleTabSwitch = (tab: string) => {
     setActiveTab(tab);
     
-    if (tab === 'history') {
-      navigate(`/project/${id}/history`);
-    } else if (tab === 'settings') {
-      navigate(`/project/${id}/settings`);
-    } else if (tab === 'features') {
-      navigate(`/project/${id}/features`);
-    }
-    else if (tab === 'collabs') {
-      navigate(`/project/${id}/collabs`);
+    if (tab === 'track') {
+      navigate(`/project/${id}`);
     } 
+    else if( tabs.includes(tab) )
+    {
+      navigate(`/project/${id}/${tab}`);
+    }
     else {
-      // 'track' or any other fallback goes to the main project page
       navigate(`/project/${id}`);
     }
   };
@@ -159,7 +153,8 @@ function ProjectHeader() {
           <img src={featuresicon} alt="Features Icon" className="features-icon" />
           <span>Features</span>
         </button>
-        <button className="header-btn">
+        <button className={`header-btn ${activeTab === 'collabs' ? 'selected' : ''}`}
+          onClick={() => handleTabSwitch('collabs')}>
           <img src={collabrequesticon} alt="Collaboration Icon" className="collab-icon" />
           <span>Collab Requests</span>
         </button>
