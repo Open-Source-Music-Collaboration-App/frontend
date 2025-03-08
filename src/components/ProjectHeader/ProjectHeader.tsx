@@ -32,8 +32,15 @@ function ProjectHeader() {
     if (path.includes('/history')) {
       setActiveTab('history');
     } else if (path.includes('/settings')) {
-      setActiveTab('settings');
-    } else {
+      setActiveTab('settings');[]
+    } else if (path.includes('/features')) {
+      setActiveTab('features');
+    }
+    else if (path.includes('/collabs')) {
+      setActiveTab('collabs');
+    } 
+
+    else {
       setActiveTab('track');
     }
   }, [window.location.pathname]);
@@ -65,14 +72,20 @@ function ProjectHeader() {
   }, [user, id]);
 
   // Handle tab switching with smooth animations
-  const handleTabSwitch = (tab: 'track' | 'history' | 'settings') => {
+  const handleTabSwitch = (tab: 'track' | 'history' | 'settings' | 'features' | 'collabs') => {
     setActiveTab(tab);
     
     if (tab === 'history') {
       navigate(`/project/${id}/history`);
     } else if (tab === 'settings') {
       navigate(`/project/${id}/settings`);
-    } else {
+    } else if (tab === 'features') {
+      navigate(`/project/${id}/features`);
+    }
+    else if (tab === 'collabs') {
+      navigate(`/project/${id}/collabs`);
+    } 
+    else {
       navigate(`/project/${id}`);
     }
   };
@@ -130,7 +143,8 @@ function ProjectHeader() {
           <img src={featuresicon} alt="Features Icon" className="features-icon" />
           <span>Features</span>
         </button>
-        <button className="header-btn">
+        <button className={`header-btn ${activeTab === 'collabs' ? 'selected' : ''}`}
+          onClick={() => handleTabSwitch('collabs')}>
           <img src={collabrequesticon} alt="Collaboration Icon" className="collab-icon" />
           <span>Collab Requests</span>
         </button>

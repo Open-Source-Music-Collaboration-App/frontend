@@ -4,7 +4,7 @@
     margin: 0 auto;
     padding: 30px 20px 60px;
     color: white;
-    background: linear-gradient(135deg, rgba(24, 0, 36, 0.9), rgba(15, 0, 36, 0.95));
+    /* background: linear-gradient(135deg, rgba(24, 0, 36, 0.9), rgba(15, 0, 36, 0.95)); */
   }
   
   .collab-requests-header {
@@ -46,9 +46,24 @@
     gap: 12px;
   }
   
-  .collab-icon {
-    font-size: 1.6rem;
+  .collab-title-container .collab-icon {
+    font-size: 2.5rem;
     color: rgba(147, 0, 215, 0.9);
+    background: rgba(147, 0, 215, 0.15);
+    padding: 10px;
+    border-radius: 50%;
+  }
+
+  .collab-request-card.pending {
+    border-left-color: rgba(255, 193, 7, 0.8);
+  }
+  
+  .collab-request-card.approved {
+    border-left-color: rgba(71, 187, 95, 0.8);
+  }
+  
+  .collab-request-card.rejected {
+    border-left-color: rgba(255, 82, 82, 0.8);
   }
   
   .collab-title {
@@ -85,8 +100,9 @@
   
   .collab-actions {
     display: flex;
-    justify-content: flex-end;
     margin-bottom: 20px;
+    justify-content: space-between;
+    align-items: center;
   }
   
   .request-collab-btn {
@@ -106,7 +122,6 @@
   
   .request-collab-btn:hover {
     background: rgba(147, 0, 215, 0.3);
-    transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(147, 0, 215, 0.2);
   }
   
@@ -119,7 +134,7 @@
   .collab-requests-list {
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    gap: 10px;
   }
   
   .collab-request-card {
@@ -135,14 +150,14 @@
   
   .collab-request-card:hover {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 15px rgba(147, 0, 215, 0.2);
-    border-color: rgba(147, 0, 215, 0.3);
+    /* border-color: rgba(147, 0, 215, 0.3); */
   }
   
   .request-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 15px;
+    /* margin-bottom: 15px; */
     flex-wrap: wrap;
     gap: 10px;
   }
@@ -172,8 +187,8 @@
     flex-wrap: wrap;
     gap: 15px;
     margin-bottom: 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 15px;
+    /* border-top: 1px solid rgba(255, 255, 255, 0.1); */
+    /* padding-top: 15px; */
   }
   
   .request-user,
@@ -257,13 +272,13 @@
     background-color: rgba(255, 255, 255, 0.03);
     border-radius: 8px;
     font-size: 0.9rem;
-    border-left: 3px solid rgba(147, 0, 215, 0.5);
+    /* border-left: 3px solid rgba(147, 0, 215, 0.5); */
     transition: all 0.2s;
   }
   
   .track-item:hover {
     background-color: rgba(255, 255, 255, 0.05);
-    transform: translateX(3px);
+    /* transform: translateX(3px); */
   }
   
   .track-icon {
@@ -685,3 +700,158 @@
       white-space: nowrap;
     }
   }
+
+  /* Add these new styles to your existing CSS file */
+
+/* Compact card styles */
+.collab-request-card {
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.request-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.header-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.header-details {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.request-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.request-status-indicator.pending {
+  background-color: rgba(255, 193, 7, 0.8);
+  box-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
+}
+
+.request-status-indicator.approved {
+  background-color: rgba(71, 187, 95, 0.8);
+  box-shadow: 0 0 5px rgba(71, 187, 95, 0.5);
+}
+
+.request-status-indicator.rejected {
+  background-color: rgba(255, 82, 82, 0.8);
+  box-shadow: 0 0 5px rgba(255, 82, 82, 0.5);
+}
+
+.request-user-compact {
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.expand-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  transition: all 0.2s;
+}
+
+.expand-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.request-expanded-content {
+  margin-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 15px;
+  animation: fadeIn 0.3s ease;
+}
+
+.expand-all-container {
+  display: flex;
+  justify-content: flex-end;
+  /* margin-bottom: 15px; */
+}
+
+.expand-all-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
+  border-radius: 6px;
+  padding: 10px 15px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.expand-all-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+/* Download button styles */
+.download-btn {
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Drag and drop improvements */
+.file-input-label {
+  transition: all 0.2s ease;
+}
+
+.file-input-label.drag-active {
+  background-color: rgba(147, 0, 215, 0.15);
+  border-color: rgba(147, 0, 215, 0.5);
+  transform: scale(1.02);
+}
+
+.file-items-container {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive design improvements */
+@media (max-width: 768px) {
+  .header-details {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  
+  .request-user-compact {
+    order: -1;
+  }
+}

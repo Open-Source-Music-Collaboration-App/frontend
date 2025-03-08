@@ -1,10 +1,3 @@
-/**
- * @file CollabRequests.tsx
- * @description Component for managing collaboration requests on a music project.
- * Displays a list of collaboration requests, allows users to submit new requests,
- * and enables project owners to approve or reject requests.
- */
-
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthProvider';
@@ -12,7 +5,8 @@ import { motion } from 'framer-motion';
 import { 
   FaArrowLeft, FaUser, FaCalendarAlt, FaMusic, 
   FaPlus, FaCheck, FaTimes, FaPaperPlane, FaFileAudio,
-  FaUserFriends, FaTag
+  FaUserFriends, FaTag, FaDownload, FaChevronDown, FaChevronUp,
+  FaAngleDown, FaAngleUp
 } from 'react-icons/fa';
 import './CollabRequests.css';
 
@@ -37,7 +31,6 @@ function CollabRequests() {
   const { id } = useParams(); // Project ID from URL
   const { user } = useAuth(); // Current authenticated user
 
-  // Dummy data for collaboration requests
   const dummyRequests: CollabRequest[] = [
     {
       id: 1,
@@ -68,7 +61,7 @@ function CollabRequests() {
   const [requests, setRequests] = useState<CollabRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [projectOwner, setProjectOwner] = useState<string>('project_owner'); // Dummy project owner
+  const [projectOwner, setProjectOwner] = useState<string>('project_owner');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [newRequestMessage, setNewRequestMessage] = useState<string>('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -76,34 +69,77 @@ function CollabRequests() {
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [expandedRequests, setExpandedRequests] = useState<number[]>([]);
+  const [areAllExpanded, setAreAllExpanded] = useState<boolean>(false);
+  const [dragActive, setDragActive] = useState<boolean>(false);
 
-  // Simulate fetching requests with dummy data
+  const isOwner = user?.username === projectOwner;
+
+  // Effect to fetch requests
   useEffect(() => {
     if (!user || !id) return;
     setLoading(true);
-    // Simulate a delay for "fetching"
-    setTimeout(() => {
-      setRequests(dummyRequests);
-      setProjectOwner('project_owner');
-      setError(null);
-      setLoading(false);
-    }, 1000);
+    
+    //fetch /api/projects/:id to get owner
+    fetch(`http://${window.location.hostname}:3333/api/projects/${id}`, { withCredentials: true })
+      .then(response => response.json())
+      .then(data => {
+        // console.log("Project datafrom collab:", data);
+        setProjectOwner(data[0].User.name);
+        if (data.owner !== user.username) {
+          setRequests(dummyRequests);
+        }
+      }
+      )
+      .catch(err => {
+        console.error(err);
+        setError('Failed to load project data.');
+      })
+      .finally(() => setLoading(false));
   }, [id, user]);
 
-  /**
-   * @function handleFileChange
-   * @description Handles file input changes for the collaboration request form.
-   */
+  const toggleRequestExpansion = (requestId: number) => {
+    setExpandedRequests(prev => 
+      prev.includes(requestId) 
+        ? prev.filter(id => id !== requestId)
+        : [...prev, requestId]
+    );
+  };
+
+  const toggleAllExpansions = () => {
+    if (areAllExpanded) {
+      setExpandedRequests([]);
+    } else {
+      setExpandedRequests(requests.map(req => req.id));
+    }
+    setAreAllExpanded(!areAllExpanded);
+  };
+
+  const handleDrag = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setSelectedFiles(Array.from(e.dataTransfer.files));
+    }
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setSelectedFiles(Array.from(e.target.files));
     }
   };
 
-  /**
-   * @function handleSubmitRequest
-   * @description Simulates submitting a new collaboration request.
-   */
   const handleSubmitRequest = () => {
     if (!newRequestMessage || selectedFiles.length === 0) {
       setSubmitError('Please provide a message and select at least one file.');
@@ -113,7 +149,6 @@ function CollabRequests() {
     setSubmitting(true);
     setSubmitError(null);
 
-    // Simulate a new request
     setTimeout(() => {
       const newRequest: CollabRequest = {
         id: requests.length + 1,
@@ -134,10 +169,6 @@ function CollabRequests() {
     }, 1000);
   };
 
-  /**
-   * @function handleApproveReject
-   * @description Simulates approving or rejecting a collaboration request.
-   */
   const handleApproveReject = (requestId: number, action: 'approve' | 'reject') => {
     setActionLoading(`${requestId}-${action}`);
     setTimeout(() => {
@@ -148,10 +179,12 @@ function CollabRequests() {
     }, 1000);
   };
 
-  /**
-   * @function formatDate
-   * @description Formats a date string into a user-friendly format.
-   */
+  const handleDownloadFiles = (requestId: number) => {
+    // Mock download functionality
+    console.log(`Downloading files for request ${requestId}`);
+    // In a real app, this would trigger a file download
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('en-US', {
@@ -208,7 +241,11 @@ function CollabRequests() {
       </div>
 
       <div className="collab-description">
+        {isOwner ? (
         <p>Review collaboration requests from other users. Approve to add them as collaborators and merge their changes, or reject to decline.</p>
+        ) : (
+        <p>View collaboration requests from users. You can submit your own request to collaborate on this project.</p>
+        )}
       </div>
 
       {submitSuccess && (
@@ -222,111 +259,173 @@ function CollabRequests() {
         </div>
       )}
 
+      {/* Only show New Collab Request button to non-owners */}
       <div className="collab-actions">
-        <button
-          className="request-collab-btn"
-          onClick={() => setIsModalOpen(true)}
-          disabled={user?.username === projectOwner}
-        >
-          <FaPlus /> Request Collaboration
-        </button>
+      {!isOwner && (
+          <button
+            className="request-collab-btn"
+            onClick={() => setIsModalOpen(true)}
+          >
+            <FaPlus /> New Collaboration Request
+          </button>
+      )}
+
+      {/* Expand All toggle when there are requests */}
+      {requests.length > 0 && (
+        <div className="expand-all-container">
+          <button className="expand-all-btn" onClick={toggleAllExpansions}>
+            {areAllExpanded ? (
+              <>
+                <FaAngleUp /> Collapse All
+              </>
+            ) : (
+              <>
+                <FaAngleDown /> Expand All
+              </>
+            )}
+          </button>
+        </div>
+      )}
       </div>
 
       <div className="collab-requests-list">
         {requests.length > 0 ? (
-          requests.map((request, index) => (
-            <motion.div
-              key={request.id}
-              className="collab-request-card"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <div className="request-header">
-                <div className="request-message">{request.message}</div>
-                <div className="request-date">
-                  <FaCalendarAlt className="request-icon" />
-                  {formatDate(request.date)}
-                </div>
-              </div>
-
-              <div className="request-details">
-                <div className="request-user">
-                  <FaUser className="request-icon" />
-                  <span>{request.user}</span>
-                </div>
-                <div className={`request-status ${request.status}`}>
-                  {request.status === 'pending' ? (
-                    'Pending'
-                  ) : request.status === 'approved' ? (
-                    <>
-                      <FaCheck className="status-icon approved" /> Approved
-                    </>
-                  ) : (
-                    <>
-                      <FaTimes className="status-icon rejected" /> Rejected
-                    </>
-                  )}
-                </div>
-              </div>
-
-              <div className="request-tracks">
-                <h4>
-                  <FaMusic className="tracks-icon" /> Modified Tracks ({request.tracks_modified.length})
-                </h4>
-                <div className="tracks-list">
-                  {request.tracks_modified.map((track, idx) => (
-                    <div key={idx} className="track-item">
-                      <FaFileAudio className="track-icon" />
-                      <span className="track-name">{track}</span>
+          requests.map((request, index) => {
+            const isExpanded = expandedRequests.includes(request.id);
+            return (
+              <motion.div
+                key={request.id}
+                className={`collab-request-card ${request.status}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <div 
+                  className="request-header"
+                  onClick={() => toggleRequestExpansion(request.id)}
+                >
+                  <div className="header-main">
+                    <div className={`request-status-indicator ${request.status}`}></div>
+                    <div className="request-message">{request.message}</div>
+                  </div>
+                  <div className="header-details">
+                    <div className="request-user-compact">
+                      <FaUser className="request-icon" />
+                      <span>{request.user}</span>
                     </div>
-                  ))}
+                    <div className="request-date">
+                      <FaCalendarAlt className="request-icon" />
+                      {formatDate(request.date)}
+                    </div>
+                    <button className="expand-btn">
+                      {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              {user?.username === projectOwner && request.status === 'pending' && (
-                <div className="request-actions">
-                  <button
-                    className="action-btn approve-btn"
-                    onClick={() => handleApproveReject(request.id, 'approve')}
-                    disabled={actionLoading === `${request.id}-approve`}
-                  >
-                    {actionLoading === `${request.id}-approve` ? (
-                      <span className="spinner-small"></span>
-                    ) : (
-                      <>
-                        <FaCheck /> Approve
-                      </>
-                    )}
-                  </button>
-                  <button
-                    className="action-btn reject-btn"
-                    onClick={() => handleApproveReject(request.id, 'reject')}
-                    disabled={actionLoading === `${request.id}-reject`}
-                  >
-                    {actionLoading === `${request.id}-reject` ? (
-                      <span className="spinner-small"></span>
-                    ) : (
-                      <>
-                        <FaTimes /> Reject
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-            </motion.div>
-          ))
+                {/* Expanded content */}
+                {isExpanded && (
+                  <div className="request-expanded-content">
+                    <div className="request-details">
+                      <div className="request-user">
+                        <FaUser className="request-icon" />
+                        <span>{request.user}</span>
+                      </div>
+                      <div className={`request-status ${request.status}`}>
+                        {request.status === 'pending' ? (
+                          'Pending'
+                        ) : request.status === 'approved' ? (
+                          <>
+                            <FaCheck className="status-icon approved" /> Approved
+                          </>
+                        ) : (
+                          <>
+                            <FaTimes className="status-icon rejected" /> Rejected
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="request-tracks">
+                      <h4>
+                        <FaMusic className="tracks-icon" /> Modified Tracks ({request.tracks_modified.length})
+                      </h4>
+                      <div className="tracks-list">
+                        {request.tracks_modified.map((track, idx) => (
+                          <div key={idx} className="track-item">
+                            <FaFileAudio className="track-icon" />
+                            <span className="track-name">{track}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="request-actions">
+                      {isOwner && request.status === 'pending' && (
+                        <>
+                          <button
+                            className="action-btn approve-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleApproveReject(request.id, 'approve');
+                            }}
+                            disabled={actionLoading === `${request.id}-approve`}
+                          >
+                            {actionLoading === `${request.id}-approve` ? (
+                              <span className="spinner-small"></span>
+                            ) : (
+                              <>
+                                <FaCheck /> Approve
+                              </>
+                            )}
+                          </button>
+                          <button
+                            className="action-btn reject-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleApproveReject(request.id, 'reject');
+                            }}
+                            disabled={actionLoading === `${request.id}-reject`}
+                          >
+                            {actionLoading === `${request.id}-reject` ? (
+                              <span className="spinner-small"></span>
+                            ) : (
+                              <>
+                                <FaTimes /> Reject
+                              </>
+                            )}
+                          </button>
+                        </>
+                      )}
+                      <button
+                        className="action-btn download-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownloadFiles(request.id);
+                        }}
+                      >
+                        <FaDownload /> Download Files
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            );
+          })
         ) : (
           <div className="no-requests">
             <FaUserFriends className="empty-icon" />
             <p>No collaboration requests yet.</p>
             <p className="empty-subtitle">
-              Invite others to collaborate, and their requests will appear here.
+              {isOwner 
+                ? "When users submit requests, they will appear here."
+                : "Submit a request to collaborate on this project."}
             </p>
           </div>
         )}
       </div>
 
+      {/* Improved upload modal */}
       {isModalOpen && (
         <div className="modal-overlay">
           <motion.div
@@ -336,7 +435,7 @@ function CollabRequests() {
             exit={{ scale: 0.8, opacity: 0 }}
           >
             <h3 className="modal-title">
-              <FaPaperPlane className="modal-icon" /> Request Collaboration
+              <FaPaperPlane className="modal-icon" /> New Collaboration Request
             </h3>
             <div className="modal-form">
               <div className="form-group">
@@ -352,9 +451,18 @@ function CollabRequests() {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="file-upload" className="file-input-label">
+                <label 
+                  htmlFor="file-upload" 
+                  className={`file-input-label ${dragActive ? 'drag-active' : ''}`}
+                  onDragEnter={handleDrag}
+                  onDragOver={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDrop={handleDrop}
+                >
                   <FaMusic className="file-input-icon" />
-                  <div className="file-input-text">Upload modified tracks</div>
+                  <div className="file-input-text">
+                    {dragActive ? 'Drop files here' : 'Drag & drop files or click to browse'}
+                  </div>
                   <div className="file-input-subtext">Supports .wav, .flac, .als files</div>
                 </label>
                 <input
@@ -370,13 +478,15 @@ function CollabRequests() {
               {selectedFiles.length > 0 && (
                 <div className="selected-files">
                   <h4>Selected Files ({selectedFiles.length})</h4>
-                  {selectedFiles.map((file, index) => (
-                    <div key={index} className="file-item">
-                      <FaFileAudio className="file-icon" />
-                      <span className="file-name">{file.name}</span>
-                      <span className="file-size">{Math.round(file.size / 1024)} KB</span>
-                    </div>
-                  ))}
+                  <div className="file-items-container">
+                    {selectedFiles.map((file, index) => (
+                      <div key={index} className="file-item">
+                        <FaFileAudio className="file-icon" />
+                        <span className="file-name">{file.name}</span>
+                        <span className="file-size">{Math.round(file.size / 1024)} KB</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
               <div className="modal-actions">
