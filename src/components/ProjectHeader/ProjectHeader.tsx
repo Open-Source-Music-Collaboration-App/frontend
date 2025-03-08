@@ -1,18 +1,16 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthProvider';
-import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import "./ProjectHeader.css";
 
-import musicicon from '../../assets/music-note-svgrepo-com.svg'
-import featuresicon from '../../assets/plus-circle-svgrepo-com.svg'
-import collabrequesticon from '../../assets/pull-request-svgrepo-com.svg'
-import settingsicon from '../../assets/settings-svgrepo-com.svg'
-import historyIcon from "../../assets/history-svgrepo-com.svg"; 
-
+import { useAuth } from '../../context/AuthProvider';
 import ProfileDropdown from '../ProfileDropdown/ProfileDropdown';
+
+import musicicon from '../../assets/music-note-svgrepo-com.svg';
+import featuresicon from '../../assets/plus-circle-svgrepo-com.svg';
+import collabrequesticon from '../../assets/pull-request-svgrepo-com.svg';
+import settingsicon from '../../assets/settings-svgrepo-com.svg';
+import historyIcon from "../../assets/history-svgrepo-com.svg"; 
 
 function ProjectHeader() {
   const navigate = useNavigate();
@@ -45,9 +43,13 @@ function ProjectHeader() {
     }
   }, [window.location.pathname]);
 
+  // Close profile dropdown if clicking outside
   useEffect(() => {
     function handleClickOutside(event: any) {
-      if (!event.target.closest(".profile-dropdown") && !event.target.closest(".profile-picture")) {
+      if (
+        !event.target.closest(".profile-dropdown") &&
+        !event.target.closest(".profile-picture")
+      ) {
         setToggleProfileDropdown(false);
       }
     }
@@ -56,17 +58,20 @@ function ProjectHeader() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
+  // Fetch project data (example from your existing code)
   useEffect(() => {
     if (user && id) {
-      let domain = window.location.hostname;     
-      axios.get(`http://${domain}:3333/api/projects/${id}`, { withCredentials: true })
-        .then(response => {
+      const domain = window.location.hostname;
+      axios
+        .get(`http://${domain}:3333/api/projects/${id}`, { withCredentials: true })
+        .then((response) => {
           console.log("Project data:", response.data);
           setProject(response.data);
         })
-        .catch(error => 
-          navigate("/dashboard") // Redirect to dashboard if project not found
-        )
+        .catch((err) => {
+          console.error(err);
+          navigate("/dashboard"); // Redirect to dashboard if project not found
+        })
         .finally(() => setLoading(false));
     }
   }, [user, id]);
@@ -86,6 +91,11 @@ function ProjectHeader() {
       navigate(`/project/${id}/collabs`);
     } 
     else {
+    } else if (tab === 'features') {
+      // Correctly use a template literal here:
+      navigate(`/project/${id}/features`);
+    } else {
+      // 'track' or any other fallback goes to the main project page
       navigate(`/project/${id}`);
     }
   };
@@ -94,16 +104,24 @@ function ProjectHeader() {
     <header className="project-header">
       <div className="header-container">
         <div className="left">
-          <div className="logo"
-            onClick={() => navigate("/dashboard")}
-          >🎧</div>
-          <h2 className="user" onClick={() => navigate("/dashboard")}>{user?.username}</h2>
+          <div className="logo" onClick={() => navigate("/dashboard")}>
+            🎧
+          </div>
+          <h2 className="user" onClick={() => navigate("/dashboard")}>
+            {user?.username}
+          </h2>
           <span className="slash">/</span>
-          <h2 className="project-name" onClick={() => navigate(`/project/${id}`)}>{project ? project[0].title : ""}</h2>
+          <h2 className="project-name" onClick={() => navigate(`/project/${id}`)}>
+            {project ? project[0]?.title : ""}
+          </h2>
         </div>
         <div className="right">
-          <button className="buttonoutline" onClick={() => navigate("/new-project")}>+ New Project</button>
-          <button className="buttonoutline icon" onClick={() => navigate("/invite")}><i className="fas fa-user-plus"></i></button>
+          <button className="buttonoutline" onClick={() => navigate("/new-project")}>
+            + New Project
+          </button>
+          <button className="buttonoutline icon" onClick={() => navigate("/invite")}>
+            <i className="fas fa-user-plus"></i>
+          </button>
           {user && user.photos?.[0]?.value ? (
             <div className="profile-container" style={{ position: "relative" }}>
               <img
@@ -125,31 +143,35 @@ function ProjectHeader() {
         </div>
       </div>
       <div className="btn-container">
-        <button 
+        <button
           className={`header-btn ${activeTab === 'track' ? 'selected' : ''}`}
           onClick={() => handleTabSwitch('track')}
         >
           <img src={musicicon} alt="Music Icon" className="music-icon" />
           <span>Tracks</span>
         </button>
-        <button 
+        <button
           className={`header-btn ${activeTab === 'history' ? 'selected' : ''}`}
           onClick={() => handleTabSwitch('history')}
         >
           <img src={historyIcon} alt="History Icon" className="history-icon" />
           <span>History</span>
         </button>
-        <button className="header-btn"> 
+        <button
+          className={`header-btn ${activeTab === 'features' ? 'selected' : ''}`}
+          onClick={() => handleTabSwitch('features')}
+        >
           <img src={featuresicon} alt="Features Icon" className="features-icon" />
           <span>Features</span>
         </button>
-        <button className={`header-btn ${activeTab === 'collabs' ? 'selected' : ''}`}
-          onClick={() => handleTabSwitch('collabs')}>
+        <button className="header-btn">
           <img src={collabrequesticon} alt="Collaboration Icon" className="collab-icon" />
           <span>Collab Requests</span>
         </button>
-        <button className={`header-btn ${activeTab === 'settings' ? 'selected' : ''}`}
-          onClick={() => handleTabSwitch('settings')}>
+        <button
+          className={`header-btn ${activeTab === 'settings' ? 'selected' : ''}`}
+          onClick={() => handleTabSwitch('settings')}
+        >
           <img src={settingsicon} alt="Settings Icon" className="settings-icon" />
           <span>Settings</span>
         </button>
