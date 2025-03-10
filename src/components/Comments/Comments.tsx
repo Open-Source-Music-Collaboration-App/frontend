@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthProvider';
 import axios from 'axios';
 import { FaUser, FaTrash, FaPaperPlane } from 'react-icons/fa';
 import './Comments.css';
+import SendButton from '../UI/SendButton/SendButton';
 
 interface Comment {
   id: number;
@@ -173,7 +174,7 @@ function Comments({ featureId }: CommentsProps) {
             style={{ resize: 'none' }}
             rows={2}
           />
-        <button
+        {/* <button
           type="submit"
           className="submit-comment-btn"
           disabled={!newComment.trim() || submitting}
@@ -183,7 +184,8 @@ function Comments({ featureId }: CommentsProps) {
           ) : (
             <FaPaperPlane />
           )}
-        </button>
+        </button> */}
+        <SendButton type="submit" disabled={!newComment.trim() || submitting} />
         </div>
       </form>
     </div>
