@@ -32,63 +32,88 @@
 }
 
 .comment-item {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 12px 15px;
+  background: rgba(20, 0, 35, 0.4);
+  border: 1px solid rgba(147, 0, 215, 0.1);
+  border-radius: 12px;
+  padding: 16px;
   position: relative;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2px;
 }
 
 .comment-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(30, 5, 45, 0.5);
+  border-color: rgba(147, 0, 215, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .comment-header {
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   align-items: center;
+  flex-direction: row;
   margin-bottom: 8px;
+  padding-bottom: 10px;
+  gap:4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .comment-author {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  align-items: flex-start;
   font-size: 0.9rem;
   font-weight: 500;
+  width: 100%;
 }
 
-.comment-author-icon {
-  color: rgba(147, 0, 215, 0.7);
+.comment-header img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(147, 0, 215, 0.4);
+  box-shadow: 0 0 8px rgba(147, 0, 215, 0.3);
 }
 
 .comment-date {
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.4);
+  /* background: rgba(255, 255, 255, 0.05); */
+  padding: 2px 8px;
+  border-radius: 10px;
 }
 
 .comment-message {
   font-size: 0.95rem;
-  line-height: 1.5;
+  line-height: 1.6;
   color: rgba(255, 255, 255, 0.9);
   white-space: pre-wrap;
   word-break: break-word;
+  padding: 0px 0;
 }
 
 .delete-comment-btn {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
+  top: 14px;
+  right: 14px;
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.3);
   cursor: pointer;
-  font-size: 0.8rem;
-  padding: 5px;
-  border-radius: 4px;
+  font-size: 0.85rem;
+  padding: 6px;
+  border-radius: 50%;
   transition: all 0.2s;
   opacity: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .comment-item:hover .delete-comment-btn {
@@ -96,8 +121,8 @@
 }
 
 .delete-comment-btn:hover {
-  color: rgba(255, 82, 82, 0.8);
-  background: rgba(255, 82, 82, 0.1);
+  color: rgba(255, 82, 82, 0.9);
+  background: rgba(255, 82, 82, 0.15);
 }
 
 .comment-form {

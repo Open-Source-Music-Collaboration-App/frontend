@@ -110,6 +110,7 @@ function Comments({ featureId }: CommentsProps) {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+
   return (
     <div className="comments-section">
       <h3 className="comments-title">Comments</h3>
@@ -132,18 +133,21 @@ function Comments({ featureId }: CommentsProps) {
             comments.map((comment) => (
               <div key={comment.id} className="comment-item">
                 <div className="comment-header">
+                  <img src = {`https://avatars.githubusercontent.com/u/${comment.User?.id}?v=4` || 'https://via.placeholder.com/40' } alt="User Avatar" className="user-avatar" />
                   <div className="comment-author">
-                    <FaUser className="comment-author-icon" />
-                    <span>{comment.User?.name || 'Unknown user'}</span>
-                  </div>
-                  <div className="comment-date">
-                    {formatDate(comment.created_at)}
+                    <span style ={{
+                      paddingLeft: "8px"
+                    }}
+                    >{comment.User?.name || 'Unknown user'}</span>
+                    <div className="comment-date">
+                      {formatDate(comment.created_at)}
+                    </div>
                   </div>
                 </div>
                 
                 <div className="comment-message">{comment.message}</div>
                 
-                {user?.id === comment.author_id && (
+                {user?.id == comment.author_id && (
                   <button
                     className="delete-comment-btn"
                     onClick={() => handleDeleteComment(comment.id)}
