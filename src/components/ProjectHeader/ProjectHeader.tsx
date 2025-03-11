@@ -60,7 +60,7 @@ function ProjectHeader() {
     if (user && id) {
       const domain = window.location.hostname;
       axios
-        .get(`http://${domain}:3333/api/projects/${id}`, { withCredentials: true })
+        .get(`http://${domain}:3333/api/projects/${id}`)
         .then((response) => {
           console.log("Project data:", response.data);
           setProject(response.data);
@@ -97,7 +97,7 @@ function ProjectHeader() {
             🎧
           </div>
           <h2 className="user" onClick={() => navigate("/dashboard")}>
-            {user?.username}
+            {project ? project[0]?.User.name : ""}
           </h2>
           <span className="slash">/</span>
           <h2 className="project-name" onClick={() => navigate(`/project/${id}`)}>

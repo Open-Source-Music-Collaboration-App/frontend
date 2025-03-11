@@ -21,6 +21,7 @@ import PageTransition from "./components/PageTransition/PageTransition";
 import Settings from "./pages/Settings/Settings";
 import NotFound from "./pages/NotFound/NotFound";
 import Features from "./pages/Features/Features";
+import Admin from "./pages/Admin/Admin";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
                 <Route path="/project/:id/collabs" element={<CollabRequests/>}/>
                 <Route path="/project/:id/settings" element={<Settings />} />
                 <Route path="/project/:id/features" element={<Features />} />
+                <Route path="/admin" element={<Admin />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Route>
