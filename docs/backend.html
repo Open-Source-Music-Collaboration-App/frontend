@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <title>Backend Documentation</title>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1><i class="fas fa-server"></i> Backend Documentation</h1>
+      <!-- <p>Developer guide for the backend architecture, APIs, and services</p> -->
+    </div>
+    <!-- <nav>
+      <a href="backend.html" class="active">Backend</a>
+      <a href="frontend.html">Frontend</a>
+      <a href="https://github.com/open-source-music-collaboration-app" target="_blank"><i class="fab fa-github"></i> Repository</a>
+    </nav> -->
+  </header>
+
+  <div class="container">
+    <div class="sidebar">
+      <div class="sidebar-content">
+        <h3>Contents</h3>
+        <ul>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#setup">Setup & Installation</a></li>
+          <li><a href="#architecture">Architecture</a></li>
+          <li><a href="#authentication">Authentication</a></li>
+          <li><a href="#api-endpoints">API Endpoints</a>
+            <ul>
+              <li><a href="#auth-endpoints">Authentication</a></li>
+              <li><a href="#project-endpoints">Projects</a></li>
+              <li><a href="#upload-endpoints">Upload</a></li>
+              <li><a href="#history-endpoints">History</a></li>
+              <li><a href="#features-endpoints">Features</a></li>
+              <li><a href="#comments-endpoints">Comments</a></li>
+              <li><a href="#admin-endpoints">Admin</a></li>
+            </ul>
+          </li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#utils">Utilities</a></li>
+          <li><a href="#config">Configuration</a></li>
+          <li><a href="#database">Database</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <main>
+      <section id="overview">
+        <h2>Overview</h2>
+        <div class="content-card">
+          <p>The backend system is built on Node.js and Express, providing a RESTful API for the music collaboration platform. It handles user authentication, project management, file uploads, version history, feature requests, and comments.</p>
+          
+          <h3>Core Technologies</h3>
+          <ul>
+            <li><strong>Node.js</strong> - JavaScript runtime environment</li>
+            <li><strong>Express.js</strong> - Web application framework</li>
+            <li><strong>Passport.js</strong> - Authentication middleware</li>
+            <li><strong>Supabase</strong> - Database provider</li>
+            <li><strong>Git</strong> - Version control for project files</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="setup">
+        <h2>Setup & Installation</h2>
+        <div class="content-card">
+          <h3>Prerequisites</h3>
+          <ul>
+            <li>Node.js (v14 or higher)</li>
+            <li>npm or yarn</li>
+            <li>Git</li>
+            <li>Supabase account</li>
+            <li>GitHub OAuth application</li>
+          </ul>
+
+          <h3>Environment Variables</h3>
+          <p>Create a <code>.env</code> file in the backend directory with the following variables:</p>
+          <div class="code-block">
+            <pre><code>SESSION_SECRET=your_session_secret
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_key
+REPOSITORY_PATH=path_to_repositories</code></pre>
+          </div>
+
+          <h3>Installation</h3>
+          <div class="code-block">
+            <pre><code># Clone the repository
+git clone https://github.com/yourusername/cs506.git
+cd cs506/backend
+
+# Install dependencies
+npm install
+
+# Start the server
+npm start</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="architecture">
+        <h2>Architecture</h2>
+        <div class="content-card">
+          <p>The backend follows a modular architecture with clear separation of concerns:</p>
+          
+          <div class="architecture-diagram">
+            <div class="arch-component">
+              <h4>Client Application</h4>
+              <p>React Frontend</p>
+            </div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-component">
+              <h4>Express Server</h4>
+              <p>Routes, Middleware, Controllers</p>
+            </div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-row">
+              <div class="arch-component half">
+                <h4>Services</h4>
+                <p>Git, Supabase</p>
+              </div>
+              <div class="arch-component half">
+                <h4>Utils</h4>
+                <p>Audio Processing, Helpers</p>
+              </div>
+            </div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-row">
+              <div class="arch-component half">
+                <h4>Database</h4>
+                <p>Supabase (PostgreSQL)</p>
+              </div>
+              <div class="arch-component half">
+                <h4>File Storage</h4>
+                <p>Git Repositories</p>
+              </div>
+            </div>
+          </div>
+
+          <h3>Directory Structure</h3>
+          <div class="code-block">
+            <pre><code>backend/
+├── config/              # Configuration files
+├── middlewares/         # Express middlewares
+├── repositories/        # Repository pattern implementations
+├── routes/              # API route definitions
+├── services/            # Business logic services
+├── tmp/                 # Temporary files and repositories
+├── utils/               # Utility functions
+├── .env                 # Environment variables
+├── app.js               # Express app setup
+└── index.js             # Entry point</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="authentication">
+        <h2>Authentication</h2>
+        <div class="content-card">
+          <p>The application uses Passport.js with GitHub OAuth for authentication. Session data is stored using express-session.</p>
+
+          <h3>Authentication Flow</h3>
+          <ol>
+            <li>User initiates login by clicking "Login with GitHub" button</li>
+            <li>User is redirected to GitHub for authorization</li>
+            <li>After successful authorization, GitHub redirects back to our callback URL</li>
+            <li>A user record is created or retrieved in the database</li>
+            <li>The user is redirected to the dashboard with an authenticated session</li>
+          </ol>
+
+          <h3>Implementation</h3>
+          <p>The authentication is implemented in:</p>
+          <ul>
+            <li><code>utils/passport.js</code> - Configures the Passport GitHub strategy</li>
+            <li><code>routes/authentication.js</code> - Defines authentication routes</li>
+            <li><code>utils/createOrGetUser.js</code> - Creates or retrieves user records</li>
+          </ul>
+
+          <h3>Session Management</h3>
+          <p>Sessions are configured in <code>app.js</code> using express-session middleware with the following options:</p>
+          <ul>
+            <li>HTTP-only cookies for security</li>
+            <li>Non-secure cookies for development (should be secure in production)</li>
+            <li>SameSite: "lax" for CSRF protection</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="api-endpoints">
+        <h2>API Endpoints</h2>
+        
+        <div id="auth-endpoints" class="content-card">
+          <h3>Authentication Endpoints</h3>
+          <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/auth/github</span>
+            <p>Initiates GitHub OAuth flow</p>
+          </div>
+          <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/auth/github/callback</span>
+            <p>GitHub OAuth callback handler</p>
+          </div>
+          <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/auth/logout</span>
+            <p>Logs out the user and destroys the session</p>
+          </div>
+          <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/api/me</span>
+            <p>Returns the current authenticated user's information</p>
+          </div>
+        </div>
+
+        <div id="project-endpoints" class="content-card">
+          <h3>Projects Endpoints</h3>
+          <div class="endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/api/projects</span>
+            <p>Creates a new project</p>
+            <details>
+              <summary>Request Body</summary>
+              <div class="code-block">
+                <pre><code>{
+  "userId": "string", // GitHub user ID
+  "title": "string",
+  "hashtags": "string" | string[], // Optional - comma-separated or array
+  "description": "string" // Optional
+}</code></pre>
+              </div>
+            </details>
+            <details>
+              <summary>Response</summary>
+              <div class="code-block">
+                <pre><code>{
+  "id": "string",
+  "title": "string",
+  "user_id": "string",
+  "hashtags": string[],
+  "created_at": "timestamp",
+  "updated_at": "timestamp"
+}</code></pre>
+              </div>
+            </details>
+          </div>
+          <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/api/projects?owner_id=:userId</span>
+            <p>Gets all projects for a user</p>
+            <details>
+              <summary>Response</summary>
+              <div class="code-block">
+                <pre><code>[
+  {
+    "id": "string",
+    "title": "string",
+    "user_id": "string",
+    "hashtags": string[],
+    "created_at": "timestamp",
+    "updated_at": "timestamp",
+    "User": {
+      "name": "string"
+    }
+  },
+  // ...
+]</code></pre>
+              </div>
+            </details>
+          </div>
+          <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/api/projects/:projectId</span>
+            <p>Gets a project by ID</p>
+            <details>
+              <summary>Response</summary>
+              <div class="code-block">
+                <pre><code>{
+  "id": "string",
+  "title": "string",
+  "user_id": "string",
+  "hashtags": string[],
+  "created_at": "timestamp",
+  "updated_at": "timestamp",
+  "User": {
+    "name": "string"
+  }
+}</code></pre>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div id="upload-endpoints" class="content-card">
+          <h3>Upload Endpoints</h3>
+          <div class="endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/api/upload/:projectId</span>
+            <p>Uploads files to a project and commits them to the repository</p>
+            <details>
+              <summary>Request Body (multipart/form-data)</summary>
+              <div class="code-block">
+                <pre><code>files: File[] // The files to upload
+message: string // Commit message</code></pre>
+              </div>
+            </details>
+            <details>
+              <summary>Response</summary>
+              <div class="code-block">
+                <pre><code>{
+  "success": true,
+  "message": "Files uploaded and committed successfully",
+  "commitId": "string"
+}</code></pre>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div id="history-endpoints" class="content-card">
+          <h3>History Endpoints</h3>
+          <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/api/history/all/:username/:projectId</span>
+            <p>Gets the commit history for a project</p>
+            <details>
+              <summary>Response</summary>
+              <div class="code-block">
+                <pre><code>{
+  "history": {
+    "total": number,
+    "commits": [
+      {
+        "hash": "string",
+        "date": "timestamp",
+        "message": "string",
+        "author": "string"
+      },
+      // ...
+    ]
+  }
+}</code></pre>
+              </div>
+            </details>
+          </div>
+          <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/api/history/latest/:username/:projectId</span>
+            <p>Gets the latest commit content as a ZIP file</p>
+            <details>
+              <summary>Response</summary>
+              <p>Binary ZIP file containing the project files</p>
+            </details>
+          </div>
+          <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/api/history/:commitId/:username/:projectId</span>
+            <p>Gets a specific commit's content as a ZIP file</p>
+            <details>
+              <summary>Response</summary>
+              <p>Binary ZIP file containing the project files at the specified commit</p>
+            </details>
+          </div>
+          <div class="endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/api/history/revert/:commitId/:username/:projectId</span>
+            <p>Reverts to a specific commit</p>
+            <details>
+              <summary>Response</summary>
+              <div class="code-block">
+                <pre><code>{
+  "success": true,
+  "message": "Successfully reverted to commit [commitId]",
+  "newCommitId": "string"
+}</code></pre>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div id="features-endpoints" class="content-card">
+          <h3>Features Endpoints</h3>
+          <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/api/features/:projectId</span>
+            <p>Gets all feature requests for a project</p>
+            <details>
+              <summary>Response</summary>
+              <div class="code-block">
+                <pre><code>[
+  {
+    "id": number,
+    "project_id": "string",
+    "author_id": "string",
+    "message": "string",
+    "description": "string",
+    "label": "string",
+    "priority": "string", // "high", "medium", "low"
+    "open": boolean,
+    "votes": number,
+    "created_at": "timestamp",
+    "updated_at": "timestamp",
+    "User": {
+      "name": "string"
+    }
+  },
+  // ...
+]</code></pre>
+              </div>
+            </details>
+          </div>
+          <div class="endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/api/features</span>
+            <p>Creates a new feature request</p>
+            <details>
+              <summary>Request Body</summary>
+              <div class="code-block">
+                <pre><code>{
+  "project_id": "string",
+  "author_id": "string",
+  "message": "string",
+  "description": "string",
+  "label": "string",
+  "open": boolean,
+  "priority": "string" // "high", "medium", "low"
+}</code></pre>
+              </div>
+            </details>
+            <details>
+              <summary>Response</summary>
+              <div class="code-block">
+                <pre><code>{
+  "id": number,
+  "project_id": "string",
+  "author_id": "string",
+  "message": "string",
+  "description": "string",
+  "label": "string",
+  "priority": "string",
+  "open": boolean,
+  "votes": 0,
+  "created_at": "timestamp",
+  "updated_at": "timestamp"
+}</code></pre>
+              </div>
+            </details>
+          </div>
+          <div class="endpoint">
+            <span class="method put">PUT</span>
+            <span class="path">/api/features/:featureId</span>
+            <p>Updates a feature request (e.g., close it)</p>
+            <details>
+              <summary>Request Body</summary>
+              <div class="code-block">
+                <pre><code>{
+  "open": boolean
+}</code></pre>
+              </div>
+            </details>
+            <details>
+              <summary>Response</summary>
+              <div class="code-block">
+                <pre><code>{
+  "success": true,
+  "message": "Feature updated successfully"
+}</code></pre>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div id="comments-endpoints" class="content-card">
+          <h3>Comments Endpoints</h3>
+          <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/api/comments/:featureId</span>
+            <p>Gets all comments for a feature request</p>
+          </div>
+          <div class="endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/api/comments</span>
+            <p>Creates a new comment on a feature request</p>
+            <details>
+              <summary>Request Body</summary>
+              <div class="code-block">
+                <pre><code>{
+  "feature_id": number,
+  "author_id": "string",
+  "content": "string"
+}</code></pre>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div id="admin-endpoints" class="content-card">
+          <h3>Admin Endpoints</h3>
+          <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/api/admin/users</span>
+            <p>Gets all users with their projects (admin access only)</p>
+            <details>
+              <summary>Response</summary>
+              <div class="code-block">
+                <pre><code>[
+  {
+    "id": "string",
+    "name": "string",
+    "created_at": "timestamp",
+    "photo": "string",
+    "projects": [
+      {
+        "id": "string",
+        "title": "string",
+        "created_at": "timestamp",
+        "updated_at": "timestamp"
+      },
+      // ...
+    ]
+  },
+  // ...
+]</code></pre>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section id="services">
+        <h2>Services</h2>
+        <div class="content-card">
+          <p>Services encapsulate the core business logic of the application.</p>
+
+          <h3>Git Service</h3>
+          <p>Manages Git repositories for projects, including:</p>
+          <ul>
+            <li><code>createAbletonRepo(userId, projectId)</code> - Creates a new repository for a project</li>
+            <li><code>commitFiles(userId, projectId, files, message)</code> - Commits files to a repository</li>
+            <li><code>getHistory(userId, projectId)</code> - Gets the commit history</li>
+            <li><code>getContent(userId, projectId, commitId)</code> - Gets content at a specific commit</li>
+          </ul>
+
+          <h3>Supabase Service</h3>
+          <p>Provides a connection to the Supabase database:</p>
+          <div class="code-block">
+            <pre><code>// services/supabase.js
+const { createClient } = require('@supabase/supabase-js');
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+module.exports = supabase;</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="utils">
+        <h2>Utilities</h2>
+        <div class="content-card">
+          <p>The <code>utils</code> directory contains helper functions and utilities:</p>
+
+          <h3>Audio Processing</h3>
+          <ul>
+            <li><code>audioComparison.js</code> - Compares audio files for similarity</li>
+            <li><code>compresswav.py</code> - Python script for WAV file compression</li>
+            <li><code>parseAbleton.py</code> - Python script to extract data from Ableton Live project files</li>
+            <li><code>trackComparison.js</code> - Compares music tracks for changes</li>
+          </ul>
+
+          <h3>User Management</h3>
+          <ul>
+            <li><code>createOrGetUser.js</code> - Creates a new user or retrieves an existing one</li>
+            <li><code>passport.js</code> - Configures Passport.js for authentication</li>
+          </ul>
+
+          <h3>Repository</h3>
+          <p>The <code>repo</code> subdirectory contains utilities for working with Git repositories.</p>
+        </div>
+      </section>
+
+      <section id="config">
+        <h2>Configuration</h2>
+        <div class="content-card">
+          <p>The <code>config</code> directory contains configuration files:</p>
+
+          <h3>init.js</h3>
+          <p>Initializes the application, sets up directories, and defines constants:</p>
+          <div class="code-block">
+            <pre><code>// config/init.js
+const fs = require('fs');
+const path = require('path');
+
+// Repository path where project files are stored
+const REPOSITORY_PATH = process.env.REPOSITORY_PATH || path.join(__dirname, '../tmp/repositories');
+
+// Initialize function creates necessary directories
+function init() {
+  // Create repository directory if it doesn't exist
+  if (!fs.existsSync(REPOSITORY_PATH)) {
+    fs.mkdirSync(REPOSITORY_PATH, { recursive: true });
+  }
+  
+  // Additional initialization tasks...
+}
+
+module.exports = { init, REPOSITORY_PATH };</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="database">
+        <h2>Database Schema</h2>
+        <div class="content-card">
+          <p>The application uses Supabase (PostgreSQL) as its database. Here's the schema:</p>
+
+          <h3>User Table</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>id</td>
+                  <td>string</td>
+                  <td>GitHub user ID (primary key)</td>
+                </tr>
+                <tr>
+                  <td>name</td>
+                  <td>string</td>
+                  <td>User's display name</td>
+                </tr>
+                <tr>
+                  <td>created_at</td>
+                  <td>timestamp</td>
+                  <td>When the user was created</td>
+                </tr>
+                <tr>
+                  <td>photo</td>
+                  <td>string</td>
+                  <td>URL to user's profile picture (optional)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Project Table</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>id</td>
+                  <td>string</td>
+                  <td>Unique project ID (primary key)</td>
+                </tr>
+                <tr>
+                  <td>title</td>
+                  <td>string</td>
+                  <td>Project title</td>
+                </tr>
+                <tr>
+                  <td>user_id</td>
+                  <td>string</td>
+                  <td>Owner's user ID (foreign key to User.id)</td>
+                </tr>
+                <tr>
+                  <td>hashtags</td>
+                  <td>string[]</td>
+                  <td>Array of hashtags</td>
+                </tr>
+                <tr>
+                  <td>created_at</td>
+                  <td>timestamp</td>
+                  <td>When the project was created</td>
+                </tr>
+                <tr>
+                  <td>updated_at</td>
+                  <td>timestamp</td>
+                  <td>When the project was last updated</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Feature Table</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>id</td>
+                  <td>number</td>
+                  <td>Feature ID (primary key)</td>
+                </tr>
+                <tr>
+                  <td>project_id</td>
+                  <td>string</td>
+                  <td>Project ID (foreign key to Project.id)</td>
+                </tr>
+                <tr>
+                  <td>author_id</td>
+                  <td>string</td>
+                  <td>Author's user ID (foreign key to User.id)</td>
+                </tr>
+                <tr>
+                  <td>message</td>
+                  <td>string</td>
+                  <td>Feature title/message</td>
+                </tr>
+                <tr>
+                  <td>description</td>
+                  <td>string</td>
+                  <td>Feature description</td>
+                </tr>
+                <tr>
+                  <td>label</td>
+                  <td>string</td>
+                  <td>Feature category/label</td>
+                </tr>
+                <tr>
+                  <td>priority</td>
+                  <td>string</td>
+                  <td>Priority level (high, medium, low)</td>
+                </tr>
+                <tr>
+                  <td>open</td>
+                  <td>boolean</td>
+                  <td>Whether the feature request is open</td>
+                </tr>
+                <tr>
+                  <td>votes</td>
+                  <td>number</td>
+                  <td>Number of votes</td>
+                </tr>
+                <tr>
+                  <td>created_at</td>
+                  <td>timestamp</td>
+                  <td>When the feature was created</td>
+                </tr>
+                <tr>
+                  <td>updated_at</td>
+                  <td>timestamp</td>
+                  <td>When the feature was last updated</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Comment Table</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>id</td>
+                  <td>number</td>
+                  <td>Comment ID (primary key)</td>
+                </tr>
+                <tr>
+                  <td>feature_id</td>
+                  <td>number</td>
+                  <td>Feature ID (foreign key to Feature.id)</td>
+                </tr>
+                <tr>
+                  <td>author_id</td>
+                  <td>string</td>
+                  <td>Author's user ID (foreign key to User.id)</td>
+                </tr>
+                <tr>
+                  <td>content</td>
+                  <td>string</td>
+                  <td>Comment content</td>
+                </tr>
+                <tr>
+                  <td>created_at</td>
+                  <td>timestamp</td>
+                  <td>When the comment was created</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <p>&copy; 2023 Music Collaboration Platform. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="backend.html">Backend</a>
+      <a href="frontend.html">Frontend</a>
+      <a href="https://github.com/yourusername/cs506" target="_blank"><i class="fab fa-github"></i> Repository</a>
+    </div>
+  </footer>
+
+  <script>
+    // Add active class to current sidebar link
+    document.addEventListener('DOMContentLoaded', () => {
+      const sidebarLinks = document.querySelectorAll('.sidebar a');
+      
+      sidebarLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          // Remove active class from all links
+          sidebarLinks.forEach(l => l.classList.remove('active'));
+          // Add active class to clicked link
+          e.target.classList.add('active');
+        });
+      });
+
+      // Handle scroll to section and highlight active section
+      const sections = document.querySelectorAll('section');
+      
+      window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          if (scrollY >= sectionTop - 100) {
+            current = section.getAttribute('id');
+          }
+          sidebarLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').substring(1) === current) {
+              link.classList.add('active');
+            }
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>
+
