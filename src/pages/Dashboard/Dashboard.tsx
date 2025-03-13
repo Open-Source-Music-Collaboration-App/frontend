@@ -123,7 +123,7 @@ function Dashboard() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
+            transition={{ duration: 0.3, delay: 0.3 }}
         >
             <div className="dashboard-header">
                 <div className="dashboard-header-left">
@@ -188,7 +188,7 @@ function Dashboard() {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             whileHover={{ boxShadow: "0 8px 30px rgba(0, 0, 0, 0.3), 0 0 15px rgba(147, 0, 215, 0.1)" }}
-                            transition={{ duration: 0.3, delay: 0.2 }}
+                            transition={{ duration: 0.3, delay: 0 }}
                         >
                             <div className="project-card-header">
                                 <h3 className="project-title">{project.title}</h3>
@@ -243,7 +243,7 @@ function Dashboard() {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             whileHover={{ boxShadow: "0 8px 30px rgba(0, 0, 0, 0.3), 0 0 15px rgba(147, 0, 215, 0.1)" }}
-                            transition={{ duration: 0.3, delay: 0.2 }}
+                            transition={{ duration: 0.3, delay: 0 }}
                         >
                             <div className="project-card-header">
                                 <h3 className="project-title">{project.title}</h3>

@@ -146,11 +146,11 @@ main{
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 12px;
-  border: 1px solid rgba(147, 0, 215, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 25px;
   transition: all 0.3s ease;
   cursor: pointer;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   position: relative;
