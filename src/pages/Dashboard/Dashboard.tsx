@@ -159,7 +159,7 @@ function Dashboard() {
 
             <FeatureBanner
               featureId="collaboration-2025-mar12"
-              title="New Feature Added: Collaborating on Projects"
+              title="New Feature Added! Collaborating on Projects"
               description="You can now contribute to projects created by other users and document your changes."
               ctaText={projects.length > 0 ? `Try it on ${projects[0].title}` : "Create a New Project"}
               ctaLink={projects.length > 0 ? `/project/${projects[0].id}` : "/new-project"}

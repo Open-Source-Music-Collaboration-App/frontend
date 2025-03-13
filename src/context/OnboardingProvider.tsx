@@ -51,6 +51,14 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
 
   const restartOnboarding = () => {
     setOnboardingComplete(false);
+    localStorage.removeItem('hasVisitedProject');
+    localStorage.removeItem('hasSeenTracksIntro');
+    localStorage.removeItem('hasSeenHistoryIntro');
+    localStorage.removeItem('hasSeenFeaturesIntro');
+    localStorage.removeItem('viewedFeatures');
+    localStorage.removeItem('dismissedFeatures');
+    localStorage.removeItem('completedGuides');
+    alert('All guides have been reset. You will see introduction guides on your next visit to each section.');
     setCompletedSteps([]);
   };
 

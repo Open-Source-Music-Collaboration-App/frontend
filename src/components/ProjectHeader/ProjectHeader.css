@@ -8,6 +8,7 @@
     padding-bottom: 0px;
     border-bottom: 1px solid #fff2;
     background-color: #0005;
+    z-index: 5000;
 }
 
 .project-header .header-container

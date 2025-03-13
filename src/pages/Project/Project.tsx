@@ -11,6 +11,8 @@ import Tooltip from '../../components/Tooltip/Tooltip';
 import { FaShareAlt, FaFolderOpen, FaMusic, FaFileUpload, FaTag, FaStar, FaCodeBranch, FaHistory } from 'react-icons/fa';
 // Add JSZip for handling ZIP files
 import JSZip from 'jszip';
+import { ProjectProvider } from "../../context/ProjectContext";
+import FirstTimeProjectGuide from "../../components/FirstTimeProjectGuide/FirstTimeProjectGuide";
 
 function Project() {
   const { id } = useParams();
@@ -261,6 +263,8 @@ function Project() {
   }
 
   return (
+    <ProjectProvider>
+      
     <motion.div 
       className="project-container"
       initial={{ opacity: 0 }}
@@ -268,6 +272,8 @@ function Project() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4, delay: 0.15 }}
     >
+      <FirstTimeProjectGuide />
+
       <div className="project-header-section">
         <div className="project-abstract">
           <img 
@@ -449,6 +455,7 @@ function Project() {
         </div>
       </div>
     </motion.div>
+    </ProjectProvider>
   );
 }
 

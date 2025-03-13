@@ -14,6 +14,9 @@ import {
 import Comments from '../../components/Comments/Comments';
 
 import featuresicon from '../../assets/plus-circle-svgrepo-com.svg';
+import HoverInfo from "../../components/HoverInfo/HoverInfo";
+import OnboardingTooltip from "../../components/OnboardingTooltip/OnboardingTooltip";
+import Tooltip from "../../components/Tooltip/Tooltip";
 
 interface Feature {
   id: number;
@@ -329,6 +332,11 @@ function Features() {
         <div className="features-title-container">
           <img src={featuresicon} alt="Features Icon" className="features-icon" />
           <h1 className="features-title">Features & Requests</h1>
+          <HoverInfo
+            title="Feature Requests"
+            description="Create and manage feature requests for your project. Collaborate with team members on implementation details."
+          />
+
         </div>
         
         <p className="features-description">
@@ -408,13 +416,20 @@ function Features() {
             )}
           </div>
           
-          <button 
-            type="button" 
-            className="request-feature-btn" 
-            onClick={() => setShowNewFeatureModal(true)}
+          <OnboardingTooltip
+            stepId="request-feature"
+            title="Create New Features"
+            content="Add new feature requests to track ideas and improvements for your project."
+            position="top"
           >
-            <FaPlus /> New Feature
-          </button>
+            <button 
+              type="button" 
+              className="request-feature-btn" 
+              onClick={() => setShowNewFeatureModal(true)}
+            >
+              <FaPlus /> New Feature
+            </button>
+          </OnboardingTooltip>
         </div>
       </div>
       
