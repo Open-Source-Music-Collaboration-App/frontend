@@ -3,6 +3,14 @@ import { useLocation } from 'react-router-dom';
 import { useOnboarding } from '../../context/OnboardingProvider';
 import './WelcomeTour.css';
 
+// Import images
+import dashboardImage from './images/dashboard.png';
+import projectImage from './images/project.png';
+import collabImage from './images/collab.png';
+import featuresImage from './images/features.png';
+import historyImage from './images/history.png';
+
+
 const WelcomeTour = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -18,22 +26,27 @@ const WelcomeTour = () => {
     {
       title: 'Dashboard',
       content: 'Your dashboard shows all your projects. You can create new projects, view collaborations, and manage your work.',
-      image: '/onboarding/dashboard.png' // You would need to create these images
+      image: dashboardImage
     },
     {
       title: 'Project Studio',
       content: 'Each project has a studio view where you can see tracks, make changes, and invite collaborators.',
-      image: '/onboarding/project.png'
+      image: projectImage
+    },
+    {
+      title: 'Version History',
+      content: 'Easily track changes made to your projects. You can view previous versions and restore them if needed.',
+      image: historyImage
     },
     {
       title: 'Collaboration',
       content: 'Easily invite others to collaborate on your projects, receive contributions, and manage permissions.',
-      image: '/onboarding/collab.png'
+      image: collabImage
     },
     {
       title: 'Feature Requests',
       content: 'Suggest new features, vote on ideas, and track the development roadmap.',
-      image: '/onboarding/features.png'
+      image: featuresImage
     }
   ];
 

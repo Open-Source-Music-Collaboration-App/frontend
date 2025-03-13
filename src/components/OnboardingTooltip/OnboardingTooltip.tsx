@@ -28,7 +28,7 @@ const OnboardingTooltip = ({
   
   const handleMouseLeave = () => {
     if (!hasCompletedStep(stepId) && !showAlways) {
-      // completeStep(stepId);
+      completeStep(stepId);
     }
   };
 
