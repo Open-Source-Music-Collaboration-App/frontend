@@ -1,0 +1,42 @@
+.onboarding-tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.onboarding-highlight {
+  position: relative;
+  z-index: 1;
+}
+
+.onboarding-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% + 10px);
+  height: calc(100% + 10px);
+  border-radius: 10px;
+  background: transparent;
+  box-shadow:0 0 10px #fff9, 0 0 10px #2092da;
+  animation: pulseOutline 1.5s infinite ease-in-out;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes pulseOutline {
+  0% {
+    opacity: 0.5;
+    /* transform: translate(-50%, -50%) scale(1); */
+  }
+  50% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 0.5;
+    /* transform: translate(-50%, -50%) scale(1); */
+  }
+}
+
+.tooltip-icon {
+  font-size: 1.1rem;
+}

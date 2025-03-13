@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthProvider";
+import OnboardingSettingsToggle from '../../components/OnboardingSettingsToggle/OnboardingSettingsToggle';
 import { motion } from "framer-motion";
 import {
   FaUser,
@@ -127,6 +128,14 @@ function Settings() {
             >
               <FaShieldAlt className="settings-nav-icon" />
               Account & Security
+            </button>
+
+            <button
+              className={`settings-nav-item ${activeTab === 'onboarding' ? 'active' : ''}`}
+              onClick={() => setActiveTab('onboarding')}
+            >
+              <FaCog className="settings-nav-icon" />
+              Onboarding
             </button>
           </div>
         </div>
@@ -344,6 +353,17 @@ function Settings() {
                   </button>
                 </div>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'onboarding' && (
+            <div className="settings-tab-content onboarding-settings">
+              <div className="settings-section-header">
+                <h2>Onboarding</h2>
+                <p className="settings-description">Customize your onboarding experience</p>
+              </div>
+
+              <OnboardingSettingsToggle />
             </div>
           )}
           

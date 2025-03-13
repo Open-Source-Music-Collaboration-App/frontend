@@ -23,32 +23,39 @@ import NotFound from "./pages/NotFound/NotFound";
 import Features from "./pages/Features/Features";
 import Admin from "./pages/Admin/Admin";
 import Profile from "./pages/Profile/Profile";
+import { OnboardingProvider } from "./context/OnboardingProvider";
+import WelcomeTour from "./components/WelcomeTour/WelcomeTour";
 
 function App() {
   return (
     <>
       <Router>
         <ErrorBoundary>
-          <Routes>
-            <Route path="/" element={
-                <Layout />
-            }> 
-              <Route index element={<Landing />} /> {/* Landing Page */}
-              <Route path="/login" element={<Login />} /> {/* Login Page */}
-              <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<Dashboard />} /> {/* Dashboard Page */}
-                <Route path="/new-project" element={<NewProject />} /> {/* New Project Page */}
-                <Route path="/project/:id" element={<Project />} /> {/* Project Page */}
-                <Route path="/project/:id/history" element={<History />} />
-                <Route path="/project/:id/collabs" element={<CollabRequests/>}/>
-                <Route path="/project/:id/settings" element={<Settings />} />
-                <Route path="/project/:id/features" element={<Features />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="*" element={<NotFound />} />
-              </Route>
-            </Route>
-          </Routes>
+          <AuthProvider>
+            <OnboardingProvider>
+              <WelcomeTour />
+              <Routes>
+                <Route path="/" element={
+                    <Layout />
+                }> 
+                  <Route index element={<Landing />} /> {/* Landing Page */}
+                  <Route path="/login" element={<Login />} /> {/* Login Page */}
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="/dashboard" element={<Dashboard />} /> {/* Dashboard Page */}
+                    <Route path="/new-project" element={<NewProject />} /> {/* New Project Page */}
+                    <Route path="/project/:id" element={<Project />} /> {/* Project Page */}
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/project/:id/history" element={<History />} />
+                    <Route path="/project/:id/collabs" element={<CollabRequests/>}/>
+                    <Route path="/project/:id/features" element={<Features />} />
+                    <Route path="/admin" element={<Admin />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Route>
+                </Route>
+              </Routes>
+            </OnboardingProvider>
+          </AuthProvider>
         </ErrorBoundary>
       </Router>
     </>

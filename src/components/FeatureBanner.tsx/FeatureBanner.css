@@ -1,0 +1,94 @@
+/* FeatureBanner.css */
+.feature-banner {
+  background: linear-gradient(135deg, rgba(20, 0, 35, 0.9) 0%, rgba(40, 0, 70, 0.9) 100%);
+  border-left: 4px solid rgba(147, 0, 215, 0.8);
+  border-radius: 0 8px 8px 0;
+  padding: 16px 20px;
+  margin: 40px 0;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  /* animation: slideIn 0.4s ease; */
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.feature-banner-icon {
+  background: linear-gradient(135deg, #9300D7 0%, #7800b3 100%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(147, 0, 215, 0.3);
+}
+
+.feature-banner-icon svg {
+  color: white;
+  font-size: 1.2rem;
+}
+
+.feature-banner-content {
+  flex-grow: 1;
+}
+
+.feature-banner-content h3 {
+  margin: 0 0 5px;
+  font-size: 1.1rem;
+  color: white;
+}
+
+.feature-banner-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.4;
+}
+
+.feature-banner-cta {
+  background: rgba(147, 0, 215, 0.2);
+  color: rgba(147, 0, 215, 0.9);
+  padding: 8px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.feature-banner-cta:hover {
+  background: rgba(147, 0, 215, 0.3);
+  transform: translateY(-2px);
+}
+
+.feature-banner-dismiss {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.feature-banner-dismiss:hover {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.1);
+}

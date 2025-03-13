@@ -1,0 +1,118 @@
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-content {
+  position: absolute;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  background-color: #140023;
+  border: 1px solid #fff2;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.7rem;
+  color: white;
+  width: max-content;
+  text-align: left;
+  max-width: 300px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 15px rgba(147, 0, 215, 0.15);
+  z-index: 3000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.1s ease, visibility 0.1s ease, transform 0.0s ease;
+  line-height: 1.4;
+}
+
+.tooltip-content.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.tooltip-content::before {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: rgba(20, 0, 35, 0.95);
+  border: 1px solid rgba(147, 0, 215, 0.3);
+  transform: rotate(45deg);
+  z-index: -1;
+}
+
+.tooltip-content.top {
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tooltip-content.top::before {
+  bottom: -6px;
+  left: calc(50% - 5px);
+  border-top: none;
+  border-left: none;
+}
+
+.tooltip-content.bottom {
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tooltip-content.bottom::before {
+  top: -6px;
+  left: calc(50% - 5px);
+  border-bottom: none;
+  border-right: none;
+}
+
+.tooltip-content.left {
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.tooltip-content.left::before {
+  right: -6px;
+  top: calc(50% - 5px);
+  border-left: none;
+  border-bottom: none;
+}
+
+.tooltip-content.right {
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.tooltip-content.right::before {
+  left: -6px;
+  top: calc(50% - 5px);
+  border-right: none;
+  border-top: none;
+}
+
+.tooltip-content h4 {
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+  color: #9300d7;
+  filter: brightness(9) saturate(1.2);
+  text-shadow: 0 2px 10px rgba(147, 0, 215, 0.3);
+  font-weight: 600;
+}
+
+.tooltip-content p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tooltip-content .tooltip-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.6);
+}

@@ -6,6 +6,8 @@ import axios from "axios";
 import "./Project.css";
 import { motion } from "framer-motion";
 import ALSView from "../../components/ALSView/ALSView";
+import HoverInfo from '../../components/HoverInfo/HoverInfo';
+import Tooltip from '../../components/Tooltip/Tooltip';
 import { FaShareAlt, FaFolderOpen, FaMusic, FaFileUpload, FaTag, FaStar, FaCodeBranch, FaHistory } from 'react-icons/fa';
 // Add JSZip for handling ZIP files
 import JSZip from 'jszip';
@@ -283,22 +285,30 @@ function Project() {
                   >
                     <FaHistory className="btn-icon" />
                     <span>View Version History</span>
+                    {/* <HoverInfo
+                      title="Version History"
+                      description="See all previous versions of this project, compare changes, and restore older versions if needed."
+                      position="bottom"
+                    /> */}
                   </button>
                 <button className="project-share-btn" aria-label="Share project">
                   <FaShareAlt />
                 </button>
                 <div className="share-tooltip">
-                  <div className="copy-link">
+                  <div className="copy-link" style={{ display: 'flex', alignItems: 'center' }}>
                     <input 
                       type="text" 
                       value={window.location.href} 
                       readOnly 
                       className="share-link" 
+                      style={{ width: '100%', padding: '0.5rem', borderRadius: '4px' }}
                     />
                     <button className="btn-outline copy-btn" onClick={() => {
                       navigator.clipboard.writeText(window.location.href);
                       alert("Link copied to clipboard!");
-                    }}>
+                    }}
+                      style={{ marginLeft: '0.5rem', backgroundColor: '#fff2', color: '#fff', padding: '0.5rem', borderRadius: '4px' }}
+                    >
                       Copy
                     </button>
                   </div>
@@ -319,6 +329,11 @@ function Project() {
                 <div className="stat-item pointer" onClick={() => navigate(`/project/${id}/history`)}>
                   <FaHistory />
                   <span>{numCommits} Versions</span>
+                  <HoverInfo
+                    title="Project Versions"
+                    description="This number shows how many saved versions exist for this project."
+                    position="top"
+                  />
                 </div>
               </div>
             </div>

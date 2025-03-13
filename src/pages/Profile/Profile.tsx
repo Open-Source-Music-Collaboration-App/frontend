@@ -407,13 +407,7 @@ function Profile() {
                         {priorityChartData && <Doughnut data={priorityChartData} options={doughnutOptions} />}
                       </div>
                     </div>
-                    
-                    {/* <div className="viz-card donut-chart-container animate-fade-in">
-                      <h3 className="section-title">Project Visibility</h3>
-                      <div className="donut-chart">
-                        {visibilityChartData && <Doughnut data={visibilityChartData} options={doughnutOptions} />}
-                      </div>
-                    </div> */}
+
                   </div>
                 </div>
                 

@@ -11,6 +11,9 @@ import "./Dashboard.css";
 import { useNavigate } from "react-router-dom";
 import { FaPlus, FaStar, FaHistory, FaCodeBranch, FaSearch } from "react-icons/fa";
 import { motion } from "framer-motion";
+import OnboardingTooltip from '../../components/OnboardingTooltip/OnboardingTooltip';
+import FeatureBanner from "../../components/FeatureBanner.tsx/FeatureBanner";
+
 
 /**
  * @function Dashboard
@@ -141,11 +144,26 @@ function Dashboard() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <button className="create-project-btn" onClick={handleCreateProject}>
-                        <FaPlus /> New Project
-                    </button>
+                    <OnboardingTooltip
+                      stepId="create-project"
+                      title="Create New Projects"
+                      content="Click here to create a new music project. You can set up collaborators, add tracks, and start working on your next masterpiece."
+                      position="left"
+                    >
+                      <button className="create-project-btn" onClick={handleCreateProject}>
+                          <FaPlus /> New Project
+                      </button>
+                    </OnboardingTooltip>
                 </div>
             </div>
+
+            <FeatureBanner
+              featureId="collaboration-2025-mar12"
+              title="New Feature Added: Collaborating on Projects"
+              description="You can now contribute to projects created by other users and document your changes."
+              ctaText={projects.length > 0 ? `Try it on ${projects[0].title}` : "Create a New Project"}
+              ctaLink={projects.length > 0 ? `/project/${projects[0].id}` : "/new-project"}
+            />
             
             {loading ? (
                 <div className="dashboard-loading">
@@ -154,7 +172,69 @@ function Dashboard() {
                 </div>
             ) : filteredProjects.length > 0 ? (
                 <div className="projects-grid">
-                    {filteredProjects.map((project, index) => (
+                    {filteredProjects.slice(0, 1).map((project, index) => (
+                      <OnboardingTooltip 
+                        stepId="project-card-intro"
+                        title="Project Cards"
+                        content="Each card represents a project you've created. Click on a card to open the project studio and start working on your music."
+                        position="left"
+                        style = {{width: "100%"}}
+                      >
+                        <motion.div 
+                            key={project.id}
+                            className="project-card"
+                            onClick={() => navigate(`/project/${project.id}`)}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            whileHover={{ boxShadow: "0 8px 30px rgba(0, 0, 0, 0.3), 0 0 15px rgba(147, 0, 215, 0.1)" }}
+                            transition={{ duration: 0.3, delay: 0.2 }}
+                        >
+                            <div className="project-card-header">
+                                <h3 className="project-title">{project.title}</h3>
+                                <span className="project-visibility public">Public</span>
+                            </div>
+                            
+                            <div className="project-waveform">
+                                <div className="waveform-visualization"></div>
+                            </div>
+                            
+                            <div className="project-details">
+                                <p className="project-description">
+                                    Last modified {new Date(project.updated_at).toLocaleDateString('en-US', {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric'
+                                    })}
+                                </p>
+                                
+                                {project.hashtags && project.hashtags.length > 0 && (
+                                    <div className="project-tags">
+                                        {project.hashtags.map((tag, index) => (
+                                            <span key={index} className="project-tag">{tag}</span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="project-stats">
+                                <div className="stat-item">
+                                    <FaStar className="stat-icon" />
+                                    <span>0</span>
+                                </div>
+                                {/* <div className="stat-item">
+                                    <FaCodeBranch className="stat-icon" />
+                                    <span>0</span>
+                                </div>
+                                <div className="stat-item">
+                                    <FaHistory className="stat-icon" />
+                                    <span>1 commit</span>
+                                </div> */}
+                            </div>
+                        </motion.div>
+                      </OnboardingTooltip>
+                    ))}
+                    {filteredProjects.slice(1).map((project, index) => (
                         <motion.div 
                             key={project.id}
                             className="project-card"
@@ -225,9 +305,17 @@ function Dashboard() {
                     <div className="empty-state-content">
                         <h2>No projects yet</h2>
                         <p>Create your first music project to get started</p>
-                        <button className="create-first-project-btn" onClick={handleCreateProject}>
-                            <FaPlus /> Create New Project
-                        </button>
+                        <OnboardingTooltip
+                          stepId="empty-dashboard"
+                          title="Welcome to Your Dashboard"
+                          content="This is where all your projects will appear. Get started by creating your first project using the 'New Project' button above."
+                          position="top"
+                          showAlways={true}
+                        >
+                          <button className="create-first-project-btn" onClick={handleCreateProject}>
+                              <FaPlus /> Create New Project
+                          </button>
+                        </OnboardingTooltip>
                     </div>
                 </div>
             )}

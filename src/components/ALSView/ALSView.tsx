@@ -19,6 +19,7 @@ import { useState, useEffect, useRef } from "react"; // React hooks
 import "./ALSView.css";
 import { FaPlay, FaPause, FaStepBackward, FaSearchMinus, FaSearchPlus } from "react-icons/fa"; // Icons for controls
 import { motion } from "framer-motion"; // Animation library
+import Tooltip from "../Tooltip/Tooltip";
 
 
 
@@ -763,6 +764,7 @@ function ALSView({ projectData, trackFiles }: ALSViewProps) {
         </div>
 
         <div className="transport-controls">
+        <Tooltip content="Go to beginning of project" position="bottom">
           <button
             className="transport-btn"
             onClick={() => {
@@ -782,19 +784,24 @@ function ALSView({ projectData, trackFiles }: ALSViewProps) {
           >
             <FaStepBackward />
           </button>
+          </Tooltip>
 
-          <button
-            className={`transport-btn play-btn ${isPlaying ? "playing" : ""}`}
-            onClick={isPlaying ? stopPlayback : startPlayback}
-          >
-            {isPlaying ? <FaPause /> : <FaPlay />}
-          </button>
+          <Tooltip content={isPlaying ? "Pause playback" : "Start playback"} position="bottom">
+            <button
+              className={`transport-btn play-btn ${isPlaying ? "playing" : ""}`}
+              onClick={isPlaying ? stopPlayback : startPlayback}
+            >
+              {isPlaying ? <FaPause /> : <FaPlay />}
+            </button>
+          </Tooltip>
 
-          <div className="time-display">
-            <span>{formatTime(currentSec)}</span>
-            <span className="time-divider">/</span>
-            <span>{formatTime(totalSec)}</span>
-          </div>
+          <Tooltip content="Current time / Total duration" position="bottom">
+            <div className="time-display">
+              <span>{formatTime(currentSec)}</span>
+              <span className="time-divider">/</span>
+              <span>{formatTime(totalSec)}</span>
+            </div>
+          </Tooltip>
 
           <div className="zoom-controls">
             <button className="transport-btn" onClick={() => setZoom(Math.max(50, zoom - 10))}>
@@ -852,6 +859,7 @@ function ALSView({ projectData, trackFiles }: ALSViewProps) {
                     </span>
                   </div>
                   <div className="track-controls">
+                  <Tooltip content={mutedTracks.includes(trackIndex) ? "Unmute track" : "Mute track"}>
                     <button
                       className={`track-btn mute-btn ${mutedTracks.includes(trackIndex) ? "active" : ""}`}
                       onClick={(e) => toggleMute(trackIndex, e)}
@@ -859,6 +867,9 @@ function ALSView({ projectData, trackFiles }: ALSViewProps) {
                     >
                       M
                     </button>
+                  </Tooltip>
+
+                  <Tooltip content={soloTrack === trackIndex ? "Unsolo track" : "Solo track"}>
                     <button
                       className={`track-btn solo-btn ${soloTrack === trackIndex ? "active" : ""}`}
                       onClick={(e) => toggleSolo(trackIndex, e)}
@@ -866,6 +877,7 @@ function ALSView({ projectData, trackFiles }: ALSViewProps) {
                     >
                       S
                     </button>
+                  </Tooltip>
                   </div>
                 </div>
 

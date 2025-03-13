@@ -1,0 +1,23 @@
+.onboarding-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.restart-onboarding-btn {
+  background: rgba(147, 0, 215, 0.1);
+  color: rgba(147, 0, 215, 0.9);
+  border: 1px solid rgba(147, 0, 215, 0.3);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+
+.restart-onboarding-btn:hover {
+  background: rgba(147, 0, 215, 0.2);
+  transform: translateY(-2px);
+}

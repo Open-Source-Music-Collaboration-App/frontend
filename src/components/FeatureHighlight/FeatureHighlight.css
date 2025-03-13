@@ -1,0 +1,133 @@
+/* FeatureHighlight.css */
+.feature-highlight-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2000;
+  pointer-events: none;
+}
+
+.feature-highlight-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  pointer-events: auto;
+}
+
+.feature-highlight-element {
+  position: absolute;
+  border-radius: 8px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+  z-index: 1;
+  pointer-events: none;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), 0 0 0 3px rgba(147, 0, 215, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), 0 0 0 5px rgba(147, 0, 215, 0.9);
+  }
+  100% {
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), 0 0 0 3px rgba(147, 0, 215, 0.7);
+  }
+}
+
+.feature-highlight-tooltip {
+  position: absolute;
+  width: 300px;
+  background: rgba(20, 0, 35, 0.95);
+  backdrop-filter: blur(15px);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  z-index: 2;
+  pointer-events: auto;
+  border: 1px solid rgba(147, 0, 215, 0.4);
+  animation: slideIn 0.3s ease;
+}
+
+.feature-highlight-tooltip::after {
+  content: '';
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  background: rgba(20, 0, 35, 0.95);
+  transform: rotate(45deg);
+  border: 1px solid rgba(147, 0, 215, 0.4);
+  z-index: -1;
+}
+
+.feature-highlight-tooltip.top::after {
+  bottom: -8px;
+  left: calc(50% - 8px);
+  border-top: none;
+  border-left: none;
+}
+
+.feature-highlight-tooltip.bottom::after {
+  top: -8px;
+  left: calc(50% - 8px);
+  border-bottom: none;
+  border-right: none;
+}
+
+.feature-highlight-tooltip.left::after {
+  right: -8px;
+  top: calc(50% - 8px);
+  border-left: none;
+  border-bottom: none;
+}
+
+.feature-highlight-tooltip.right::after {
+  left: -8px;
+  top: calc(50% - 8px);
+  border-right: none;
+  border-top: none;
+}
+
+.feature-highlight-tooltip h3 {
+  color: rgba(147, 0, 215, 0.9);
+  margin: 0 0 10px 0;
+  font-size: 1.3rem;
+}
+
+.feature-highlight-tooltip p {
+  color: white;
+  margin: 0 0 15px 0;
+  line-height: 1.5;
+}
+
+.feature-highlight-btn {
+  background: rgba(147, 0, 215, 0.8);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.feature-highlight-btn:hover {
+  background: rgba(147, 0, 215, 1);
+  transform: translateY(-2px);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

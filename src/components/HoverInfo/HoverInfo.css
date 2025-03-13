@@ -1,0 +1,24 @@
+/* HoverInfo.css */
+.hover-info-wrapper {
+  display: inline-block;
+  position: relative;
+}
+
+.hover-info-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 5px;
+  cursor: help;
+}
+
+.info-icon {
+  color: rgba(147, 0, 215, 0.7);
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.info-icon:hover {
+  color: rgba(147, 0, 215, 1);
+  transform: scale(1.1);
+}
