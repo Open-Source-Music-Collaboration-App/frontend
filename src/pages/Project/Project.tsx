@@ -214,14 +214,9 @@ function Project() {
         }
       }
 
-      // Add JSON metadata as a Blob
-      const jsonBlob = new Blob([JSON.stringify({
-        projectId: id,
-        userId: user.username,
-        commitMessage: commitMessage,
-      })], { type: "application/json" });
-      
-      formData.append("jsonData", jsonBlob);
+      formData.append("projectId", id);
+      formData.append("userId", user.username);
+      formData.append("commitMessage", commitMessage);
 
       // Upload with progress tracking
       const response = await axios.post(`http://${window.location.hostname}:3333/api/upload`, formData, {
