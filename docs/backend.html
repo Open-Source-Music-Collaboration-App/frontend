@@ -45,6 +45,7 @@
           <li><a href="#utils">Utilities</a></li>
           <li><a href="#config">Configuration</a></li>
           <li><a href="#database">Database</a></li>
+          <li><a href="#diff-engine">Diff Engine</a></li>
         </ul>
       </div>
     </div>
@@ -307,7 +308,7 @@ npm start</code></pre>
               <summary>Request Body (multipart/form-data)</summary>
               <div class="code-block">
                 <pre><code>files: File[] // The files to upload
-message: string // Commit message</code></pre>
+metadata.json: File // JSON file containing metadata (userId, projectId, commitMessage)</code></pre>
               </div>
             </details>
             <details>
@@ -316,7 +317,14 @@ message: string // Commit message</code></pre>
                 <pre><code>{
   "success": true,
   "message": "Files uploaded and committed successfully",
-  "commitId": "string"
+  "commitId": "string",
+  "diffSummary": {
+    "totalChanges": number,
+    "changedTracks": string[],
+    "addedTracks": string[],
+    "removedTracks": string[],
+    "modifiedTracks": string[]
+  }
 }</code></pre>
               </div>
             </details>
@@ -327,20 +335,33 @@ message: string // Commit message</code></pre>
           <h3>History Endpoints</h3>
           <div class="endpoint">
             <span class="method get">GET</span>
-            <span class="path">/api/history/all/:username/:projectId</span>
-            <p>Gets the commit history for a project</p>
+            <span class="path">/api/history/all/:userId/:projectId</span>
+            <p>Gets the commit history for a project including detailed change information</p>
             <details>
               <summary>Response</summary>
               <div class="code-block">
                 <pre><code>{
+  "projectId": "string",
+  "userId": "string",
   "history": {
     "total": number,
-    "commits": [
+    "all": [
       {
         "hash": "string",
         "date": "timestamp",
         "message": "string",
-        "author": "string"
+        "author": "string",
+        "trackChanges": {
+          "summary": {
+            "totalChanges": number,
+            "changedTracks": string[],
+            "addedTracks": string[],
+            "removedTracks": string[]
+          },
+          "noteChanges": object[],
+          "velocityChanges": object[],
+          "trackParameterChanges": object[]
+        }
       },
       // ...
     ]
@@ -351,7 +372,7 @@ message: string // Commit message</code></pre>
           </div>
           <div class="endpoint">
             <span class="method get">GET</span>
-            <span class="path">/api/history/latest/:username/:projectId</span>
+            <span class="path">/api/history/latest/:userId/:projectId</span>
             <p>Gets the latest commit content as a ZIP file</p>
             <details>
               <summary>Response</summary>
@@ -360,7 +381,59 @@ message: string // Commit message</code></pre>
           </div>
           <div class="endpoint">
             <span class="method get">GET</span>
-            <span class="path">/api/history/:commitId/:username/:projectId</span>
+            <span class="path">/api/history/diff/:userId/:projectId/:commitHash</span>
+            <p>Gets the detailed diff information for a specific commit</p>
+            <details>
+              <summary>Response</summary>
+              <div class="code-block">
+                <pre><code>{
+  "summary": {
+    "totalChanges": number,
+    "changedTracks": string[],
+    "addedTracks": string[],
+    "removedTracks": string[],
+    "modifiedTracks": string[]
+  },
+  "noteChanges": [
+    {
+      "type": "noteAdded" | "noteRemoved" | "noteModified",
+      "trackName": "string",
+      "note": "string",
+      "beat": number,
+      "description": "string"
+    }
+  ],
+  "velocityChanges": [
+    {
+      "type": "velocity",
+      "trackName": "string",
+      "note": "string",
+      "beat": number,
+      "from": number,
+      "to": number,
+      "description": "string"
+    }
+  ],
+  "trackParameterChanges": [
+    {
+      "type": "volume" | "pan" | "other",
+      "trackName": "string", 
+      "parameter": "string",
+      "from": number,
+      "to": number,
+      "description": "string" 
+    }
+  ],
+  "loopChanges": [],
+  "audioFileChanges": [],
+  "trackAddRemove": []
+}</code></pre>
+              </div>
+            </details>
+          </div>
+          <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/api/history/:userId/:projectId/:commitHash</span>
             <p>Gets a specific commit's content as a ZIP file</p>
             <details>
               <summary>Response</summary>
@@ -369,15 +442,23 @@ message: string // Commit message</code></pre>
           </div>
           <div class="endpoint">
             <span class="method post">POST</span>
-            <span class="path">/api/history/revert/:commitId/:username/:projectId</span>
-            <p>Reverts to a specific commit</p>
+            <span class="path">/api/history/restore/:userId/:projectId/:commitHash</span>
+            <p>Restores a project to the state of a specific commit</p>
+            <details>
+              <summary>Request Body</summary>
+              <div class="code-block">
+                <pre><code>{
+  "message": "string" // Optional commit message
+}</code></pre>
+              </div>
+            </details>
             <details>
               <summary>Response</summary>
               <div class="code-block">
                 <pre><code>{
-  "success": true,
-  "message": "Successfully reverted to commit [commitId]",
-  "newCommitId": "string"
+  "message": "Version restored successfully",
+  "projectId": "string",
+  "userId": "string"
 }</code></pre>
               </div>
             </details>
@@ -540,11 +621,14 @@ message: string // Commit message</code></pre>
 
           <h3>Git Service</h3>
           <p>Manages Git repositories for projects, including:</p>
-          <ul>
+          <ul></ul>
             <li><code>createAbletonRepo(userId, projectId)</code> - Creates a new repository for a project</li>
             <li><code>commitFiles(userId, projectId, files, message)</code> - Commits files to a repository</li>
             <li><code>getHistory(userId, projectId)</code> - Gets the commit history</li>
             <li><code>getContent(userId, projectId, commitId)</code> - Gets content at a specific commit</li>
+            <li><code>getDiffJSON(commitHash)</code> - Gets the diff.json file containing detailed changes</li>
+            <li><code>createArchive(commitHash)</code> - Creates a ZIP archive of the repository at a specific commit</li>
+            <li><code>restoreCommit(commitHash, userId, message)</code> - Restores repository to a previous commit state</li>
           </ul>
 
           <h3>Supabase Service</h3>
@@ -573,7 +657,15 @@ module.exports = supabase;</code></pre>
             <li><code>audioComparison.js</code> - Compares audio files for similarity</li>
             <li><code>compresswav.py</code> - Python script for WAV file compression</li>
             <li><code>parseAbleton.py</code> - Python script to extract data from Ableton Live project files</li>
-            <li><code>trackComparison.js</code> - Compares music tracks for changes</li>
+            <li><code>trackComparison.js</code> - Compares music tracks to detect changes between versions</li>
+          </ul>
+
+          <h3>Upload Helpers</h3>
+          <p><code>uploadHelpers.js</code> provides utilities for handling file uploads:</p>
+          <ul>
+            <li>Configures Busboy for multipart form parsing</li>
+            <li>Processes uploaded files and metadata</li>
+            <li>Handles file storage and cleanup</li>
           </ul>
 
           <h3>User Management</h3>
@@ -601,19 +693,119 @@ const path = require('path');
 
 // Repository path where project files are stored
 const REPOSITORY_PATH = process.env.REPOSITORY_PATH || path.join(__dirname, '../tmp/repositories');
+// Path for temporary uploads
+const UPLOAD_PATH = process.env.UPLOAD_PATH || path.join(__dirname, '../tmp/uploads');
+// Path for ZIP archives
+const ARCHIVE_PATH = process.env.ARCHIVE_PATH || path.join(__dirname, '../tmp/archives');
 
 // Initialize function creates necessary directories
 function init() {
-  // Create repository directory if it doesn't exist
-  if (!fs.existsSync(REPOSITORY_PATH)) {
-    fs.mkdirSync(REPOSITORY_PATH, { recursive: true });
-  }
+  // Create directories if they don't exist
+  [REPOSITORY_PATH, UPLOAD_PATH, ARCHIVE_PATH].forEach(dir => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  });
   
   // Additional initialization tasks...
 }
 
-module.exports = { init, REPOSITORY_PATH };</code></pre>
+module.exports = { init, REPOSITORY_PATH, UPLOAD_PATH, ARCHIVE_PATH };</code></pre>
           </div>
+        </div>
+      </section>
+
+      <section id="diff-engine">
+        <h2>Diff Engine</h2>
+        <div class="content-card">
+          <p>The diff engine is a core component that compares Ableton project versions and generates detailed change reports.</p>
+          
+          <h3>Overview</h3>
+          <p>The diff engine analyzes two versions of an Ableton project and identifies changes including:</p>
+          <ul>
+            <li>Added, removed, or modified notes</li>
+            <li>Volume changes for tracks</li>
+            <li>Parameter changes (pan, effects, etc.)</li>
+            <li>Added or removed tracks</li>
+            <li>Audio file changes</li>
+          </ul>
+          
+          <h3>Implementation</h3>
+          <p>The <code>DiffEngine</code> class in <code>trackComparison.js</code> contains the core logic:</p>
+          <div class="code-block">
+            <pre><code>class DiffEngine {
+    constructor() {
+        this.comparators = [];       // Project-level comparators
+        this.trackLevelComparators = []; // Track-level comparators
+    }
+
+    // Register track-level comparators for comparing specific aspects of tracks
+    registerTrackComparator(comparator) { ... }
+
+    // Register project-level comparators for comparing overall project changes
+    registerProjectComparator(comparator) { ... }
+
+    // Create a detailed diff between two project versions
+    createDetailedDiff(oldVersion, newVersion) { ... }
+}</code></pre>
+          </div>
+          
+          <h3>Comparators</h3>
+          <p>The engine uses a plugin system of comparators, each responsible for detecting a specific type of change:</p>
+          <ul>
+            <li><strong>NoteComparator</strong> - Detects added, removed, or modified MIDI notes</li>
+            <li><strong>VelocityComparator</strong> - Detects changes in note velocities</li>
+            <li><strong>TrackParameterComparator</strong> - Detects changes in track parameters like volume</li>
+            <li><strong>LoopComparator</strong> - Detects changes in audio loop settings</li>
+            <li><strong>AudioFileComparator</strong> - Detects changes in audio files</li>
+          </ul>
+          
+          <h3>Sample Diff Output</h3>
+          <div class="code-block">
+            <pre><code>{
+  "summary": {
+    "totalChanges": 8,
+    "changedTracks": ["2-Clap 909", "3-Drum Rack", "6-Chord Dub Pluck"],
+    "addedTracks": [],
+    "removedTracks": [],
+    "modifiedTracks": ["2-Clap 909", "3-Drum Rack", "6-Chord Dub Pluck"]
+  },
+  "noteChanges": [
+    {
+      "type": "noteRemoved",
+      "trackName": "6-Chord Dub Pluck",
+      "note": "55",
+      "beat": 52,
+      "description": "Note 55 at beat 52.00 was removed from track '6-Chord Dub Pluck'"
+    },
+    {
+      "type": "noteAdded",
+      "trackName": "6-Chord Dub Pluck",
+      "note": "43",
+      "beat": 52,
+      "description": "Note 43 at beat 52.00 was added to track '6-Chord Dub Pluck'"
+    }
+  ],
+  "trackParameterChanges": [
+    {
+      "type": "volume",
+      "trackName": "2-Clap 909",
+      "parameter": "volume",
+      "from": 0.6025595665,
+      "to": 0.5308843851,
+      "description": "Volume for '2-Clap 909' changed from 0.603 to 0.531"
+    }
+  ]
+}</code></pre>
+          </div>
+          
+          <h3>Integration with Git</h3>
+          <p>The diff engine is integrated with Git operations:</p>
+          <ul>
+            <li>When files are committed, changes are analyzed and stored as <code>diff.json</code></li>
+            <li>Changes are also embedded in commit messages for quick reference</li>
+            <li>The diff data can be retrieved via the <code>/api/history/diff/:userId/:projectId/:commitHash</code> endpoint</li>
+          </ul>
         </div>
       </section>
 
@@ -817,7 +1009,7 @@ module.exports = { init, REPOSITORY_PATH };</code></pre>
   </div>
 
   <footer>
-    <p>&copy; 2023 Music Collaboration Platform. All rights reserved.</p>
+    <p>&copy; 2025 Open Synq. All rights reserved.</p>
     <div class="footer-links">
       <a href="index.html">Home</a>
       <a href="backend.html">Backend</a>

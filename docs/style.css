@@ -10,13 +10,17 @@
 
 /* Root Variables */
 :root {
-  --primary: #36cfc9;              /* Accent color (aqua-like) */
-  --primary-light: #72e2df;        /* Lighter accent */
-  --primary-dark: #2ea5a355;         /* Darker accent */
-  --background: #101010;           /* Deep gray background */
+  --primary: #9300d7;              /* Primary accent color */
+  --primary-light: #b144e5;        /* Lighter primary for hover */
+  --primary-dark: #2ea5a355;       /* Darker accent */
+  --secondary: #36cfc9;            /* Secondary accent color */
+  --background: #0d0d16;           /* Dark background */
   --background-light: #1a1a1a;     /* Slightly lighter for containers */
+  --background-secondary: #161622; /* Slightly lighter background */
   --background-card: #181818;      /* Card background */
-  --text: #f0f0f0;                 /* Nearly white text */
+  --card-bg: #1a1a24;              /* Background for cards */
+  --code-bg: #1d1d2b;              /* Background for code blocks */
+  --text: #e6e6e6;                 /* Light text color */
   --text-muted: #b3b3b3;           /* Lighter gray text for placeholders */
   --text-dimmed: #8c8c8c;          /* More subdued text */
   --border: #2a2a2a;               /* Dark border */
@@ -230,17 +234,12 @@ section h2::after {
 
 /* Content Cards */
 .content-card {
-  background: var(--background-card);
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  background: var(--card-bg);
+  border-radius: 8px;
   padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  transition: box-shadow 0.2s ease, border 0.2s ease;
-}
-
-.content-card:hover {
-  border-color: var(--primary-dark);
-  box-shadow: 0 0 10px rgba(0,0,0,0.25);
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border);
 }
 
 .content-card h3 {
@@ -273,11 +272,12 @@ section h2::after {
 
 /* Code Blocks */
 .code-block {
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 4px;
+  background: var(--code-bg);
+  border-radius: 6px;
+  padding: 1rem;
+  overflow-x: auto;
   margin: 1rem 0;
-  border: 1px solid var(--border);
-  overflow: hidden;
+  border: 1px solid var(--border-medium);
 }
 
 .code-header {
@@ -296,49 +296,53 @@ section h2::after {
 }
 
 .code-block pre {
+  margin: 0;
   padding: 1rem;
   overflow-x: auto;
-  font-family: 'Roboto Mono', monospace;
+  font-family: 'Fira Code', 'Courier New', monospace;
   font-size: 0.9rem;
   line-height: 1.5;
   color: var(--text);
 }
 
+.code-block code {
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
 /* Endpoint Display Boxes */
 .endpoint {
-  background: var(--background-light);
-  border-radius: 4px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-left: 4px solid var(--primary);
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.endpoint:last-child {
+  border-bottom: none;
 }
 
 .endpoint .method {
   display: inline-block;
-  padding: 0.2rem 0.6rem;
+  padding: 0.2rem 0.5rem;
   border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: bold;
   margin-right: 0.5rem;
-  text-transform: uppercase;
+  font-size: 0.8rem;
+  min-width: 60px;
+  text-align: center;
+  color: #fff;
 }
 
 .endpoint .method.get {
-  background-color: rgba(33, 150, 243, 0.15);
-  border: 1px solid rgba(33, 150, 243, 0.3);
-  color: rgba(33, 150, 243, 0.9);
+  background-color: #4caf50;
 }
 
 .endpoint .method.post {
-  background-color: rgba(76, 175, 80, 0.15);
-  border: 1px solid rgba(76, 175, 80, 0.3);
-  color: rgba(76, 175, 80, 0.9);
+  background-color: #2196f3;
 }
 
 .endpoint .method.put {
-  background-color: rgba(255, 152, 0, 0.15);
-  border: 1px solid rgba(255, 152, 0, 0.3);
-  color: rgba(255, 152, 0, 0.9);
+  background-color: #ff9800;
 }
 
 .endpoint .method.patch {
@@ -348,16 +352,16 @@ section h2::after {
 }
 
 .endpoint .method.delete {
-  background-color: rgba(244, 67, 54, 0.15);
-  border: 1px solid rgba(244, 67, 54, 0.3);
-  color: rgba(244, 67, 54, 0.9);
+  background-color: #f44336;
 }
 
 .endpoint .path {
-  font-family: 'Roboto Mono', monospace;
-  font-size: 1rem;
-  font-weight: 500;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9rem;
   color: var(--text);
+  background: var(--code-bg);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
 }
 
 .endpoint p {
@@ -378,6 +382,39 @@ section h2::after {
   padding: 0.3rem 0;
 }
 
+/* Diff Display Styling */
+.diff-container {
+  margin: 2rem 0;
+}
+
+.diff-summary {
+  background: rgba(54, 207, 201, 0.1);
+  border-left: 4px solid var(--accent);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.diff-item {
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.diff-added {
+  background: rgba(71, 187, 95, 0.1);
+  border-left: 3px solid var(--success);
+}
+
+.diff-removed {
+  background: rgba(255, 82, 82, 0.1);
+  border-left: 3px solid var(--error);
+}
+
+.diff-changed {
+  background: rgba(255, 193, 7, 0.1);
+  border-left: 3px solid var(--warning);
+}
+
 /* Architecture Diagram */
 .architecture-diagram {
   display: flex;
@@ -395,12 +432,12 @@ section h2::after {
 }
 
 .arch-component {
-  background: var(--background-light);
-  border: 1px solid var(--border);
-  border-radius: 4px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-medium);
   padding: 1rem;
+  border-radius: 6px;
+  margin: 0.5rem 0;
   text-align: center;
-  flex: 1;
   transition: background 0.2s ease;
 }
 
@@ -409,7 +446,7 @@ section h2::after {
 }
 
 .arch-component.half {
-  flex: 0.5;
+  flex: 1;
 }
 
 .arch-component h4 {
@@ -426,8 +463,10 @@ section h2::after {
 }
 
 .arch-arrow {
+  text-align: center;
   font-size: 1.5rem;
-  color: var(--primary);
+  color: var(--text-dimmed);
+  margin: 0.5rem 0;
 }
 
 /* Table Styling */
@@ -448,15 +487,15 @@ thead {
 
 th, 
 td {
-  padding: 0.8rem 1rem;
+  padding: 0.75rem;
   text-align: left;
   border-bottom: 1px solid var(--border);
 }
 
 th {
-  font-weight: 500;
+  background-color: var(--background-secondary);
+  font-weight: 600;
   color: var(--text);
-  background: var(--background-light);
 }
 
 td {
