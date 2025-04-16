@@ -1,0 +1,105 @@
+/* Base container for the summary bar */
+.diff-summary-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Space between items */
+  padding: 8px 15px; /* Compact padding */
+  background: rgba(20, 0, 35, 0.6); /* Dark background */
+  border-radius: 8px; /* Rounded corners */
+  border: 1px solid rgba(147, 0, 215, 0.2); /* Theme border */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+  margin-top: 15px; /* Adjust as needed */
+  width: fit-content; /* Adjust width based on content */
+  min-height: 38px; /* Ensure consistent height */
+  box-sizing: border-box;
+}
+
+/* General text style */
+.summary-text {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+.summary-text.main {
+  color: rgba(255, 255, 255, 0.85);
+  margin-right: 5px; /* Space after "Changes:" */
+}
+
+/* Individual summary item (Icon + Count) */
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Space between icon and count */
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid transparent; /* Placeholder for colored border */
+  cursor: default; /* Or pointer if you add interactivity */
+}
+
+/* Icon within the summary item */
+.summary-icon {
+  font-size: 0.9rem; /* Icon size */
+  display: block; /* Helps with alignment */
+}
+
+/* Count number */
+.summary-count {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  min-width: 12px; /* Ensure space for number */
+  text-align: center;
+}
+
+/* Color theming for summary items */
+.summary-item.added { border-color: rgba(71, 187, 95, 0.3); }
+.summary-item.added .summary-icon { color: #47bb5f; }
+
+.summary-item.removed { border-color: rgba(255, 82, 82, 0.3); }
+.summary-item.removed .summary-icon { color: #ff5252; }
+
+.summary-item.modified { border-color: rgba(255, 193, 7, 0.3); }
+.summary-item.modified .summary-icon { color: #ffc107; }
+
+.summary-item.tempo { border-color: rgba(33, 150, 243, 0.3); }
+.summary-item.tempo .summary-icon { color: #2196f3; }
+
+/* Styling for "No Changes" and "Info" states */
+.diff-summary-bar.no-changes,
+.diff-summary-bar.info {
+  background: rgba(20, 0, 35, 0.4);
+  border-color: rgba(255, 255, 255, 0.15);
+  gap: 8px;
+}
+.summary-icon.info { color: #2196f3; } /* Blue for info */
+
+/* Styling for Error state */
+.diff-summary-bar.error {
+  background: rgba(255, 82, 82, 0.1);
+  border-color: rgba(255, 82, 82, 0.4);
+  gap: 8px;
+}
+.summary-icon.error { color: #ff5252; }
+.summary-text.error { color: rgba(255, 150, 150, 0.9); }
+
+.error-details-indicator {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: rgba(255, 82, 82, 0.5);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-align: center;
+  line-height: 16px;
+  cursor: help;
+  margin-left: 5px;
+}
+
+/* Add fade-in animation if not already defined globally */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

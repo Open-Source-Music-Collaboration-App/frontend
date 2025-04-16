@@ -13,6 +13,7 @@ import { FaShareAlt, FaFolderOpen, FaMusic, FaFileUpload, FaTag, FaStar, FaCodeB
 import JSZip from 'jszip';
 import { ProjectProvider } from "../../context/ProjectContext";
 import FirstTimeProjectGuide from "../../components/FirstTimeProjectGuide/FirstTimeProjectGuide";
+import DiffPreview from "../../components/DiffPreview/DiffPreview";
 
 function Project() {
   const { id } = useParams();
@@ -29,6 +30,10 @@ function Project() {
   const [uploadSuccess, setUploadSuccess] = useState<string | false>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<{ name: string, type: string, size: number }[]>([]);
+  const [showDiffPreview, setShowDiffPreview] = useState<boolean>(false); // State to control visibility of the preview
+  const [diffPreview, setDiffPreview] = useState<any>(null); // State for storing the diff preview data
+  const [isPreviewLoading, setIsPreviewLoading] = useState<boolean>(false); // Loading state for preview generation
+  const [previewError, setPreviewError] = useState<string | null>(null); // Error state for preview generation
   const [commitMessage, setCommitMessage] = useState<string>("");
   const [dataReady, setDataReady] = useState<boolean>(false);
   const [isEmptyRepo, setIsEmptyRepo] = useState<boolean>(false);
@@ -164,24 +169,91 @@ function Project() {
     };
   }, [id, user, navigate, retryCount]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      const fileList = [];
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    setDiffPreview(null); // Reset previous preview data
+    setShowDiffPreview(false); // Hide preview area
+    setPreviewError(null); // Clear previous errors
+    setSelectedFiles([]); // Clear displayed file list initially
+
+    if (files && files.length > 0 && id) { // Ensure projectId (id) is available
+      const fileListForDisplay = [];
+      let alsFile: File | null = null;
+
+      // Iterate through selected files to prepare display list and find the ALS file
       for (let i = 0; i < files.length; i++) {
-        if (!files[i].webkitRelativePath.includes("Backup") && 
-            (files[i].name.endsWith(".json") || 
-             files[i].name.endsWith(".wav") || 
-             files[i].name.endsWith(".als") ||
-             files[i].name.endsWith(".flac"))) {
-          fileList.push({
-            name: files[i].webkitRelativePath,
-            type: files[i].name.split('.').pop() || "",
-            size: files[i].size
-          });
-        }
+        const file = files[i];
+        // Use webkitRelativePath for folder structure display, fallback to name
+        const displayName = (file as any).webkitRelativePath || file.name;
+
+        // Basic filtering for display (adjust as needed)
+         if (!displayName.includes("Backup")) { // Example filter
+             fileListForDisplay.push({
+                name: displayName,
+                type: file.name.split('.').pop()?.toLowerCase() || "unknown",
+                size: file.size
+             });
+
+             // Identify the ALS file for the preview request
+             if (file.name.toLowerCase().endsWith(".als")) {
+                if (!alsFile) { // Take the first ALS file found
+                   alsFile = file;
+                   console.log("Found ALS file for preview:", file.name);
+                } else {
+                   console.warn("Multiple ALS files found, using the first one for preview:", alsFile.name);
+                }
+             }
+         }
       }
-      setSelectedFiles(fileList);
+      setSelectedFiles(fileListForDisplay); // Update the UI list of selected files
+
+      // --- Trigger Preview Request if ALS file is found ---
+      if (alsFile) {
+        setIsPreviewLoading(true); // Show loading indicator
+        setPreviewError(null); // Clear previous errors
+        const formData = new FormData();
+        // Key 'alsFile' must match the backend multer setup: previewUpload.single('alsFile')
+        formData.append('alsFile', alsFile, alsFile.name);
+
+        try {
+          console.log(`Sending preview request for project ${id}...`);
+          const response = await axios.post(`http://${window.location.hostname}:3333/api/projects/preview-diff/${id}`, formData, {
+            withCredentials: true, // Send cookies if needed for auth
+            headers: { 'Content-Type': 'multipart/form-data' },
+            timeout: 60000 // Set a reasonable timeout (e.g., 60 seconds) for parsing
+          });
+
+          console.log("Preview response received:", response.data);
+          setDiffPreview(response.data.diff); // Store the diff data from the response
+          if (response.data.isFirstCommitPreview) {
+             // Handle the case where it's the first upload - show a specific message
+             setPreviewError("This appears to be the first upload. No previous version to compare against.");
+          } else if (!response.data.diff) {
+             // Handle case where diff is null/empty but not explicitly the first commit
+             setPreviewError("No changes detected or preview data is empty.");
+          }
+          setShowDiffPreview(true); // Make the preview component visible
+        } catch (error: any) {
+          console.error("Error fetching preview diff:", error);
+          // Display a user-friendly error message
+          const errorMsg = error.response?.data?.message || error.message || "An unknown error occurred";
+          setPreviewError(`Failed to generate preview: ${errorMsg}`);
+          setShowDiffPreview(true); // Show the preview area to display the error
+        } finally {
+          setIsPreviewLoading(false); // Hide loading indicator
+        }
+      } else {
+         // No ALS file was found in the selection
+         console.log("No .als file found in the selection. Cannot generate preview.");
+         setPreviewError("No .als file found in the selected items. Upload an Ableton project file to see a preview.");
+         setShowDiffPreview(true); // Show the area to display this message
+      }
+      // --- End Trigger Preview Request ---
+
+    } else {
+       // Handle case where file selection is cleared or projectId is missing
+       if (!id) console.error("Project ID is missing, cannot trigger preview.");
+       setShowDiffPreview(false); // Hide preview if selection is cleared
     }
   };
 
@@ -202,6 +274,8 @@ function Project() {
 
     setUploading(true);
     setError(null);
+    setUploadSuccess(false);
+    setUploadProgress(0);
     
     try {
       // Add files to FormData
@@ -233,6 +307,12 @@ function Project() {
 
       console.log("Upload successful:", response.data);
       setUploadSuccess("Project files uploaded successfully!");
+
+      setShowDiffPreview(false); // Hide preview area
+      setDiffPreview(null);
+      setSelectedFiles([]); // Clear displayed file list
+      setCommitMessage(""); // Clear commit message input
+      if(fileInputRef.current) fileInputRef.current.value = ""; // Clear the actual file input
       
       // Clear form and show success message briefly, then refresh the page
       setTimeout(() => {
@@ -396,20 +476,38 @@ function Project() {
             </div>
             
             {selectedFiles.length > 0 && (
-              <div className="selected-files">
-                <h4><FaMusic className="selected-files-icon" /> Selected Files</h4>
-                <div className="files-list">
-                  {selectedFiles.map((file, index) => (
-                    <div key={index} className="file-item">
-                      <span className={`file-type ${file.type}`}>{file.type}</span>
-                      <span className="file-name">{file.name}</span>
-                      <span className="file-size">{Math.round(file.size / 1024)} KB</span>
-                    </div>
-                  ))}
-                </div>
+          <div className="selected-files">
+            <h4><FaMusic className="selected-files-icon" /> Selected Items ({selectedFiles.length})</h4>
+            <div className="files-list">
+              {/* ... map selectedFiles for display ... */}
+               {selectedFiles.map((file, index) => (
+                 <div key={index} className="file-item">
+                   <span className={`file-type ${file.type}`}>{file.type}</span>
+                   <span className="file-name">{file.name}</span>
+                   <span className="file-size">{Math.round(file.size / 1024)} KB</span>
+                 </div>
+               ))}
+            </div>
+
+            {/* --- Diff Preview Section --- */}
+            {isPreviewLoading && (
+              <div className="preview-loading">
+                <div className="spinner small"></div> Generating preview... (this may take a moment)
               </div>
             )}
-            
+            {/* Use the DiffPreview component (ensure it handles error prop) */}
+            <DiffPreview
+               diffData={diffPreview}
+               isVisible={showDiffPreview && !isPreviewLoading}
+               error={previewError} // Pass the error state
+            />
+             {/* --- End Diff Preview Section --- */}
+
+          </div>
+        )}
+        {selectedFiles.length > 0 && ( // Show only if files are selected
+        <div className="commit-section">
+
             <div className="commit-message-container">
               <label htmlFor="commit-message">
                 <FaTag className="commit-label-icon" />
@@ -446,6 +544,8 @@ function Project() {
                 <span className="progress-percentage">{uploadProgress}%</span>
               </div>
             )}
+            </div>
+          )}
           </div>
         </div>
       </div>
