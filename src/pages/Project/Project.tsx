@@ -40,6 +40,8 @@ function Project() {
   const [isEmptyRepo, setIsEmptyRepo] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
   const [numCommits, setNumCommits] = useState<number>(0);
+
+  
   const maxRetries = 3;
 
   useEffect(() => {
