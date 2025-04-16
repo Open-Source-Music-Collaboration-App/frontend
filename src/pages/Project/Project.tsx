@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import ALSView from "../../components/ALSView/ALSView";
 import HoverInfo from '../../components/HoverInfo/HoverInfo';
 import Tooltip from '../../components/Tooltip/Tooltip';
-import { FaShareAlt, FaFolderOpen, FaMusic, FaFileUpload, FaTag, FaStar, FaCodeBranch, FaHistory } from 'react-icons/fa';
+import { FaShareAlt, FaFolderOpen, FaMusic, FaFileUpload, FaTag, FaStar, FaCodeBranch, FaHistory, FaMagic } from 'react-icons/fa';
 // Add JSZip for handling ZIP files
 import JSZip from 'jszip';
 import { ProjectProvider } from "../../context/ProjectContext";
@@ -35,6 +35,7 @@ function Project() {
   const [isPreviewLoading, setIsPreviewLoading] = useState<boolean>(false); // Loading state for preview generation
   const [previewError, setPreviewError] = useState<string | null>(null); // Error state for preview generation
   const [commitMessage, setCommitMessage] = useState<string>("");
+  const [isGeneratingMessage, setIsGeneratingMessage] = useState(false);
   const [dataReady, setDataReady] = useState<boolean>(false);
   const [isEmptyRepo, setIsEmptyRepo] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
@@ -227,7 +228,7 @@ function Project() {
           setDiffPreview(response.data.diff); // Store the diff data from the response
           if (response.data.isFirstCommitPreview) {
              // Handle the case where it's the first upload - show a specific message
-             setPreviewError("This appears to be the first upload. No previous version to compare against.");
+             setPreviewError("A preview of your changes is not available for the first commit.");2
           } else if (!response.data.diff) {
              // Handle case where diff is null/empty but not explicitly the first commit
              setPreviewError("No changes detected or preview data is empty.");
@@ -324,6 +325,38 @@ function Project() {
     } finally {
       setUploading(false);
       setUploadProgress(0);
+    }
+  };
+
+  const handleGenerateCommitMessage = async () => {
+    if (!diffPreview || isGeneratingMessage) {
+      // Optionally show an error if no diff data is available
+      console.warn("Cannot generate message: No diff data available or generation already in progress.");
+      return;
+    }
+
+    setIsGeneratingMessage(true);
+    try {
+      // *** Replace with your actual API endpoint and expected payload structure ***
+      // Assuming the backend expects the diff summary object
+      const response = await axios.post('http://localhost:3333/api/ai/generate-commit-message', {
+         diffSummary: diffPreview // Or potentially diffPreview.summary or a specific text field if available
+         // Add any generation options if your backend supports them
+      });
+
+      if (response.data && response.data.commitMessage) {
+        setCommitMessage(response.data.commitMessage);
+      } else {
+         // Handle cases where the response might be unexpected
+         console.error("Failed to get commit message from response:", response.data);
+         // Optionally set an error state or show a notification
+      }
+    } catch (error) {
+      console.error("Error generating commit message:", error);
+      // Optionally set an error state or show a notification to the user
+      // e.g., setGenerationError("Failed to generate message.");
+    } finally {
+      setIsGeneratingMessage(false);
     }
   };
 
@@ -499,6 +532,7 @@ function Project() {
             <DiffPreview
                diffData={diffPreview}
                isVisible={showDiffPreview && !isPreviewLoading}
+               isFirstCommitPreview={previewError === "A preview of your changes is not available for the first commit."}
                error={previewError} // Pass the error state
             />
              {/* --- End Diff Preview Section --- */}
@@ -509,10 +543,27 @@ function Project() {
         <div className="commit-section">
 
             <div className="commit-message-container">
-              <label htmlFor="commit-message">
-                <FaTag className="commit-label-icon" />
-                Version Description
-              </label>
+              <div className="commit-label-container"> {/* Added a wrapper for label and button */}
+                <label htmlFor="commit-message">
+                  <FaTag className="commit-label-icon" />
+                  Version Description
+                </label>
+                <Tooltip content="Generate message using AI" position="top">
+                  <button
+                    type="button"
+                    className="generate-commit-btn"
+                    onClick={handleGenerateCommitMessage}
+                    disabled={!diffPreview || isGeneratingMessage || isPreviewLoading} // Disable if no diff, generating, or preview is loading
+                    title="Generate commit message based on changes"
+                  >
+                    {isGeneratingMessage ? (
+                      <span className="spinner-small"></span>
+                    ) : (
+                      <FaMagic />
+                    )}
+                  </button>
+                </Tooltip>
+              </div>
               <input
                 id="commit-message"
                 type="text"

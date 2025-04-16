@@ -19,14 +19,30 @@ interface DiffPreviewProps {
 const changeCategories = [
   { key: 'addedTracks', label: 'Tracks Added', icon: FaPlus, className: 'added' },
   { key: 'removedTracks', label: 'Tracks Removed', icon: FaMinus, className: 'removed' },
-  // Combine modified tracks, params, notes, clips into a general 'modified' icon
-  { key: 'modified', label: 'Modifications', icon: FaPen, className: 'modified' },
+  // Separate categories for different modification types
+  { key: 'noteChanges', label: 'Note Changes', icon: FaStickyNote, className: 'modified' }, // Using FaStickyNote for notes
+  { key: 'parameterChanges', label: 'Parameter Changes', icon: FaVolumeUp, className: 'modified' }, // Using FaVolumeUp for params
+  { key: 'audioFileChanges', label: 'Audio Changes', icon: FaWaveSquare, className: 'modified' }, // Using FaWaveSquare for audio
   { key: 'tempoChange', label: 'Tempo Changed', icon: FaClock, className: 'tempo' },
 ];
 
 const DiffPreview: React.FC<DiffPreviewProps> = ({ diffData, isVisible, error, isFirstCommitPreview }) => {
 
   const renderContent = () => {
+
+    // --- First Commit Preview ---
+    if( isFirstCommitPreview ){
+      return (
+        <Tooltip content={error} position="top">
+          <div className="diff-summary-bar first-commit">
+            <span className="summary-text">First Commit Preview</span>
+            <FaInfoCircle className="summary-icon info" />
+          </div>
+        </Tooltip>
+      );
+    }
+
+
     // --- Error State ---
     if (error) {
       return (
@@ -58,19 +74,22 @@ const DiffPreview: React.FC<DiffPreviewProps> = ({ diffData, isVisible, error, i
 
     const addedCount = diffData.summary?.addedTracks?.length || 0;
     const removedCount = diffData.summary?.removedTracks?.length || 0;
-    // Aggregate modifications
-    const modifiedCount = (diffData.summary?.modifiedTracks?.length || 0) +
-                          (diffData.trackParameterChanges?.length || 0) +
-                          (diffData.noteChanges?.length || 0) +
-                          (diffData.audioFileChanges?.length || 0);
+    // Individual counts for modification types
+    const noteChangesCount = diffData.noteChanges?.length || 0;
+    const parameterChangesCount = diffData.trackParameterChanges?.length || 0;
+    const audioFileChangesCount = diffData.audioFileChanges?.length || 0;
+    // Note: We are no longer counting diffData.summary.modifiedTracks
     const tempoChanged = diffData.tempoChange ? 1 : 0;
 
     if (addedCount > 0) counts['addedTracks'] = addedCount;
     if (removedCount > 0) counts['removedTracks'] = removedCount;
-    if (modifiedCount > 0) counts['modified'] = modifiedCount;
+    if (noteChangesCount > 0) counts['noteChanges'] = noteChangesCount;
+    if (parameterChangesCount > 0) counts['parameterChanges'] = parameterChangesCount;
+    if (audioFileChangesCount > 0) counts['audioFileChanges'] = audioFileChangesCount;
     if (tempoChanged > 0) counts['tempoChange'] = tempoChanged;
 
-    totalChanges = addedCount + removedCount + modifiedCount + tempoChanged;
+    // Update total changes calculation
+    totalChanges = addedCount + removedCount + noteChangesCount + parameterChangesCount + audioFileChangesCount + tempoChanged;
 
     // --- No Changes Detected (After Calculation) ---
     if (totalChanges === 0) {
