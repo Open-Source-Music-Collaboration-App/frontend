@@ -1,0 +1,343 @@
+/* --- Base Styles (Adapted from ALSView) --- */
+.diff-viewer-container {
+  width: 100%;
+  height: 70vh; /* Adjust height as needed */
+  color: white;
+  font-family: 'Inter', sans-serif;
+  background-color: #1C001F; /* Dark purple theme */
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.diff-viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.diff-viewer-header h2 {
+   font-size: 1.1rem;
+   font-weight: 500;
+   margin: 0;
+   display: flex;
+   align-items: center;
+}
+
+.diff-viewer-content {
+   position: relative;
+   overflow: hidden; /* Important */
+   display: flex;
+   flex-direction: column;
+   flex: 1; /* Takes remaining height */
+}
+
+.timeline-container {
+   height: 40px;
+   position: relative;
+   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+   background-color: rgba(0, 0, 0, 0.1);
+   flex-shrink: 0;
+   overflow: hidden; /* Hide overflowing markers */
+}
+
+.timeline-marker {
+    position: absolute;
+    height: 100%;
+    border-left: 1px solid rgba(255, 255, 255, 0.15);
+    padding-left: 4px;
+    top: 0;
+}
+.timeline-label {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    position: absolute;
+    top: 5px;
+}
+/* Major beat markers */
+.timeline-marker:nth-child(4n+1) {
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+}
+.timeline-marker:nth-child(4n+1) .timeline-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+}
+
+
+.tracks-scroll-container {
+   overflow: auto; /* Allow both vertical and horizontal scroll */
+   flex: 1;
+   background-color: #1a0520; /* Slightly different bg */
+}
+
+.tracks-container {
+   position: relative; /* Needed for absolute positioned events */
+   min-width: 100%; /* Start with viewport width */
+   min-height: 100%; /* Ensure it fills scroll container */
+}
+
+.track {
+   display: flex;
+   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+   position: relative;
+   min-height: 80px; /* Adjust track height */
+   transition: background-color 0.2s ease;
+}
+
+.track-header {
+   width: 180px; /* Adjust header width */
+   padding: 10px 15px;
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   background-color: rgba(0, 0, 0, 0.2);
+   border-right: 1px solid rgba(255, 255, 255, 0.1);
+   position: sticky; /* Keep header visible on horizontal scroll */
+   left: 0;
+   z-index: 5;
+   box-sizing: border-box;
+   flex-shrink: 0;
+}
+ .track-header .track-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+ }
+ .track-header .track-number {
+    font-size: 0.7rem;
+    opacity: 0.5;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+ }
+ .track-header .track-type {
+    font-size: 0.75rem;
+    opacity: 0.6;
+    font-style: italic;
+ }
+
+
+.track-content {
+   flex: 1;
+   position: relative; /* Crucial for event positioning */
+   overflow: hidden; /* Clip events within track bounds */
+   min-width: 0; /* Prevent flex item from growing indefinitely */
+}
+
+.event {
+    /* Base styles set by calculateEventStyle */
+    transition: all 0.2s ease; /* Smooth transitions for highlights */
+    display: flex; /* For potential internal content alignment */
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+.event:hover {
+    filter: brightness(1.2);
+    border-width: 2px;
+}
+
+.notes-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Clip notes within event */
+}
+
+.note {
+    /* Base styles set by calculateNoteStyle */
+    transition: all 0.2s ease;
+}
+.note:hover {
+    filter: brightness(1.5);
+}
+
+.audio-clip-info {
+    padding: 2px 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- Diff Specific Styles --- */
+
+.diff-legend {
+    display: flex;
+    gap: 15px;
+    font-size: 0.8rem;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    opacity: 0.8;
+}
+.legend-item svg { margin-right: 3px; }
+.legend-item.added { color: #9cff9f; }
+.legend-item.removed { color: #ff9a9a; }
+.legend-item.modified { color: #ffcf8a; }
+
+
+.diff-indicator {
+   font-size: 0.7rem;
+   padding: 2px 6px;
+   border-radius: 4px;
+   margin-top: 5px;
+   font-weight: 500;
+   display: inline-flex;
+   align-items: center;
+   gap: 4px;
+}
+.diff-indicator svg { font-size: 0.8em; }
+.diff-indicator.added { background-color: rgba(76, 175, 80, 0.2); color: #c8ffc9; border: 1px solid rgba(76, 175, 80, 0.4); }
+.diff-indicator.removed { background-color: rgba(244, 67, 54, 0.2); color: #ffc8c8; border: 1px solid rgba(244, 67, 54, 0.4); }
+.diff-indicator.modified { background-color: rgba(255, 152, 0, 0.2); color: #ffe7c8; border: 1px solid rgba(255, 152, 0, 0.4); }
+
+/* Track Highlighting */
+.track.added {
+  background-color: rgba(76, 175, 80, 0.05);
+  border-left: 4px solid #4CAF50; /* Add border to main track div */
+}
+.track.added .track-header {
+   background-color: rgba(76, 175, 80, 0.1);
+   border-left: none; /* Remove potential double border */
+}
+
+.track.removed {
+  background-color: rgba(244, 67, 54, 0.05);
+  border-left: 4px solid #F44336;
+  opacity: 0.6; /* Fade out removed tracks */
+}
+ .track.removed .track-header {
+   background-color: rgba(244, 67, 54, 0.1);
+   border-left: none;
+ }
+ .track.removed .track-content {
+    /* Optional: Add overlay or strikethrough */
+    position: relative;
+ }
+ .removed-track-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      rgba(244, 67, 54, 0.05),
+      rgba(244, 67, 54, 0.05) 10px,
+      rgba(244, 67, 54, 0.1) 10px,
+      rgba(244, 67, 54, 0.1) 20px
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.3);
+    font-weight: bold;
+    font-size: 0.9rem;
+    pointer-events: none; /* Allow clicks through if needed */
+ }
+
+.track.modified {
+   border-left: 4px solid #FF9800;
+   /* Optional: subtle background */
+   /* background-color: rgba(255, 152, 0, 0.02); */
+}
+.track.modified .track-header {
+    border-left: none;
+}
+
+/* Event/Note Highlighting */
+.event .diff-icon {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    font-size: 0.7rem;
+    padding: 2px;
+    border-radius: 3px;
+    opacity: 0.9;
+}
+.event .diff-icon.added { color: #4CAF50; background: rgba(255,255,255,0.1); }
+.event .diff-icon.removed { color: #F44336; background: rgba(255,255,255,0.1); }
+.event .diff-icon.modified { color: #FF9800; background: rgba(255,255,255,0.1); }
+
+
+.event.added {
+   border: 2px solid #4CAF50;
+   background-color: rgba(76, 175, 80, 0.15);
+}
+.event.removed {
+   border: 2px dashed #F44336;
+   background-color: rgba(244, 67, 54, 0.1);
+   opacity: 0.5;
+}
+.event.modified {
+   border: 1px solid #FF9800;
+   /* Use outline for modifications within the event */
+   /* outline: 2px solid #FF9800; */
+   /* outline-offset: -2px; */
+}
+
+.note.added {
+    background-color: #9cff9f !important; /* Bright green */
+    height: 6px !important; /* Make added notes stand out */
+    z-index: 1; /* Bring to front */
+}
+.note.removed {
+    background-color: #ff9a9a !important; /* Bright red */
+    opacity: 0.6;
+    border: 1px dashed #F44336;
+    height: 2px !important;
+}
+.note.modified {
+    background-color: #ffcf8a !important; /* Bright orange */
+    border: 1px solid orange;
+    height: 5px !important;
+    z-index: 1;
+}
+
+
+/* Loading/Error states */
+.diff-loading, .diff-error, .diff-info, .no-tracks-info {
+   padding: 40px;
+   text-align: center;
+   font-size: 1.1rem;
+   color: rgba(255, 255, 255, 0.7);
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   gap: 15px;
+   min-height: 200px; /* Ensure they take some space */
+}
+.diff-error svg, .diff-info svg {
+    font-size: 1.5rem;
+    opacity: 0.8;
+}
+.diff-error svg { color: #ff8a8a; }
+.diff-info svg { color: #8ab4f8; }
+
+.spinner { /* Add spinner styles if not global */
+  border: 4px solid rgba(147, 0, 215, 0.1);
+  border-top: 4px solid rgba(147, 0, 215, 0.8);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

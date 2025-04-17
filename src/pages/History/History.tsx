@@ -13,7 +13,7 @@ import { motion } from 'framer-motion';
 import { 
   FaHistory, FaCalendarAlt, FaUser, FaMusic, FaSave, 
   FaArrowLeft, FaDownload, FaFileAlt, FaFileAudio, 
-  FaFileCode, FaPlus, FaMinus, FaEdit, FaUserFriends } from 'react-icons/fa';
+  FaFileCode, FaPlus, FaMinus, FaEdit, FaUserFriends, FaSearchPlus } from 'react-icons/fa';
 import './History.css';
 
 /**
@@ -653,7 +653,16 @@ function History() {
                         : 'Project Update'
                   }
                   </span>
+                  
                 </div>
+                <button 
+                  className="version-btn view-diff-btn"
+                  onClick={() => window.location.href = `/project/${id}/diff/${version.hash}`}
+                  style={{ marginLeft: 'auto' }} // Align to the right
+                >
+                  <FaSearchPlus />
+                  View Detailed Changes
+                </button>
               </div>
 
               {/* File changes section */}
@@ -705,6 +714,8 @@ function History() {
                 >
                   <FaDownload /> Download Files
                 </button>
+                
+
               </div>
             </motion.div>
           );

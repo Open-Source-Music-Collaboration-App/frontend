@@ -265,6 +265,23 @@
   border-color: rgba(147, 0, 215, 0.5);
 }
 
+.view-diff-btn {
+  background: rgba(255, 182, 157, 0.177);
+  color: white;
+  border: 1px solid rgba(255, 182, 157, 0.3);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  /* cursor: pointer; */
+  transition: all 0.2s ;
+}
+
+.view-diff-btn:hover {
+  
+  
+}
+
 .download-btn {
   background: transparent;
   color: white;
