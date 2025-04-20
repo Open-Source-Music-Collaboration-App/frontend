@@ -31,7 +31,7 @@
   padding: 8px 15px;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0s ;
+  transition: all 0s;
 }
 
 .back-btn:hover {
@@ -55,7 +55,7 @@
   font-size: 1.8rem;
   font-weight: 600;
   text-shadow: 0 0 15px rgba(147, 0, 215, 0.5);
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   letter-spacing: -0.5px;
 }
 
@@ -90,7 +90,7 @@
 }
 
 .history-timeline:before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   bottom: 0;
@@ -114,13 +114,14 @@
   margin-left: 55px;
   border: 1px solid rgba(147, 0, 215, 0.2);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ;
+  transition: all 0.3s;
 }
 
 .version-card:hover {
   /* transform: translateY(-3px); */
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3),
-              0 0 15px rgba(147, 0, 215, 0.2);
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.3),
+    0 0 15px rgba(147, 0, 215, 0.2);
   border-color: rgba(147, 0, 215, 0.3);
 }
 
@@ -197,7 +198,6 @@
   background-color: rgba(147, 0, 215, 0.1);
 }
 
-
 .version-type.collaborator {
   background-color: rgba(33, 150, 243, 0.1);
   border: 1px solid rgba(33, 150, 243, 0.3);
@@ -208,8 +208,7 @@
   color: #2196f3;
 }
 
-.version-type.restored
-{
+.version-type.restored {
   background-color: #4caf5033;
   border: 1px solid #4caf504e;
 }
@@ -251,7 +250,7 @@
   font-weight: 500;
   cursor: pointer;
   border: none;
-  transition: all 0.2s ;
+  transition: all 0.2s;
 }
 
 .revert-btn {
@@ -290,7 +289,7 @@
 
 .history-spinner {
   border: 4px solid rgba(255, 255, 255, 0.1);
-  border-top: 4px solid #9300D7;
+  border-top: 4px solid #9300d7;
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -365,7 +364,7 @@
 }
 
 .track-change::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -419,7 +418,6 @@
   border-radius: 5px;
   font-size: 0.6rem;
   font-weight: 500;
-
 }
 
 .track-type.audio {
@@ -442,9 +440,10 @@
 .track-waveform {
   width: 80px;
   height: 30px;
-  background: linear-gradient(to bottom, 
+  background: linear-gradient(
+    to bottom,
     rgba(147, 0, 215, 0.1) 0%,
-    rgba(147, 0, 215, 0.2) 50%, 
+    rgba(147, 0, 215, 0.2) 50%,
     rgba(147, 0, 215, 0.1) 100%
   );
   position: relative;
@@ -453,7 +452,7 @@
 }
 
 .track-waveform::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -470,7 +469,6 @@
   border-radius: 4px;
 }
 
-
 .track-changes-section h4 {
   display: flex;
   align-items: center;
@@ -485,7 +483,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 6px;
 }
 
@@ -511,10 +509,13 @@
   color: #f44336;
 }
 
-
 @keyframes history-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Media queries for responsive design */
@@ -522,37 +523,37 @@
   .history-container {
     padding: 20px 15px 40px;
   }
-  
+
   .version-card {
     padding: 15px;
     margin-left: 40px;
   }
-  
+
   .version-badge {
     left: -40px;
     width: 35px;
     height: 35px;
     font-size: 0.8rem;
   }
-  
+
   .history-timeline:before {
     left: 17px;
   }
-  
+
   .version-header {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .version-date {
     align-self: flex-start;
   }
-  
+
   .version-actions {
     flex-direction: column;
     width: 100%;
   }
-  
+
   .version-btn {
     width: 100%;
     justify-content: center;
@@ -560,15 +561,15 @@
   .version-tracks {
     padding: 12px;
   }
-  
+
   .track-change {
     padding: 8px 10px;
   }
-  
+
   .track-waveform {
     display: none;
   }
-  
+
   .track-name {
     max-width: 200px;
     overflow: hidden;
@@ -667,8 +668,26 @@
 }
 
 @keyframes fadeInOut {
-  0% { opacity: 0; transform: translateY(-10px); }
-  10% { opacity: 1; transform: translateY(0); }
-  90% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(10px); }
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* For example, in your History.css or a dedicated CSS file: */
+.timeline-wrapper {
+  display: block; /* Ensures it behaves like a block-level element */
+  width: 100%; /* Stretches to fill its parent */
 }
