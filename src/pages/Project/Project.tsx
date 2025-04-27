@@ -14,6 +14,7 @@ import JSZip from 'jszip';
 import { ProjectProvider } from "../../context/ProjectContext";
 import FirstTimeProjectGuide from "../../components/FirstTimeProjectGuide/FirstTimeProjectGuide";
 import DiffPreview from "../../components/DiffPreview/DiffPreview";
+import { UploadAction } from "../../constants/constants";
 
 function Project() {
   const { id } = useParams();
@@ -292,8 +293,9 @@ function Project() {
       }
 
       formData.append("projectId", id);
-      formData.append("userId", user.username);
+      formData.append("userId", user.id);
       formData.append("commitMessage", commitMessage);
+      formData.append("actionType", UploadAction.COMMIT);
 
       // Upload with progress tracking
       const response = await axios.post(`http://${window.location.hostname}:3333/api/upload`, formData, {
