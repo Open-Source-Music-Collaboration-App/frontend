@@ -841,14 +841,14 @@ function History() {
                 
 
               </div>
-              <div>
+              {/* <div>
                 <VisualDiffTimeline
                   projectId={id}
                   commitHash={version.hash}
                   width={800}
                   height={300}
                 />
-              </div>
+              </div> */}
             </motion.div>
           );
         })}
