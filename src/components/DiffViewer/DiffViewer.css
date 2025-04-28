@@ -1,7 +1,7 @@
 /* --- Main Container --- */
 .diff-viewer-container {
   width: 100%;
-  height: 85vh;
+  height: 100vh;
   color: white;
   font-family: 'Inter', sans-serif;
   background-color: #1A1A1A; /* Darker background for professional DAW look */
@@ -604,7 +604,7 @@
 }
 
 .diff-viewer-container .track-event:hover {
-  transform: translateY(-1px);
+  /* transform: translateY(-1px); */
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
   z-index: 10 !important;
 }
@@ -704,6 +704,12 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 5px 0;
+  transition: background-color 0.2s ease;
+}
+
+.diff-viewer-container .notes-container:hover
+{
+  background-color: rgba(255, 255, 255, 0.01);
 }
 
 .diff-viewer-container .piano-note {
@@ -713,7 +719,7 @@
   transition: all 0.1s ease-out;
   max-height: 25px; /* Set an absolute max height to prevent extreme values */
   min-height: 4px; /* Ensure notes are always visible */
-  height: 3% !important; /* Override the calculated height percentage */
+  height: 5% !important; /* Override the calculated height percentage */
   transform-origin: center center;
 }
 
@@ -738,6 +744,7 @@
 .diff-viewer-container .piano-note.status-unchanged {
   background-color: rgba(255, 255, 255, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.8);
+  display: none;
 }
 
 .diff-viewer-container .note-velocity {
@@ -761,6 +768,7 @@
   text-shadow: 0 0 2px rgba(255, 255, 255, 0.7);
   pointer-events: none;
   user-select: none;
+  display: none;
 }
 
 /* --- Track Status Styling --- */
@@ -828,38 +836,104 @@
 }
 
 /* --- Legend --- */
-.diff-viewer-container .diff-legend {
+.diff-footer {
   display: flex;
-  gap: 15px;
-  padding: 10px 16px;
-  background-color: rgba(0, 0, 0, 0.3);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background-color: #111111;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  height: 48px;
 }
 
-.diff-viewer-container .legend-item {
+.diff-footer-left, .diff-footer-center, .diff-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  padding: 4px 10px;
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 4px;
-  background: rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
 }
 
-.diff-viewer-container .legend-item.added {
-  color: #9cff9f;
-  border-left: 3px solid #4CAF50;
+.footer-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.diff-viewer-container .legend-item.removed {
-  color: #ff9a9a;
-  border-left: 3px solid #F44336;
+.footer-btn-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
 }
 
-.diff-viewer-container .legend-item.modified {
-  color: #ffcf8a;
-  border-left: 3px solid #FF9800;
+.playhead-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 320px;
+}
+
+.play-btn {
+  background: rgba(156, 39, 176, 0.2);
+  color: #e56ff7;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timeline-slider {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.timeline-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #9c27b0;
+  cursor: pointer;
+}
+
+.time-display {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  min-width: 80px;
+}
+
+.view-select {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.view-select option {
+  background-color: #1A1A1A;
 }
 
 /* --- Loading/Error States --- */
@@ -927,3 +1001,87 @@
     justify-content: center;
   }
 }
+
+
+.diff-viewer-container .changes-summary.compact {
+  background: rgba(20, 20, 30, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 8px 16px;
+}
+
+.diff-viewer-container .summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.diff-viewer-container .summary-header h3 {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0;
+  color: #e0e0e0;
+}
+
+.diff-viewer-container .total-changes {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.diff-viewer-container .total-changes strong {
+  color: #9c27b0;
+  font-weight: 600;
+}
+
+.diff-viewer-container .summary-stats {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.diff-viewer-container .stat-group {
+  display: flex;
+  gap: 15px;
+}
+
+.diff-viewer-container .stat-divider {
+  width: 1px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.diff-viewer-container .summary-stat {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}
+
+.diff-viewer-container .stat-icon {
+  font-size: 0.7rem;
+}
+
+.diff-viewer-container .stat-icon.added {
+  color: #4CAF50;
+}
+
+.diff-viewer-container .stat-icon.removed {
+  color: #F44336;
+}
+
+.diff-viewer-container .stat-icon.modified {
+  color: #FF9800;
+}
+
+.diff-viewer-container .stat-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.diff-viewer-container .stat-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+}
+

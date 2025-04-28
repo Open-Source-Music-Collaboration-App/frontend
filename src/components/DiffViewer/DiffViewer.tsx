@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import JSZip from 'jszip';
@@ -8,7 +9,8 @@ import { ProjectData, Track, Event, Note } from '../../types/ProjectData';
 import './DiffViewer.css';
 import {
   FaHistory, FaExclamationTriangle, FaInfoCircle, FaPlus, FaMinus, FaPen, FaArrowRight,
-  FaSearchMinus, FaSearchPlus, FaExpand, FaLock, FaLockOpen, FaPlay
+  FaSearchMinus, FaSearchPlus, FaExpand, FaLock, FaLockOpen, FaPlay,
+  FaArrowLeft
 } from 'react-icons/fa';
 import { BiDice1, BiDice2, BiDice3, BiDice4, BiDice5, BiDice6 } from 'react-icons/bi';
 
@@ -37,6 +39,7 @@ const getPianoRollColor = (note: number): string => {
 function DiffViewer() {
   const { id: projectId, hash: currentHash } = useParams<{ id: string; hash: string }>();
   const { user } = useAuth();
+  const navigate = useNavigate();
   
   // State
   const [loading, setLoading] = useState(true);
@@ -426,10 +429,17 @@ function DiffViewer() {
     eventStartBeat: number,
     eventDurationBeats: number,
     trackMinNote: number,
-    trackMaxNote: number
+    trackMaxNote: number,
+    eventStatus: 'added' | 'removed' | 'modified' | 'unchanged'
   ) => {
     // Early exit if no notes
-    if (!currentNotes && !previousNotes) return null;
+    if (!currentNotes && !previousNotes) return { notes: null, hasChanges: false };
+
+    if (eventStatus === 'added' && !currentNotes) return { notes: null, hasChanges: false };
+    // For a removed event, don't show notes from current version
+    if (eventStatus === 'removed' && !previousNotes) return { notes: null, hasChanges: false };
+
+    let hasChanges = eventStatus !== 'unchanged';
     
     // Mapping for note state identification and visual treatment
     interface ProcessedNote {
@@ -445,92 +455,92 @@ function DiffViewer() {
     
     const processedNotes: ProcessedNote[] = [];
     
-    // Track changes from our diffData for this event
+    // Get relevant notes from our diff data for this event
     const relevantAddedNotes = (addedNotesByTrack[trackId] || [])
       .filter(note => Math.abs(note.beat - eventStartBeat) < eventDurationBeats);
       
     const relevantRemovedNotes = (removedNotesByTrack[trackId] || [])
       .filter(note => Math.abs(note.beat - eventStartBeat) < eventDurationBeats);
-
+  
     const relevantModifiedNotes = (modifiedNotesByTrack[trackId] || [])
       .filter(note => Math.abs(note.beat - eventStartBeat) < eventDurationBeats);
 
-    // Process current notes (exist in the current version)
-    if (currentNotes?.length) {
-      currentNotes.forEach(note => {
-        // Handle different note data structures
-        let pitch = 0;
-        let localStart = 0;
-        let duration = 0.25; // Default duration if not specified
-        let velocity = 100;  // Default velocity
-        
-        // Handle ALSView's data structure
-        if (note.key?.Value) {
-          pitch = parseInt(note.key.Value, 10);
-          
-          if (note.occurences?.length) {
-            // Use the first occurrence
-            const occ = note.occurences[0];
-            localStart = parseFloat(occ.start);
-            duration = parseFloat(occ.duration);
-            velocity = parseInt(occ.velocity, 10);
-          }
-        } 
-        // Handle the structure from diff data
-        else if (note.pitch) {
-          pitch = note.pitch;
-          localStart = parseFloat(note.start) - eventStartBeat;
-          duration = note.duration || 0.25;
-          velocity = note.velocity || 100;
-        }
-        
-        const globalStart = eventStartBeat + localStart;
-        
-        // Determine if this note was added according to diff data
-        // This is tricky - we need to fuzzy match since exact IDs might not be available
-        let status: ProcessedNote['status'] = 'unchanged';
-        
-        // Check if it's in the added notes list from diff data
-        const matchingAddedNote = relevantAddedNotes.find(n => 
-          Math.abs(n.beat - globalStart) < 0.1 && // Very close in time
-          parseInt(n.note, 10) === pitch           // Same pitch
-        );
-        
-        if (matchingAddedNote) {
-          status = 'added';
-        } else {
-          // Check for modified notes (e.g., velocity changes)
-          const matchingModifiedNote = relevantModifiedNotes.find(n => 
-            Math.abs(parseFloat(n.note) - pitch) < 0.5 &&
-            Math.abs(n.beat - globalStart) < 0.1
-          );
-          
-          if (matchingModifiedNote) {
-            status = 'modified';
-          }
-        }
-        
-        // Filter by view mode
-        if (viewMode !== 'all' && viewMode !== status && status !== 'unchanged') {
-          return; // Skip this note if it doesn't match our filter
-        }
-        
+       // If there are any changes in this event, mark as having changes
+    if (relevantAddedNotes.length > 0 || relevantRemovedNotes.length > 0 || relevantModifiedNotes.length > 0) {
+      hasChanges = true;
+    }
+  
+    // Step 1: First process all added notes from diff data
+    relevantAddedNotes.forEach(note => {
+      const pitch = parseInt(note.note, 10);
+      const eventStartBeat = parseFloat(note.beat);
+      const duration = note.duration || 0.25;
+      const velocity = note.velocity || 100;
+      const globalStart = parseFloat(note.beat);
+      const localStart = globalStart - eventStartBeat;
+      
+      // Only add if it matches our view mode filter
+      if (viewMode === 'all' || viewMode === 'added') {
         processedNotes.push({
-          id: note.id || `${pitch}-${globalStart}`,
+          id: `added-${pitch}-${globalStart}`,
           pitch,
           start: globalStart,
-          duration,
-          velocity,
-          status,
+          duration: note.duration || 0.25, // Use the new duration value
+          velocity: note.velocity || 100,  // Use the new velocity value
+          status: 'added',
           localStart,
-          localEnd: localStart + duration
+          localEnd: localStart + (note.duration || 0.25)
         });
-      });
-    }
+      }
+    });
     
-    // Process previous notes (existed in the previous version)
-    if (previousNotes?.length) {
-      previousNotes.forEach(note => {
+    // Step 2: Process removed notes from diff data
+    relevantRemovedNotes.forEach(note => {
+      const pitch = parseInt(note.note, 10);
+      const globalStart = parseFloat(note.beat);
+      const localStart = globalStart - eventStartBeat;
+
+      
+      // Only add if it matches our view mode filter
+      if (viewMode === 'all' || viewMode === 'removed') {
+        processedNotes.push({
+          id: `removed-${pitch}-${globalStart}`,
+          pitch,
+          start: globalStart,
+          duration: note.duration || 0.25, // Use the new duration value
+          velocity: note.velocity || 100, // Use the new velocity value
+          status: 'removed',
+          localStart,
+          localEnd: localStart + (note.duration || 0.25)
+        });
+      }
+    });
+    
+    // Step 3: Process modified notes from diff data
+    relevantModifiedNotes.forEach(note => {
+      const pitch = parseInt(note.note, 10);
+      const globalStart = parseFloat(note.beat);
+      const localStart = globalStart - eventStartBeat;
+      
+      // Only add if it matches our view mode filter
+      if (viewMode === 'all' || viewMode === 'modified') {
+        processedNotes.push({
+          id: `modified-${pitch}-${globalStart}`,
+          pitch,
+          start: globalStart,
+          duration: 0.25, // Default duration
+          velocity: note.to || 100, // Use the new velocity value
+          status: 'modified',
+          localStart,
+          localEnd: localStart + 0.25
+        });
+      }
+    });
+    
+    // Step 4: Process current notes (for unchanged notes and better duration info)
+    if (currentNotes?.length) {
+      currentNotes.forEach(note => {
+        // Get note data
         let pitch = 0;
         let localStart = 0;
         let duration = 0.25;
@@ -557,35 +567,37 @@ function DiffViewer() {
         
         const globalStart = eventStartBeat + localStart;
         
-        // Check if this note already exists in our list (might have been processed as current)
-        const alreadyProcessed = processedNotes.some(n => 
+        // Check if this note is already in our list (added, modified, etc.)
+        const existingNote = processedNotes.find(n => 
           Math.abs(n.start - globalStart) < 0.1 && 
           n.pitch === pitch
         );
         
-        if (alreadyProcessed) return;
-        
-        // Check if it's a removed note according to diff data
-        const matchingRemovedNote = relevantRemovedNotes.find(n => 
-          Math.abs(n.beat - globalStart) < 0.1 && 
-          parseInt(n.note, 10) === pitch
-        );
-        
-        // Only add it if it was removed - unchanged notes are already represented
-        // in the current version
-        if (matchingRemovedNote) {
-          // Filter by view mode
-          if (viewMode !== 'all' && viewMode !== 'removed') {
-            return; // Skip this note if it doesn't match our filter
-          }
+        if (existingNote) {
+          // Update duration and velocity from the actual note data
+          existingNote.duration = duration;
+          existingNote.localEnd = localStart + duration;
           
+          // For modified notes, keep the modified velocity
+          if (existingNote.status !== 'modified') {
+            existingNote.velocity = velocity;
+          }
+        } else if (viewMode === 'all') {
+          // If event is added, all notes should be marked as added too
+          const noteStatus = 
+            relevantAddedNotes.some(n => n.note === pitch) ? 'added' :
+            relevantRemovedNotes.some(n => n.note === pitch) ? 'removed' :
+            relevantModifiedNotes.some(n => n.note === pitch) ? 'modified' :
+            'unchanged';
+          
+          // Add as unchanged note if it's not in our changes list and we're showing all notes
           processedNotes.push({
-            id: note.id || `removed-${pitch}-${globalStart}`,
+            id: note.id || `${pitch}-${globalStart}`,
             pitch,
             start: globalStart,
             duration,
             velocity,
-            status: 'removed',
+            status: noteStatus,
             localStart,
             localEnd: localStart + duration
           });
@@ -593,10 +605,60 @@ function DiffViewer() {
       });
     }
     
-    if (processedNotes.length === 0) return null;
+    // Step 5: Fill in durations for removed notes from previous version data
+    if (previousNotes?.length) {
+      previousNotes.forEach(note => {
+        let pitch = 0;
+        let localStart = 0;
+        let duration = 0.25;
+        let velocity = 100;
+        
+        // Handle ALSView's data structure
+        if (note.key?.Value) {
+          pitch = parseInt(note.key.Value, 10);
+          
+          if (note.occurences?.length) {
+            const occ = note.occurences[0];
+            localStart = parseFloat(occ.start);
+            duration = parseFloat(occ.duration);
+            velocity = parseInt(occ.velocity, 10);
+          }
+        } 
+        // Handle the structure from diff data
+        else if (note.pitch) {
+          
+          pitch = note.pitch;
+          localStart = parseFloat(note.start) - eventStartBeat;
+          duration = note.duration || 0.25;
+          velocity = note.velocity || 100;
+          console.log(note)
+        }
+        
+        const globalStart = eventStartBeat + localStart;
+        
+        // Find matching removed note to update its properties
+        const removedNote = processedNotes.find(n => 
+          n.status === 'removed' &&
+          Math.abs(n.start - globalStart) < 0.1 && 
+          n.pitch === pitch
+        );
+        
+        if (removedNote) {
+          removedNote.duration = duration;
+          removedNote.velocity = velocity;
+          removedNote.localEnd = localStart + duration;
+        }
+      });
+    }
+    
+    if (processedNotes.length === 0) return { notes: null, hasChanges: false };
+
+    // Check if there are any changed notes
+    const hasAnyNonUnchangedNotes = processedNotes.some(note => note.status !== 'unchanged');
+  
     
     // Calculate position and appearance of each note
-    return processedNotes.map(note => {
+    const noteElements = processedNotes.map(note => {
       // Calculate vertical position (piano roll style)
       const trackNoteRange = Math.max(trackMaxNote - trackMinNote, 12); // Ensure minimum range of 12 semitones
       const notePosition = (trackMaxNote - note.pitch) / trackNoteRange;
@@ -636,6 +698,8 @@ function DiffViewer() {
         </div>
       );
     });
+
+    return { notes: noteElements, hasChanges: hasChanges || hasAnyNonUnchangedNotes };
   };
   
   const renderPianoRoll = (track: Track, trackIndex: number) => {
@@ -684,15 +748,30 @@ function DiffViewer() {
     const previousTrack = previousProjectData?.tracks.find(t => t.id === trackId);
     const currentEvents = currentTrack?.events || [];
     const previousEvents = previousTrack?.events || [];
+
+    console.log("currentEvents: ", currentEvents);
+    console.log("previousEvents: ", previousEvents);
     
     // Calculate MIDI note range for this track
     const { minNote, maxNote } = trackMidiRanges[trackId] || { minNote: 36, maxNote: 84 };
     
     // Combine all event IDs from both versions
-    const allEventIds = new Set([
-      ...currentEvents.map(e => e.id), 
-      ...previousEvents.map(e => e.id)
-    ]);
+    const allEventIds = new Set();
+    
+    currentEvents.forEach((e, index) => {
+      // Use existing ID if available, otherwise generate one based on start time
+      const eventId = e.id || `current-${e.start}-${index}`;
+      allEventIds.add(eventId);
+      // Add the ID to the event object if it doesn't have one
+      if (!e.id) e.id = eventId;
+    });
+    
+    // Do the same for previous events
+    previousEvents.forEach((e, index) => {
+      const eventId = e.id || `previous-${e.start}-${index}`;
+      allEventIds.add(eventId);
+      if (!e.id) e.id = eventId;
+    });
 
     // Show vertical piano roll grid for MIDI tracks
     const showPianoRollGrid = trackType === 'MidiTrack';
@@ -725,8 +804,14 @@ function DiffViewer() {
         
         {/* Render all events */}
         {Array.from(allEventIds).map(eventId => {
+          // console.log("eventId: ", eventId)
           const currentEvent = currentEvents.find(e => e.id === eventId);
           const previousEvent = previousEvents.find(e => e.id === eventId);
+
+          // console.log("eventId:", eventId, 
+          //   "Current event:", currentEvents.find(e => e.id === eventId), 
+          //   "Previous event:", previousEvents.find(e => e.id === eventId)
+          // );
           
           // Skip if no event data available
           if (!currentEvent && !previousEvent) return null;
@@ -792,8 +877,8 @@ function DiffViewer() {
             position: 'absolute',
             left: `${leftPercent}%`,
             width: `${Math.max(widthPercent, 0.1)}%`,
-            height: trackType === 'MidiTrack' ? '100%' : '80%',
-            top: trackType === 'MidiTrack' ? '0' : '10%',
+            height: trackType === 'MidiTrack' ? '100%' : '100%',
+            top: trackType === 'MidiTrack' ? '0' : '0%',
             backgroundColor,
             borderColor,
             borderWidth: '1px',
@@ -811,16 +896,10 @@ function DiffViewer() {
           const tooltipContent = `${eventStatus === 'added' ? 'Added' : eventStatus === 'removed' ? 'Removed' : eventStatus === 'modified' ? 'Modified' : ''} ${trackType === 'MidiTrack' ? 'MIDI Clip' : 'Audio Clip'} at beat ${startBeat.toFixed(2)}`;
           
           return (
-            <div 
-              key={`${eventId}-${eventStatus}`} 
-              className={eventClass}
-              style={eventStyle}
-              title={tooltipContent}
-            >
-              {/* Render Notes if MIDI */}
+              <>
               {trackType === 'MidiTrack' && (
-                <div className="notes-container">
-                  {renderEventNotesWithDiff(
+                (() => {
+                  const { notes, hasChanges } = renderEventNotesWithDiff(
                     trackId,
                     trackName,
                     eventId,
@@ -829,38 +908,73 @@ function DiffViewer() {
                     startBeat,
                     durationBeat,
                     minNote,
-                    maxNote
-                  )}
-                </div>
+                    maxNote,
+                    eventStatus
+                  );
+                  
+                  // If event is unchanged and has no changed notes, don't render anything
+                  if (eventStatus === 'unchanged' && !hasChanges) {
+                    return null;
+                  }
+
+                  //get length of notes's children. notes is $$typeof: Symbol(react.element)
+                  const notesLength = notes?.length || 0;
+                  //get length of notes's children that have the class "status-unchanged"
+                  const unchangedNotesLength = notes?.filter((note: any) => note.props.className.includes('status-unchanged')).length || 0;
+                  
+                  if( notesLength === unchangedNotesLength) { 
+                    return null;
+                  }
+                  
+                  return(
+                    <div 
+                      key={`${eventId}-${eventStatus}`} 
+                      className={eventClass}
+                      style={eventStyle}
+                      title={tooltipContent}
+                    >
+                    <div className="notes-container">
+                      {notes}
+                    </div>
+                    </div>
+                  )
+                })()
               )}
               
               {/* Render Audio Clip Info */}
               {trackType === 'AudioTrack' && (
-                <div className={`audio-clip-info ${audioChangeInfo ? 'modified' : ''}`}>
-                  <div className="audio-waveform">
-                    {/* Fake waveform visualization */}
-                    {Array.from({ length: 20 }).map((_, i) => (
-                      <div 
-                        key={`wave-${i}`} 
-                        className="waveform-bar"
-                        style={{ 
-                          height: `${20 + Math.random() * 60}%`,
-                          opacity: eventStatus === 'removed' ? 0.5 : 0.8
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <div className="audio-name">
-                    {audioChangeInfo && (
-                      <>
-                        <span className="old-audio">{audioChangeInfo.from}</span>
-                        <FaArrowRight className="audio-change-arrow" />
-                        <span className="new-audio">{audioChangeInfo.to}</span>
-                      </>
-                    )}
-                    {!audioChangeInfo && (
-                      event.audio_name || event.audio_file?.split('/').pop() || 'Audio Clip'
-                    )}
+                <div 
+                  key={`${eventId}-${eventStatus}`} 
+                  className={eventClass}
+                  style={eventStyle}
+                  title={tooltipContent}
+                >
+                  <div className={`audio-clip-info ${audioChangeInfo ? 'modified' : ''}`}>
+                    <div className="audio-waveform">
+                      {/* Fake waveform visualization */}
+                      {Array.from({ length: 20 }).map((_, i) => (
+                        <div 
+                          key={`wave-${i}`} 
+                          className="waveform-bar"
+                          style={{ 
+                            height: `${20 + Math.random() * 60}%`,
+                            opacity: eventStatus === 'removed' ? 0.5 : 0.8
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <div className="audio-name">
+                      {audioChangeInfo && (
+                        <>
+                          <span className="old-audio">{audioChangeInfo.from}</span>
+                          <FaArrowRight className="audio-change-arrow" />
+                          <span className="new-audio">{audioChangeInfo.to}</span>
+                        </>
+                      )}
+                      {!audioChangeInfo && (
+                        event.audio_name || event.audio_file?.split('/').pop() || 'Audio Clip'
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -871,7 +985,7 @@ function DiffViewer() {
                 {eventStatus === 'removed' && <FaMinus />}
                 {eventStatus === 'modified' && <FaPen />}
               </div>
-            </div>
+            </>
           );
         })}
       </div>
@@ -883,7 +997,47 @@ function DiffViewer() {
       <div className="no-tracks-info">No track data available for comparison.</div>
     );
     
-    return combinedTracks.map(({ trackId, current, previous }, index) => {
+    // First, filter to only modified tracks (or tracks that match viewMode)
+    const filteredTracks = combinedTracks.filter(({ trackId, current, previous }) => {
+      const track = current || previous;
+      if (!track) return false;
+      
+      const trackName = track.name;
+      
+      // Determine track status
+      let status: 'added' | 'removed' | 'modified' | 'unchanged' = 'unchanged';
+      
+      // Check for added/removed from trackAddRemove
+      const addRemChange = safeDiff.trackAddRemove?.find(c => c.trackName === trackName);
+      if (addRemChange) {
+        status = addRemChange.type as 'added' | 'removed';
+      }
+      // Check if modified from summary
+      else if (safeDiff.summary.modifiedTracks.includes(trackName)) {
+        status = 'modified';
+      }
+      
+      // Filter by status
+      if (viewMode === 'all') {
+        // In 'all' mode, only show tracks with changes (exclude unchanged)
+        return status !== 'unchanged';
+      } else {
+        // In other modes, only show tracks matching that specific mode
+        return status === viewMode;
+      }
+    });
+    
+    if (filteredTracks.length === 0) {
+      return (
+        <div className="no-tracks-info">
+          {viewMode === 'all' 
+            ? "No tracks were changed in this commit."
+            : `No tracks were ${viewMode} in this commit.`}
+        </div>
+      );
+    }
+    
+    return filteredTracks.map(({ trackId, current, previous }, index) => {
       const track = current || previous;
       if (!track) return null;
       
@@ -920,7 +1074,7 @@ function DiffViewer() {
       );
       
       // Get track height based on vertical zoom and track type
-      const baseHeight = trackType === 'MidiTrack' ? 150 : 90;
+      const baseHeight = trackType === 'MidiTrack' ? 150 : 120;
       const trackHeight = baseHeight * (verticalZoom / 100);
       
       // Create track class for styling
@@ -1047,40 +1201,52 @@ function DiffViewer() {
     const audioChanges = (diffData.audioFileChanges || []).length;
     
     return (
-      <div className="changes-summary">
-        <h3>Changes Summary</h3>
+      <div className="changes-summary compact">
+        <div className="summary-header">
+          <h3>Changes Summary</h3>
+          <span className="total-changes">
+            <strong>{totalChanges}</strong> total changes
+          </span>
+        </div>
+        
         <div className="summary-stats">
-          <div className="summary-stat">
-            <span className="stat-value">{totalChanges}</span>
-            <span className="stat-label">Total Changes</span>
+          <div className="stat-group tracks">
+            <div className="summary-stat">
+              <FaPlus className="stat-icon added" />
+              <span className="stat-value">{addedTracks.length}</span>
+              <span className="stat-label">Added</span>
+            </div>
+            <div className="summary-stat">
+              <FaMinus className="stat-icon removed" />
+              <span className="stat-value">{removedTracks.length}</span>
+              <span className="stat-label">Removed</span>
+            </div>
+            <div className="summary-stat">
+              <FaPen className="stat-icon modified" />
+              <span className="stat-value">{modifiedTracks.length}</span>
+              <span className="stat-label">Modified</span>
+            </div>
           </div>
-          <div className="summary-stat">
-            <span className="stat-value">{addedTracks.length}</span>
-            <span className="stat-label">Tracks Added</span>
-          </div>
-          <div className="summary-stat">
-            <span className="stat-value">{removedTracks.length}</span>
-            <span className="stat-label">Tracks Removed</span>
-          </div>
-          <div className="summary-stat">
-            <span className="stat-value">{modifiedTracks.length}</span>
-            <span className="stat-label">Tracks Modified</span>
-          </div>
-          <div className="summary-stat">
-            <span className="stat-value">{noteChanges}</span>
-            <span className="stat-label">Note Changes</span>
-          </div>
-          <div className="summary-stat">
-            <span className="stat-value">{velocityChanges}</span>
-            <span className="stat-label">Velocity Changes</span>
-          </div>
-          <div className="summary-stat">
-            <span className="stat-value">{parameterChanges}</span>
-            <span className="stat-label">Parameter Changes</span>
-          </div>
-          <div className="summary-stat">
-            <span className="stat-value">{audioChanges}</span>
-            <span className="stat-label">Audio Changes</span>
+          
+          <div className="stat-divider"></div>
+          
+          <div className="stat-group changes">
+            <div className="summary-stat">
+              <span className="stat-value">{noteChanges}</span>
+              <span className="stat-label">Notes</span>
+            </div>
+            <div className="summary-stat">
+              <span className="stat-value">{velocityChanges}</span>
+              <span className="stat-label">Velocity</span>
+            </div>
+            <div className="summary-stat">
+              <span className="stat-value">{parameterChanges}</span>
+              <span className="stat-label">Params</span>
+            </div>
+            <div className="summary-stat">
+              <span className="stat-value">{audioChanges}</span>
+              <span className="stat-label">Audio</span>
+            </div>
           </div>
         </div>
       </div>
@@ -1127,17 +1293,27 @@ function DiffViewer() {
         {/* Left: Title & Commit Info */}
         <div className="header-section">
           <h2>
-            <FaHistory className="header-icon" />
-            Comparing Changes: {prevHashShort ? `${prevHashShort}` : 'Initial Commit'}
-            <FaArrowRight className="arrow-icon" />
+            <button
+              className="back-btn"
+              onClick={() => navigate(`/project/${projectId}/history`)}
+              title="Back to History"
+            > 
+              <FaArrowLeft /> Back
+            
+            </button>
+            
+            {prevHashShort ? `${prevHashShort}` : 'Initial Commit'}
+            <span style ={{opacity: 0.5}}> vs </span>
             {currHashShort}
+            <span style ={{opacity: 0.5}}> - </span>
+            Changes
           </h2>
         </div>
         
         {/* Middle: Filter Options */}
-        <div className="header-section">
+        {/* <div className="header-section">
           {renderFilterOptions()}
-        </div>
+        </div> */}
         
         {/* Right: Zoom Controls */}
         <div className="header-section controls">
@@ -1234,16 +1410,38 @@ function DiffViewer() {
         </div>
       </div>
       
-      {/* Legend */}
-      <div className="diff-legend">
-        <div className="legend-item added">
-          <FaPlus /> <span>Added</span>
+    
+
+      {/* Interactive Footer Controls */}
+      <div className="diff-footer">
+        <div className="diff-footer-left">
+          <button className="footer-btn" onClick={() => setViewMode('all')}>
+            <span className="footer-btn-indicator" style={{ background: viewMode === 'all' ? '#9c27b0' : 'transparent' }}/>
+            All
+          </button>
+          <button className="footer-btn" onClick={() => setViewMode('added')}>
+            <span className="footer-btn-indicator" style={{ background: viewMode === 'added' ? '#4CAF50' : 'transparent' }}/>
+            Added
+          </button>
+          <button className="footer-btn" onClick={() => setViewMode('removed')}>
+            <span className="footer-btn-indicator" style={{ background: viewMode === 'removed' ? '#F44336' : 'transparent' }}/>
+            Removed
+          </button>
+          <button className="footer-btn" onClick={() => setViewMode('modified')}>
+            <span className="footer-btn-indicator" style={{ background: viewMode === 'modified' ? '#FF9800' : 'transparent' }}/>
+            Modified
+          </button>
         </div>
-        <div className="legend-item removed">
-          <FaMinus /> <span>Removed</span>
-        </div>
-        <div className="legend-item modified">
-          <FaPen /> <span>Modified</span>
+       
+        
+        <div className="diff-footer-right">
+          <button 
+            className="footer-btn"
+            onClick={() => setZoom(100)}
+            title="Reset Zoom"
+          >
+            <FaExpand /> <span>{zoom}%</span>
+          </button>
         </div>
       </div>
     </div>
