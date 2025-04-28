@@ -142,6 +142,26 @@ function DiffViewer() {
     fetchData();
   }, [projectId, currentHash, user]);
 
+  // 1) Define a default “empty” diff
+  const emptyDiff: ProjectDiff = {
+    summary: {
+      totalChanges: 0,
+      changedTracks: [],
+      addedTracks: [],
+      removedTracks: [],
+      modifiedTracks: [],
+    },
+    trackAddRemove: [],
+    noteChanges: [],
+    velocityChanges: [],
+    trackParameterChanges: [],
+    audioFileChanges: [],
+  };
+
+  // 2) Coerce diffData & previousProjectData to non-null
+  const safeDiff = diffData ?? emptyDiff;
+  const safePrevious = previousProjectData ?? ({ tracks: [] } as ProjectData);
+
   // --- Memoized Calculations ---
   const { 
     combinedTracks, 
@@ -159,17 +179,21 @@ function DiffViewer() {
     
     // Track the tracks that have changes
     const changedTrackIds = new Set<string>();
-    if (diffData) {
+    if (safeDiff) {
       // Add IDs of modified tracks
-      [...(diffData.summary.modifiedTracks || [])].forEach(trackName => {
-        const track = [...currentTracks, ...previousTracks].find(t => t.name === trackName);
-        if (track) changedTrackIds.add(track.id);
+      [...(safeDiff.summary.modifiedTracks || [])].forEach((trackName) => {
+        const track = [...currentTracks, ...previousTracks].find(
+          (t) => t.name === trackName,
+        );
+       if (track) changedTrackIds.add(track.id);
       });
       
       // Add IDs of added/removed tracks
-      diffData.trackAddRemove?.forEach(change => {
-        const matchingTrack = [...currentTracks, ...previousTracks].find(t => t.name === change.trackName);
-        if (matchingTrack) changedTrackIds.add(matchingTrack.id);
+      safeDiff.trackAddRemove?.forEach((change) => {
+        const matchingTrack = [...currentTracks, ...previousTracks].find(
+          (t) => t.name === change.trackName,
+        );
+       if (matchingTrack) changedTrackIds.add(matchingTrack.id);
       });
     }
 
@@ -178,8 +202,31 @@ function DiffViewer() {
       const previous = previousTracks.find(t => t.id === trackId);
       return { trackId, current, previous };
     });
-    
-    // Sort tracks to keep the order consistent
+    // Inject any removed-only tracks
+    safeDiff.trackAddRemove
+      .filter((c) => c.type === "removed")
+      .forEach((c) => {
+        if (
+          !combined.some(
+            (x) =>
+              x.current?.name === c.trackName ||
+              x.previous?.name === c.trackName,
+          )
+        ) {
+          combined.push({
+            trackId: `removed-${c.trackName}`,
+            current: null,
+            previous: {
+              id: `removed-${c.trackName}`,
+              name: c.trackName,
+              type: c.trackType,
+              events: [],
+            },
+          });
+        }
+      });
+
+   // Sort tracks to keep the order consistent
     combined.sort((a, b) => {
       const trackA = a.current || a.previous;
       const trackB = b.current || b.previous;
@@ -260,9 +307,9 @@ function DiffViewer() {
     const addedNotesByTrack: Record<string, any[]> = {};
     const removedNotesByTrack: Record<string, any[]> = {};
     const modifiedNotesByTrack: Record<string, any[]> = {};
-    
-    if (diffData?.noteChanges) {
-      diffData.noteChanges.forEach(change => {
+
+    if (safeDiff?.noteChanges) {
+      safeDiff.noteChanges.forEach((change) => {
         // Find the track ID from the track name
         const trackWithName = [...currentTracks, ...previousTracks].find(t => 
           t.name === change.trackName
@@ -281,11 +328,11 @@ function DiffViewer() {
         }
       });
     }
-    
-    if (diffData?.velocityChanges) {
-      diffData.velocityChanges.forEach(change => {
-        const trackWithName = [...currentTracks, ...previousTracks].find(t => 
-          t.name === change.trackName
+
+    if (safeDiff?.velocityChanges) {
+      safeDiff.velocityChanges.forEach((change) => {
+        const trackWithName = [...currentTracks, ...previousTracks].find(
+          (t) => t.name === change.trackName,
         );
         
         if (!trackWithName) return;
@@ -297,7 +344,7 @@ function DiffViewer() {
       });
     }
 
-    console.log(removedNotesByTrack)
+    console.log("removed notes: ", removedNotesByTrack);
 
     return { 
       combinedTracks: combined, 
@@ -309,7 +356,7 @@ function DiffViewer() {
       removedNotesByTrack,
       modifiedNotesByTrack
     };
-  }, [currentProjectData, previousProjectData, diffData]);
+  }, [currentProjectData, previousProjectData, safeDiff]);
 
   // --- Scroll Synchronization ---
   const handleScroll = useCallback((source: 'timeline' | 'tracks') => {
@@ -851,13 +898,19 @@ function DiffViewer() {
         change.trackName === trackName
       );
       
-      if (addRemoveInfo?.type === 'added') status = 'added';
-      else if (addRemoveInfo?.type === 'removed') status = 'removed';
-      // Then check for modified
-      else if (diffData?.summary.modifiedTracks.includes(trackName)) status = 'modified';
-      
+      // first look in trackAddRemove:
+      const addRemChange = safeDiff.trackAddRemove?.find(c => c.trackName === trackName);
+      if (addRemChange) {
+        // c.type is "added" or "removed"
+        status = addRemChange.type as 'added' | 'removed';
+      }
+      // if it wasn’t added/removed, fall back to “modified” from the summary
+      else if (safeDiff.summary.modifiedTracks.includes(trackName)) {
+        status = 'modified';
+      }
+      // otherwise it stays 'unchanged'
       // Skip tracks that don't match our view filter
-      if (viewMode !== 'all' && viewMode !== status && status !== 'unchanged') {
+      if (viewMode !== 'all' && viewMode !== status) {
         return null;
       }
       
