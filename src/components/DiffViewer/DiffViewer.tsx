@@ -37,7 +37,7 @@ const getPianoRollColor = (note: number): string => {
 
 // --- Component ---
 function DiffViewer() {
-  const { id: projectId, hash: currentHash } = useParams<{ id: string; hash: string }>();
+  const { id: projectId, hash: currentHash, prevHash: prevHash } = useParams<{ id: string; hash: string; prevHash: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
   
@@ -114,7 +114,7 @@ function DiffViewer() {
         setDiffData(diffResponse.data);
         console.log("Diff data loaded:", diffResponse.data);
 
-        const previousHash = diffResponse.data?.summary?.previousCommitHash;
+        const previousHash = prevHash;
 
         // 2. Fetch Current and Previous Project JSON in parallel
         const [currentData, previousData] = await Promise.all([
@@ -1304,7 +1304,7 @@ function DiffViewer() {
     );
   }
 
-  const prevHashShort = diffData.summary.previousCommitHash?.substring(0, 7);
+  const prevHashShort = prevHash?.substring(0, 7);
   const currHashShort = currentHash?.substring(0, 7);
 
   return (

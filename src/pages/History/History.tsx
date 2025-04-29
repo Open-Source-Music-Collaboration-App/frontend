@@ -722,6 +722,11 @@ function History() {
         {history?.history.all.map((version, index) => {
           // const fileChanges = getPlaceholderFileChanges(version.hash, index);
           const isCollaborator = version.author_name !== projectOwner;
+          const prevVersion = index === history.history.all.length - 1 ?
+            null
+            : history.history.all[index + 1];
+
+
 
           return (
             <motion.div
@@ -772,7 +777,7 @@ function History() {
                 </div>
                 <button 
                   className="version-btn view-diff-btn"
-                  onClick={() => window.location.href = `/project/${id}/diff/${version.hash}`}
+                  onClick={() => window.location.href = `/project/${id}/diff/${version.hash}/${prevVersion?.hash}`}
                   style={{ marginLeft: 'auto' }} // Align to the right
                 >
                   <FaSearchPlus />
