@@ -211,28 +211,31 @@
   position: relative;
   height: 40px;
   flex-shrink: 0;
-  margin-left: 180px; /* Match track header width */
-  scrollbar-width: thin;
-  scrollbar-color: rgba(156, 39, 176, 0.5) rgba(0,0,0,0.2);
+  margin-left: 220px; /* Exact match with track header width */
+
 }
 
 .diff-viewer-container .timeline-scroll-container::-webkit-scrollbar {
-  height: 8px;
+  height: 0px;
+  display: none;
 }
 
 .diff-viewer-container .timeline-scroll-container::-webkit-scrollbar-track {
-  background: rgba(0,0,0,0.2);
+  /* background: rgba(0,0,0,0.2); */
+  background: transparent;
+  display: none;
 }
 
 .diff-viewer-container .timeline-scroll-container::-webkit-scrollbar-thumb {
-  background-color: rgba(156, 39, 176, 0.5);
-  border-radius: 4px;
+  display: none;
 }
 
 .diff-viewer-container .timeline {
   height: 100%;
   position: relative;
   min-width: 100%;
+  padding-left: 0; /* Remove any padding that might cause misalignment */
+  box-sizing: border-box; /* Ensure box-sizing is consistent */
 }
 
 .diff-viewer-container .timeline-marker {
@@ -289,21 +292,21 @@
   flex: 1;
   background-color: #151515;
   position: relative;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(156, 39, 176, 0.5) rgba(0,0,0,0.2);
+  /* scrollbar-width: thin; */
+  /* scrollbar-color: rgba(156, 39, 176, 0.5) rgba(0,0,0,0.2); */
 }
 
 .diff-viewer-container .tracks-scroll-container::-webkit-scrollbar {
   width: 8px;
-  height: 8px;
+  height: 3px;
 }
 
 .diff-viewer-container .tracks-scroll-container::-webkit-scrollbar-track {
-  background: rgba(0,0,0,0.2);
+  /* background: rgba(0,0,0,0.2); */
 }
 
 .diff-viewer-container .tracks-scroll-container::-webkit-scrollbar-thumb {
-  background-color: rgba(156, 39, 176, 0.5);
+  background: #fff2;
   border-radius: 4px;
 }
 
@@ -315,6 +318,11 @@
   min-height: 100%;
   pointer-events: none;
   z-index: 1;
+  padding: 0; /* Remove any padding that might cause misalignment */
+  margin: 0; /* Remove any margin that might cause misalignment */
+  box-sizing: border-box; /* Ensure box-sizing is consistent */
+  margin-left: 220px;
+  width: calc(100% - 220px);
 }
 
 .diff-viewer-container .grid-line {
@@ -323,7 +331,11 @@
   height: 100%;
   width: 1px;
   pointer-events: none;
+  margin: 0; /* Remove any margin that might cause misalignment */
+  padding: 0; /* Remove any padding that might cause misalignment */
+  transform: translateX(0); /* Ensure no transform affects position */
 }
+
 
 .diff-viewer-container .grid-line.major {
   background-color: rgba(255, 255, 255, 0.08);
@@ -358,12 +370,13 @@
 }
 
 .diff-viewer-container .track-header {
-  width: 180px;
+  width: 220px; /* Ensure this matches the margin-left in timeline-scroll-container */
   padding: 8px 12px;
   display: flex;
   flex-direction: column;
   background-color: rgba(0, 0, 0, 0.2);
   border-right: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
   position: sticky;
   left: 0;
   z-index: 5;
@@ -469,11 +482,16 @@
   flex-direction: column;
   gap: 4px;
   font-size: 0.7rem;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(20, 0, 35, 0.2);
   padding: 4px 6px;
   border-radius: 3px;
+  overflow-y: auto; /* Show scrollbar only when needed */
+  /* max-height: 45px; Maximum height */
+  /* min-height: fit-content; Allow to grow with content */
+  /* border: 1px solid rgba(147, 0, 215, 0.2); Border to match site theme */
+  flex-shrink: 0; /* Prevent flex container from shrinking this */
+  height: auto; /* Let it grow naturally with content */
 }
-
 .diff-viewer-container .parameter-change {
   display: flex;
   align-items: center;
@@ -593,7 +611,11 @@
   width: 100%;
   height: 100%;
   z-index: 3;
+  padding: 0; /* Remove padding that might cause misalignment */
+  margin: 0; /* Remove any margin that might cause misalignment */
+  box-sizing: border-box; /* Ensure box-sizing is consistent */
 }
+
 
 .diff-viewer-container .track-event {
   position: absolute;
@@ -703,9 +725,12 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 5px 0;
+  padding: 0; /* Remove padding that might cause misalignment */
   transition: background-color 0.2s ease;
+  margin: 0; /* Remove any margin that might cause misalignment */
+  box-sizing: border-box; /* Ensure box-sizing is consistent */
 }
+
 
 .diff-viewer-container .notes-container:hover
 {

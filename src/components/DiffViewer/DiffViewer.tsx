@@ -382,14 +382,21 @@ function DiffViewer() {
     });
   }, [lockScrolling]);
 
+  const calculateLeftPercent = (beat: number, totalBeats: number): number => {
+    return (beat / totalBeats) * 100;
+  };
+  
+  const calculateWidthPercent = (duration: number, totalBeats: number): number => {
+    return (duration / totalBeats) * 100;
+  };
+
   // --- Rendering Functions ---
   const renderTimelineMarkers = () => {
     const markers = [];
-    const majorInterval = totalBeats > 128 ? 16 : 4; // Adjust for zoom level
+    const majorInterval = totalBeats > 128 ? 16 : 4;
     const minorInterval = majorInterval / 4;
     
-    // Add a beat ruler
-    for (let beat = 0; beat <= totalBeats; beat += minorInterval) {
+    for (let beat = 0; beat <= totalBeats - minorInterval; beat += minorInterval) {
       const isMajor = beat % majorInterval === 0;
       const isMinor = beat % majorInterval !== 0 && beat % minorInterval === 0;
       
@@ -397,7 +404,7 @@ function DiffViewer() {
         <div
           key={`marker-${beat}`}
           className={`timeline-marker ${isMajor ? 'major' : isMinor ? 'minor' : 'micro'}`}
-          style={{ left: `${(beat / totalBeats) * 100}%` }}
+          style={{ left: `${calculateLeftPercent(beat, totalBeats)}%` }}
         >
           {isMajor && (
             <span className="timeline-label">
@@ -665,8 +672,8 @@ function DiffViewer() {
       const noteHeight = Math.min(100 / trackNoteRange, 3); // Cap the height percentage
       
       // Horizontal position and width
-      const leftPercent = ((note.start - eventStartBeat) / eventDurationBeats) * 100;
-      const widthPercent = (note.duration / eventDurationBeats) * 100;
+      const leftPercent = calculateLeftPercent(note.start - eventStartBeat, eventDurationBeats);
+      const widthPercent = calculateWidthPercent(note.duration, eventDurationBeats);
       
       // Visual styling based on status
       let noteClass = `piano-note status-${note.status}`;
@@ -849,8 +856,9 @@ function DiffViewer() {
           }
           
           // Position calculation
-          const leftPercent = (startBeat / totalBeats) * 100;
-          const widthPercent = (durationBeat / totalBeats) * 100;
+          const leftPercent = calculateLeftPercent(startBeat, totalBeats);
+          const widthPercent = calculateWidthPercent(durationBeat, totalBeats);
+
           
           // Color and style based on type and status
           let backgroundColor = trackType === 'MidiTrack' 
@@ -893,7 +901,7 @@ function DiffViewer() {
           const eventClass = `track-event ${trackType.toLowerCase().replace('track', '')}-event status-${eventStatus}`;
           
           // For tooltip
-          const tooltipContent = `${eventStatus === 'added' ? 'Added' : eventStatus === 'removed' ? 'Removed' : eventStatus === 'modified' ? 'Modified' : ''} ${trackType === 'MidiTrack' ? 'MIDI Clip' : 'Audio Clip'} at beat ${startBeat.toFixed(2)}`;
+          const tooltipContent = `${eventStatus === 'added' ? 'Added' : eventStatus === 'removed' ? 'Removed' : eventStatus === 'modified' ? 'Modified' : ''} ${trackType === 'MidiTrack' ? 'MIDI Clip' : 'Audio Clip'} at beat ${startBeat?.toFixed(2)}`;
           
           return (
               <>
@@ -1074,8 +1082,7 @@ function DiffViewer() {
       );
       
       // Get track height based on vertical zoom and track type
-      const baseHeight = trackType === 'MidiTrack' ? 150 : 120;
-      const trackHeight = baseHeight * (verticalZoom / 100);
+      const trackHeight = verticalZoom * (trackType === 'MidiTrack' ? 2.5 : 2);
       
       // Create track class for styling
       const trackClass = `track ${trackType.toLowerCase().replace('track', '')}-track status-${status} ${activeTrack === trackId ? 'active' : ''}`;
@@ -1113,9 +1120,9 @@ function DiffViewer() {
                 {paramChanges.map((change, i) => (
                   <div key={`param-${i}`} className="parameter-change">
                     <span className="param-name">{change.parameter}:</span>
-                    <span className="param-old">{change.from.toFixed(2)}</span>
+                    <span className="param-old">{change.from?.toFixed(2)}</span>
                     <FaArrowRight className="param-arrow" />
-                    <span className="param-new">{change.to.toFixed(2)}</span>
+                    <span className="param-new">{change.to?.toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -1184,6 +1191,20 @@ function DiffViewer() {
       </div>
     );
   };
+
+  const getTimelineWidth = (zoom: number) =>
+  {
+    //our tracks container width is zoom% - 220px
+    //since the timeline with is screenWidth - 220px the same calcualtion will not work
+    //for the timeline width
+    //so we will use the screen width to calculate the timeline width
+    // const tracksContainerWidth = (zoom / 100) * (window.innerWidth - 220);
+    let screenWidth = window.innerWidth - 1 * window.innerWidth / 150;
+    let sizeIncrease = screenWidth * zoom / 100 - screenWidth;
+    let timelineWidth = screenWidth + sizeIncrease;
+    return timelineWidth - 220;
+    
+  }
   
   const renderChangesSummary = () => {
     if (!diffData) return null;
@@ -1284,7 +1305,7 @@ function DiffViewer() {
   }
 
   const prevHashShort = diffData.summary.previousCommitHash?.substring(0, 7);
-  const currHashShort = currentHash.substring(0, 7);
+  const currHashShort = currentHash?.substring(0, 7);
 
   return (
     <div className="diff-viewer-container">
@@ -1376,7 +1397,7 @@ function DiffViewer() {
           ref={timelineScrollRef} 
           onScroll={() => handleScroll('timeline')}
         >
-          <div className="timeline" style={{ width: `${zoom}%` }}>
+          <div className="timeline" style={{ width: getTimelineWidth(zoom) }}>
             {renderTimelineMarkers()}
             {renderPlayhead()}
           </div>
@@ -1389,13 +1410,13 @@ function DiffViewer() {
           onScroll={() => handleScroll('tracks')}
         >
           {/* Track Background Grid */}
-          <div className="tracks-background-grid" style={{ width: `${zoom}%` }}>
+          <div className="tracks-background-grid" style={{ width: `calc(${zoom}% - 220px)` }}>
             {/* Render vertical beat lines */}
             {Array.from({ length: Math.ceil(totalBeats / 4) + 1 }).map((_, i) => (
               <div 
                 key={`grid-${i}`}
                 className={`grid-line ${i % 4 === 0 ? 'major' : 'minor'}`}
-                style={{ left: `${(i * 4 / totalBeats) * 100}%` }}
+                style={{ left: `${calculateLeftPercent(i * 4, totalBeats)}%` }}
               />
             ))}
           </div>
