@@ -98,7 +98,7 @@
 }
 
 .loading-container .audio-track .midi-note {
-  background: linear-gradient(to right, rgb(50, 50, 174), rgb(50, 50, 174, 0.6));
+  background: linear-gradient(to right, rgba(33, 150, 243, 0.6), rgba(33, 150, 243, 0.4));
   box-shadow: 0 0 8px rgba(50, 50, 174, 0.5);
 }
 

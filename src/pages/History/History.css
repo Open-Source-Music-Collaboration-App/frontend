@@ -71,6 +71,34 @@
   font-weight: 500;
 }
 
+.history-header-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+}
+
+
+.toggle-expand-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(147, 0, 215, 0.15);
+  color: white;
+  border: 1px solid rgba(147, 0, 215, 0.3);
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.toggle-expand-btn:hover {
+  background: rgba(147, 0, 215, 0.25);
+}
+
+.btn-icon {
+  font-size: 1em;
+}
+
 .history-description {
   margin-bottom: 30px;
   color: rgba(255, 255, 255, 0.7);
@@ -114,8 +142,50 @@
   margin-left: 55px;
   border: 1px solid rgba(147, 0, 215, 0.2);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s;
+  transition: all 0s;
 }
+
+.version-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.2s;
+  margin-bottom: 0;
+}
+
+.version-expand-toggle {
+  background: transparent;
+  border: none;
+  color: white;
+  opacity: 0.5;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.1s;
+  min-width: 30px;
+}
+
+.version-expand-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 0.8;
+}
+
+.version-card.collapsed {
+  /* padding: 15px 20px; */
+}
+
+.version-card.collapsed .version-header {
+  /* margin-bottom: 0; */
+}
+
+.version-card-content {
+  will-change: height, opacity, margin-top;
+}
+
 
 .version-card:hover {
   /* transform: translateY(-3px); */
@@ -151,6 +221,7 @@
   margin-bottom: 15px;
   flex-wrap: wrap;
   gap: 10px;
+  margin-bottom: 0;
 }
 
 .version-message {
@@ -265,20 +336,65 @@
 }
 
 .view-diff-btn {
-  background: rgba(255, 182, 157, 0.177);
+  background: rgba(33, 150, 243, 0.25);
   color: white;
-  border: 1px solid rgba(255, 182, 157, 0.3);
+  border: 1px solid rgba(33, 150, 243, 0.5);
+  text-shadow: 0 0 15px #fff3; 
   padding: 8px 14px;
   border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 500;
   /* cursor: pointer; */
   transition: all 0.2s ;
+  position: relative;
+  overflow: hidden;
+}
+
+.view-diff-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: 0.5s;
+  z-index: 1;
+}
+
+.view-diff-btn:hover::before {
+  left: 100%;
+}
+
+.view-diff-btn:hover svg {
+  filter: drop-shadow(0 0 3px rgba(33, 150, 243, 0.7));
+  transform: scale(1.05);
+}
+
+.view-diff-btn svg {
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.view-diff-btn:hover svg circle {
+  animation-duration: 1s !important;
+}
+
+.view-diff-btn:hover svg path {
+  animation-duration: 1s !important;
+  stroke-width: 1.5;
 }
 
 .view-diff-btn:hover {
   
-  
+  background: rgba(33, 150, 243, 0.3);
+  border-color: rgba(33, 150, 243, 0.5);
 }
 
 .download-btn {

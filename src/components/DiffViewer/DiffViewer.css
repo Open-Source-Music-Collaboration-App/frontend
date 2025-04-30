@@ -381,6 +381,7 @@
   left: 0;
   z-index: 5;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .diff-viewer-container .track-header-top {

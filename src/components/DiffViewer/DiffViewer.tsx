@@ -59,6 +59,44 @@ function DiffViewer() {
   const tracksScrollRef = useRef<HTMLDivElement>(null);
   const isSyncingScroll = useRef(false);
 
+  const handleWheel = useCallback((event: React.WheelEvent<HTMLDivElement>) => {
+    // Check for pinch-to-zoom gesture (ctrl+wheel on macOS trackpads)
+    if (event.shiftKey) {
+      // Prevent default to stop page scrolling
+      event.preventDefault();
+      
+      // Reduce sensitivity for pinch gestures
+      const delta = event.deltaY;
+      const zoomStep = 5; // Reduced from 10 for less sensitivity
+      
+      // Pinch gesture: control horizontal zoom
+      setZoom(prevZoom => {
+        const newZoom = delta > 0 
+          ? Math.max(100, prevZoom - zoomStep) 
+          : Math.min(400, prevZoom + zoomStep);
+        return newZoom;
+      });
+    } 
+    // Alt+wheel for vertical zoom
+    else if (event.altKey) {
+      // Prevent default to avoid page scrolling
+      event.preventDefault();
+      // Reduce sensitivity for pinch gestures
+      
+      const delta = event.deltaY;
+      const zoomStep = 3; // Reduced sensitivity
+      
+      // Alt + wheel: vertical zoom
+      setVerticalZoom(prevZoom => {
+        const newZoom = delta > 0 
+          ? Math.max(20, prevZoom - zoomStep) 
+          : Math.min(300, prevZoom + zoomStep);
+        return newZoom;
+      });
+    }
+    // Regular wheel - don't handle it, let the browser manage scrolling
+  }, []);
+
   // --- Data Fetching ---
   useEffect(() => {
     const fetchData = async () => {
@@ -961,16 +999,21 @@ function DiffViewer() {
                   <div className={`audio-clip-info ${audioChangeInfo ? 'modified' : ''}`}>
                     <div className="audio-waveform">
                       {/* Fake waveform visualization */}
-                      {Array.from({ length: 20 }).map((_, i) => (
-                        <div 
-                          key={`wave-${i}`} 
-                          className="waveform-bar"
-                          style={{ 
-                            height: `${20 + Math.random() * 60}%`,
-                            opacity: eventStatus === 'removed' ? 0.5 : 0.8
-                          }}
-                        />
-                      ))}
+                      {Array.from({ length: 20 }).map((_, i) => {
+                        const seed = 10 + i + (audioChangeInfo ? 1 : 0);
+                        const pseudoRandom = Math.sin(seed) * 0.5 + 0.5; // value between 0-1
+                        const height = 20 + pseudoRandom * 60;
+                        return (
+                          <div 
+                            key={`wave-${i}`} 
+                            className="waveform-bar"
+                            style={{ 
+                              height: `${height}%`,
+                              opacity: eventStatus === 'removed' ? 0.5 : 0.8
+                            }}
+                          />
+                        );
+                      })}
                     </div>
                     <div className="audio-name">
                       {audioChangeInfo && (
@@ -1388,7 +1431,10 @@ function DiffViewer() {
       {renderChangesSummary()}
       
       {/* Main Content Area */}
-      <div className="diff-viewer-content">
+      <div 
+      className="diff-viewer-content"
+      onWheel={handleWheel}
+      >
         {/* Scrollable Timeline */}
         <div 
           className="timeline-scroll-container" 
