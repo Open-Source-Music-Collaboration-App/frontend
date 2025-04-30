@@ -20,7 +20,9 @@
   background-color: rgba(26, 26, 26, 0.2);
   backdrop-filter: blur(10px);
   z-index: 1000;
+  transition: backdrop-filter 0.3s ease-in-out;
 }
+
 
 /* Size variants */
 .loading-container.small .loading-spinner {
