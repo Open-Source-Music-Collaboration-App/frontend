@@ -1083,7 +1083,7 @@ function DiffViewer() {
       );
       
       // Get track height based on vertical zoom and track type
-      const trackHeight = verticalZoom * (trackType === 'MidiTrack' ? 2.5 : 2);
+      const trackHeight = verticalZoom * (trackType === 'MidiTrack' ? 2 : 1.5);
       
       // Create track class for styling
       const trackClass = `track ${trackType.toLowerCase().replace('track', '')}-track status-${status} ${activeTrack === trackId ? 'active' : ''}`;

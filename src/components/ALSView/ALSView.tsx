@@ -535,7 +535,29 @@ function ALSView({ projectData, trackFiles }: ALSViewProps) {
             }}
             title={event.audio_name || "Audio Event"}
           >
-            <span className="audio-name">{event.audio_name || "Audio Clip"}</span>
+            <div className="audio-clip-info">
+              <div className="audio-waveform">
+                {/* Generate fake waveform visualization */}
+                {Array.from({ length: 20 }).map((_, i) => {
+                  // Create a deterministic "random" height based on track, event, and bar position
+                  const seed = (trackIndex * 1000) + (eventIndex * 100) + i;
+                  const pseudoRandom = Math.sin(seed) * 0.5 + 0.5; // value between 0-1
+                  const height = 20 + pseudoRandom * 60;
+                  
+                  return (
+                    <div 
+                      key={`wave-${trackIndex}-${eventIndex}-${i}`} 
+                      className="waveform-bar"
+                      style={{ 
+                        height: `${height}%`,
+                        backgroundColor: `rgba(33, 150, 243, ${0.3 + pseudoRandom * 0.5})` // vary opacity for depth
+                      }}
+                    />
+                  );
+                })}
+              </div>
+              <span className="audio-name">{event.audio_name || "Audio Clip"}</span>
+            </div>
           </div>
         );
       }
