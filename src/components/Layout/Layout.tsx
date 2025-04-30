@@ -5,6 +5,7 @@ import Header from "../Header/Header";
 import ProjectHeader from "../ProjectHeader/ProjectHeader";
 import Sidebar from "../Sidebar/Sidebar";
 import PageTransition from "../PageTransition/PageTransition";
+import "./Layout.css";
 
 
 // function to return the correct type of header based on the page
@@ -16,6 +17,11 @@ function getHeader(path: string, toggleSidebar: () => void) {
   let formattedHeaderText = path.substring(1).replace(/-/g, " ").replace(/^\w/, (c) => c.toUpperCase());
   if( path === "/dashboard" || path === "/new-project" ) {
     return <Header toggleSidebar={toggleSidebar} page={formattedHeaderText} />;
+  }
+
+  //minimal header but very aesthetically pleasing
+  else if (path.includes("diff")) {
+    return null;
   }
 
   else if( path.includes("/project/") ) {

@@ -1,0 +1,61 @@
+.diff-header {
+  background: rgba(25, 25, 35, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.diff-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* max-width: 1400px; */
+  margin: 0 auto;
+}
+
+.diff-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.diff-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: white;
+}
+
+.diff-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.diff-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: white;
+  font-size: 0.85rem;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.diff-action-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.diff-action-btn.highlight {
+  background: rgba(60, 60, 220, 0.2);
+  border: 1px solid rgba(60, 60, 220, 0.3);
+}
+
+.diff-action-btn.highlight:hover {
+  background: rgba(60, 60, 220, 0.25);
+}

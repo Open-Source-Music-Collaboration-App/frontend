@@ -5,49 +5,16 @@
  * and download files from specific versions of their music projects.
  */
 
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { useAuth } from "../../context/AuthProvider";
-import axios from "axios";
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import {
-  NoteDiff,
-  NoteDiffViewer,
-} from "../../components/NoteDiffViewer/NoteDiffViewer";
-import {
-  FaHistory,
-  FaCalendarAlt,
-  FaUser,
-  FaMusic,
-  FaSave,
-  FaArrowLeft,
-  FaDownload,
-  FaFileAlt,
-  FaFileAudio,
-  FaFileCode,
-  FaPlus,
-  FaMinus,
-  FaEdit,
-  FaUserFriends,
-} from "react-icons/fa";
-import "./History.css";
-import VisualDiffTimeline from "../../components/VisualDiffTimeline/VisualDiffTimeline";
-
-// Hardcode a small example:
-// const mockNoteDiff: NoteDiff = {
-//   added: [
-//     { time: 1.0, pitch: 10, duration: 1.0, velocity: 100 },
-//     { time: 2.5, pitch: 62, duration: 0.5, velocity: 80 },
-//   ],
-//   removed: [{ time: 2.5, pitch: 32, duration: 0.5, velocity: 80 }],
-//   modified: [
-//     {
-//       old: { time: 3.0, pitch: 64, duration: 1.0, velocity: 90 },
-//       new: { time: 3.0, pitch: 67, duration: 1.0, velocity: 95 },
-//     },
-//   ],
-// };
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useAuth } from '../../context/AuthProvider';
+import axios from 'axios';
+import { motion } from 'framer-motion';
+import { 
+  FaHistory, FaCalendarAlt, FaUser, FaMusic, FaSave, 
+  FaArrowLeft, FaDownload, FaFileAlt, FaFileAudio, 
+  FaFileCode, FaPlus, FaMinus, FaEdit, FaUserFriends, FaSearchPlus } from 'react-icons/fa';
+import './History.css';
 
 /**
  * @interface Version
@@ -755,6 +722,11 @@ function History() {
         {history?.history.all.map((version, index) => {
           // const fileChanges = getPlaceholderFileChanges(version.hash, index);
           const isCollaborator = version.author_name !== projectOwner;
+          const prevVersion = index === history.history.all.length - 1 ?
+            null
+            : history.history.all[index + 1];
+
+
 
           return (
             <motion.div
@@ -801,7 +773,16 @@ function History() {
                         ? "Restoration"
                         : "Project Update"}
                   </span>
+                  
                 </div>
+                <button 
+                  className="version-btn view-diff-btn"
+                  onClick={() => window.location.href = `/project/${id}/diff/${version.hash}/${prevVersion?.hash}`}
+                  style={{ marginLeft: 'auto' }} // Align to the right
+                >
+                  <FaSearchPlus />
+                  View Detailed Changes
+                </button>
               </div>
 
               {/* File changes section */}
@@ -862,15 +843,17 @@ function History() {
                 >
                   <FaDownload /> Download Files
                 </button>
+                
+
               </div>
-              <div>
+              {/* <div>
                 <VisualDiffTimeline
                   projectId={id}
                   commitHash={version.hash}
                   width={800}
                   height={300}
                 />
-              </div>
+              </div> */}
             </motion.div>
           );
         })}
