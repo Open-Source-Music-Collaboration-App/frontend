@@ -1,0 +1,169 @@
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  min-height: 200px;
+  padding: 20px;
+  height: 100%;
+  width: 100%;
+  z-index: 1000;
+}
+
+.loading-container.fullscreen {
+  height: 100vh;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(26, 26, 26, 0.2);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+}
+
+/* Size variants */
+.loading-container.small .loading-spinner {
+  /* height: 40px; */
+  width: 160px;
+}
+
+.loading-container.small .midi-track {
+  height: 14px;
+}
+
+.loading-container.large .loading-spinner {
+  /* height: 100px; */
+  width: 500px;
+}
+
+.loading-container.large .midi-track {
+  height: 16px;
+}
+
+/* loading-spinner styling */
+.loading-container .loading-spinner {
+  position: relative;
+  /* height: 60px; */
+  width: 400px;
+  background: rgba(0, 0, 0, 0.2);
+  /* border: 1px solid rgba(147, 0, 215, 0.3); */
+  border-radius: 15px;
+  /* padding: 10px 0; */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+/* Piano roll background grid */
+.loading-container .loading-spinner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* background-image:  */
+    /* linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px); */
+    /* linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px); */
+  background-size: 20px 25%, 100% 33.33%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* MIDI track styling */
+.loading-container .midi-track {
+  height: 16px;
+  position: relative;
+  margin: 0px;
+  padding: 2px 0px;
+  display: flex;
+  align-items: center;
+  border-top: 1px solid #fff1;
+  box-sizing: content-box;
+}
+
+/* MIDI note styling */
+.loading-container .midi-note {
+  position: absolute;
+  height: 70%;
+  background: linear-gradient(to right, rgba(147, 0, 215, 0.8), rgba(147, 0, 215, 0.6));
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(147, 0, 215, 0.5);
+  animation: moveNote 2s infinite cubic-bezier(0.4, 0, 0.2, 1.3);
+  transform-origin: left;
+  opacity: 0;
+  margin: 0px; 
+}
+
+.loading-container .audio-track .midi-note {
+  background: linear-gradient(to right, rgb(50, 50, 174), rgb(50, 50, 174, 0.6));
+  box-shadow: 0 0 8px rgba(50, 50, 174, 0.5);
+}
+
+/* Create 5 tracks with multiple notes per track */
+.loading-container .midi-track:nth-child(1) .midi-note:nth-child(1) { left: 5%; width: 10%; animation-delay: 0s; }
+.loading-container .midi-track:nth-child(1) .midi-note:nth-child(2) { left: 25%; width: 8%; animation-delay: 0.4s; }
+.loading-container .midi-track:nth-child(1) .midi-note:nth-child(3) { left: 50%; width: 15%; animation-delay: 1.1s; }
+.loading-container .midi-track:nth-child(1) .midi-note:nth-child(4) { left: 75%; width: 12%; animation-delay: 1.8s; }
+
+.loading-container .midi-track:nth-child(2) .midi-note:nth-child(1) { left: 10%; width: 15%; animation-delay: 0.2s; }
+.loading-container .midi-track:nth-child(2) .midi-note:nth-child(2) { left: 35%; width: 10%; animation-delay: 0.8s; }
+.loading-container .midi-track:nth-child(2) .midi-note:nth-child(3) { left: 60%; width: 8%; animation-delay: 1.5s; }
+.loading-container .midi-track:nth-child(2) .midi-note:nth-child(4) { left: 80%; width: 14%; animation-delay: 2.2s; }
+
+.loading-container .midi-track:nth-child(3) .midi-note:nth-child(1) { left: 0%; width: 12%; animation-delay: 0.3s; }
+.loading-container .midi-track:nth-child(3) .midi-note:nth-child(2) { left: 20%; width: 8%; animation-delay: 0.7s; }
+.loading-container .midi-track:nth-child(3) .midi-note:nth-child(3) { left: 40%; width: 10%; animation-delay: 1.3s; }
+.loading-container .midi-track:nth-child(3) .midi-note:nth-child(4) { left: 70%; width: 15%; animation-delay: 2.0s; }
+
+.loading-container .midi-track:nth-child(4) .midi-note:nth-child(1) { left: 15%; width: 10%; animation-delay: 0.1s; }
+.loading-container .midi-track:nth-child(4) .midi-note:nth-child(2) { left: 30%; width: 12%; animation-delay: 0.6s; }
+.loading-container .midi-track:nth-child(4) .midi-note:nth-child(3) { left: 55%; width: 8%; animation-delay: 1.2s; }
+.loading-container .midi-track:nth-child(4) .midi-note:nth-child(4) { left: 85%; width: 10%; animation-delay: 1.9s; }
+
+.loading-container .midi-track:nth-child(5) .midi-note:nth-child(1) { left: 5%; width: 15%; animation-delay: 0.4s; }
+.loading-container .midi-track:nth-child(5) .midi-note:nth-child(2) { left: 25%; width: 10%; animation-delay: 0.9s; }
+.loading-container .midi-track:nth-child(5) .midi-note:nth-child(3) { left: 50%; width: 8%; animation-delay: 1.6s; }
+.loading-container .midi-track:nth-child(5) .midi-note:nth-child(4) { left: 75%; width: 12%; animation-delay: 2.3s; }
+
+/* Playhead */
+.loading-container .playhead {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background-color: #9300D7;
+  box-shadow: 0px 0px 10px rgba(147, 0, 215, 0.8);
+  z-index: 10;
+  animation: movePlayhead 2s linear infinite 0.1s;
+}
+
+/* Animations */
+@keyframes movePlayhead {
+  0% { left: 0; }
+  90% { left: 100%; }
+  100% { left: 100%; }
+}
+
+@keyframes moveNote {
+  0% { transform: scaleX(0); opacity: 0; }
+  30% { transform: scaleX(1); opacity: 1; }
+  60% { transform: scaleX(1); opacity: 1; }
+  90% { transform: scaleX(0); opacity: 0; }
+  100% { transform: scaleX(0); opacity: 0; }
+}
+
+.loading-container .loading-text {
+  animation: pulseText 1s infinite alternate ease;
+  font-size: 20px;
+  color: #fff;
+  font-weight: 500;
+  text-align: center;
+  font-size: 1rem;
+  /* text-shadow: 0 0 10px rgba(147, 0, 215, 0.5); */
+}
+
+@keyframes pulseText {
+  from { opacity: 0.2; }
+  to { opacity: 0.7; }
+}

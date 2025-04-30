@@ -9,6 +9,7 @@ import {
   FaAngleDown, FaAngleUp
 } from 'react-icons/fa';
 import './CollabRequests.css';
+import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner';
 
 /**
  * @interface CollabRequest
@@ -197,11 +198,7 @@ function CollabRequests() {
   };
 
   if (loading) {
-    return (
-      <div className="collab-requests-loading">
-        <div className="collab-spinner"></div>
-      </div>
-    );
+    return (<LoadingSpinner fullScreen={false} message="Loading..." size="large" />);;
   }
 
   if (error) {

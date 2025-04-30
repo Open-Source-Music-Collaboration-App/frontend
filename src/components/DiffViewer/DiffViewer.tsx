@@ -13,6 +13,7 @@ import {
   FaArrowLeft
 } from 'react-icons/fa';
 import { BiDice1, BiDice2, BiDice3, BiDice4, BiDice5, BiDice6 } from 'react-icons/bi';
+import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 
 // --- Helper Utilities ---
 const formatTime = (seconds: number): string => {
@@ -1274,14 +1275,10 @@ function DiffViewer() {
     );
   };
 
+  
   // --- Main Render ---
   if (loading) {
-    return (
-      <div className="diff-loading">
-        <div className="spinner"></div>
-        <div className="loading-text">Loading Project Comparison...</div>
-      </div>
-    );
+    return <LoadingSpinner message = "Loading Project Comparison" fullScreen />;
   }
 
   if (error) {
@@ -1292,6 +1289,7 @@ function DiffViewer() {
       </div>
     );
   }
+
 
   if (!diffData || (!currentProjectData && !previousProjectData)) {
     return (
