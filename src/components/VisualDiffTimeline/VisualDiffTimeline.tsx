@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthProvider";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
 //
 // ─── TYPES ─────────────────────────────────────────────────────────────────────
@@ -69,7 +70,7 @@ const VisualDiffTimeline: React.FC<VisualDiffTimelineProps> = ({
   }, [user, projectId, commitHash]);
 
   if (loading) {
-    return <div>Loading diff…</div>;
+    return (<LoadingSpinner fullScreen={false} message="Loading..." size="small" />);
   } else if (notes.length === 0) {
     // no diffs → ("no changes" message)
     return "No changes";

@@ -5,49 +5,21 @@
  * and download files from specific versions of their music projects.
  */
 
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { useAuth } from "../../context/AuthProvider";
-import axios from "axios";
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import {
-  NoteDiff,
-  NoteDiffViewer,
-} from "../../components/NoteDiffViewer/NoteDiffViewer";
-import {
-  FaHistory,
-  FaCalendarAlt,
-  FaUser,
-  FaMusic,
-  FaSave,
-  FaArrowLeft,
-  FaDownload,
-  FaFileAlt,
-  FaFileAudio,
-  FaFileCode,
-  FaPlus,
-  FaMinus,
-  FaEdit,
-  FaUserFriends,
-} from "react-icons/fa";
-import "./History.css";
-import VisualDiffTimeline from "../../components/VisualDiffTimeline/VisualDiffTimeline";
-
-// Hardcode a small example:
-// const mockNoteDiff: NoteDiff = {
-//   added: [
-//     { time: 1.0, pitch: 10, duration: 1.0, velocity: 100 },
-//     { time: 2.5, pitch: 62, duration: 0.5, velocity: 80 },
-//   ],
-//   removed: [{ time: 2.5, pitch: 32, duration: 0.5, velocity: 80 }],
-//   modified: [
-//     {
-//       old: { time: 3.0, pitch: 64, duration: 1.0, velocity: 90 },
-//       new: { time: 3.0, pitch: 67, duration: 1.0, velocity: 95 },
-//     },
-//   ],
-// };
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useAuth } from '../../context/AuthProvider';
+import axios from 'axios';
+import { motion } from 'framer-motion';
+import { 
+  FaHistory, FaCalendarAlt, FaUser, FaMusic, FaSave, 
+  FaArrowLeft, FaDownload, FaFileAlt, FaFileAudio, 
+  FaFileCode, FaPlus, FaMinus, FaEdit, FaUserFriends, FaSearchPlus, 
+  FaAngleUp,
+  FaAngleDown,
+  FaChevronDown,
+  FaChevronUp} from 'react-icons/fa';
+import './History.css';
+import Tooltip from '../../components/Tooltip/Tooltip';
 
 /**
  * @interface Version
@@ -404,6 +376,40 @@ function History() {
     return changes;
   };
 
+  
+  const [expandedVersions, setExpandedVersions] = useState<string[]>([]);
+  const [allExpanded, setAllExpanded] = useState<boolean>(true);
+
+  // Toggle function for individual version expansion
+  const toggleVersionExpand = (hash: string) => {
+    if (expandedVersions.includes(hash)) {
+      setExpandedVersions(expandedVersions.filter(v => v !== hash));
+    } else {
+      setExpandedVersions([...expandedVersions, hash]);
+    }
+  };
+
+  // Toggle all versions expanded/collapsed
+  const toggleAllExpand = () => {
+    if (allExpanded) {
+      setExpandedVersions([]);
+    } else {
+      setExpandedVersions(history?.history.all.map(v => v.hash) || []);
+    }
+    setAllExpanded(!allExpanded);
+  };
+
+  // Initialize expanded versions on data load
+  useEffect(() => {
+    if (history?.history.all) {
+      // Default to showing all expanded
+      setExpandedVersions(history.history.all.map(v => v.hash));
+      setAllExpanded(true);
+    }
+  }, [history]);
+
+
+
   /**
    * @hook useEffect
    * @description Effect hook that fetches project history data when the component mounts
@@ -730,6 +736,17 @@ function History() {
             {history?.history.total || 0} saved versions
           </span>
         </div>
+        <div className="history-header-controls">
+          <button 
+            className="toggle-expand-btn"
+            onClick={toggleAllExpand}
+          >
+            {allExpanded ? 
+              <><FaAngleUp className="btn-icon" /> Collapse All</> : 
+              <><FaAngleDown className="btn-icon" /> Expand All</>
+            }
+          </button>
+        </div>
       </div>
 
       <div className="history-description">
@@ -755,26 +772,56 @@ function History() {
         {history?.history.all.map((version, index) => {
           // const fileChanges = getPlaceholderFileChanges(version.hash, index);
           const isCollaborator = version.author_name !== projectOwner;
+          const prevVersion = index === history.history.all.length - 1 ?
+            null
+            : history.history.all[index + 1];
+          const isExpanded = expandedVersions.includes(version.hash);
+
+
+
 
           return (
             <motion.div
               key={version.hash}
-              className="version-card"
+              
+              className={`version-card ${isExpanded ? 'expanded' : 'collapsed'}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ delay: index * 0.01 }}
             >
-              <div className="version-badge">
-                {getVersionNumber(index, history.history.total)}
+              <div className="version-card-header">
+                  <div className="version-badge">
+                    {getVersionNumber(index, history.history.total)}
+                  </div>
+
+              
+              
+                <div className="version-header">
+                  <div className="version-message">{version.message}</div>
+                  <div className="version-date">
+                    <FaCalendarAlt className="version-icon" />
+                    {formatDate(version.date)}
+                  </div>
+                </div>
+                <button 
+                  className="version-expand-toggle"
+                  onClick={() => toggleVersionExpand(version.hash)}
+                  aria-label={isExpanded ? "Collapse" : "Expand"}
+                >
+                  {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                </button>
               </div>
 
-              <div className="version-header">
-                <div className="version-message">{version.message}</div>
-                <div className="version-date">
-                  <FaCalendarAlt className="version-icon" />
-                  {formatDate(version.date)}
-                </div>
-              </div>
+              <motion.div 
+                className="version-card-content"
+                initial={false}
+                animate={{ 
+                  height: isExpanded ? 'auto' : 0,
+                  opacity: isExpanded ? 1 : 0,
+                  marginTop: isExpanded ? '15px' : '0px'
+                }}
+                transition={{ duration: 0, ease: "easeInOut" }}
+                style={{ overflow: 'hidden' }}>
 
               <div className="version-details">
                 <div className="version-author">
@@ -801,7 +848,62 @@ function History() {
                         ? "Restoration"
                         : "Project Update"}
                   </span>
+                  
                 </div>
+
+                <Tooltip
+                  content="View detailed changes between this version and the previous one"
+                  className="view-diff-tooltip"
+                  position="left"
+                  delay={200}
+                  style={{ marginLeft: 'auto' }} // Align to the right
+                  >
+                <button 
+  className="version-btn view-diff-btn"
+  onClick={() => window.location.href = `/project/${id}/diff/${version.hash}/${prevVersion?.hash}`}
+  style={{ marginLeft: 'auto' }} // Align to the right
+>
+  <svg width="18" height="18" viewBox="0 0 24 24" style={{ marginRight: "0px" }}>
+    {/* Central connector with glow effect */}
+    <path d="M12 4v16" stroke="url(#purpleGlow)" strokeWidth="1.2" strokeLinecap="round" strokeDasharray="1 1.5" />
+
+    {/* Added elements (green) */}
+    <circle cx="8" cy="8" r="3" fill="url(#greenGradient)" />
+    <circle cx="8" cy="16" r="3" fill="url(#greenGradient)" />
+    
+    {/* Removed element (red) */}
+    <circle cx="16" cy="8" r="3" fill="url(#redGradient)" />
+    
+    {/* Modified element (purple-orange) */}
+    <circle cx="16" cy="16" r="3" fill="url(#diffGradient)" />
+    
+    {/* Define gradients with better color transitions */}
+    <defs>
+      <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#43A047" />
+        <stop offset="100%" stopColor="#66BB6A" />
+      </linearGradient>
+      
+      <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#E53935" />
+        <stop offset="100%" stopColor="#EF5350" />
+      </linearGradient>
+      
+      <linearGradient id="diffGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#9C27B0" />
+        <stop offset="100%" stopColor="#FF9800" />
+      </linearGradient>
+      
+      <linearGradient id="purpleGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#9C27B0" stopOpacity="0.8" />
+        <stop offset="50%" stopColor="#9300D7" />
+        <stop offset="100%" stopColor="#9C27B0" stopOpacity="0.8" />
+      </linearGradient>
+    </defs>
+  </svg>
+  View Detailed Changes
+                </button>
+                </Tooltip>
               </div>
 
               {/* File changes section */}
@@ -862,15 +964,18 @@ function History() {
                 >
                   <FaDownload /> Download Files
                 </button>
+                
+
               </div>
-              <div>
+              {/* <div>
                 <VisualDiffTimeline
                   projectId={id}
                   commitHash={version.hash}
                   width={800}
                   height={300}
                 />
-              </div>
+              </div> */}
+            </motion.div>
             </motion.div>
           );
         })}

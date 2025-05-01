@@ -1,0 +1,1122 @@
+/* --- Main Container --- */
+.diff-viewer-container {
+  width: 100%;
+  height: 100vh;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  background-color: #1A1A1A; /* Darker background for professional DAW look */
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* --- Header --- */
+.diff-viewer-container .diff-viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: #111111;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.diff-viewer-container .header-section {
+  display: flex;
+  align-items: center;
+}
+
+.diff-viewer-container .diff-viewer-header h2 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e0e0e0;
+}
+
+.diff-viewer-container .header-icon {
+  color: #9c27b0;
+  margin-right: 8px;
+}
+
+.diff-viewer-container .arrow-icon {
+  margin: 0 8px;
+  opacity: 0.6;
+  font-size: 0.8em;
+}
+
+.diff-viewer-container .zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.diff-viewer-container .control-btn {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.diff-viewer-container .control-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.diff-viewer-container .control-btn.active, .control-btn:active {
+  background: rgba(156, 39, 176, 0.3);
+  border-color: rgba(156, 39, 176, 0.5);
+}
+
+.diff-viewer-container .play-btn {
+  background: rgba(156, 39, 176, 0.2);
+  color: #e56ff7;
+  width: 34px;
+  height: 34px;
+}
+
+.diff-viewer-container .play-btn:hover {
+  background: rgba(156, 39, 176, 0.4);
+  color: #ffffff;
+}
+
+.diff-viewer-container .zoom-value {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  min-width: 34px;
+  text-align: center;
+}
+
+.diff-viewer-container .control-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 8px;
+}
+
+/* --- Filter Options --- */
+.diff-viewer-container .filter-options {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.diff-viewer-container .filter-btn {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.diff-viewer-container .filter-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.diff-viewer-container .filter-btn.active {
+  background: rgba(156, 39, 176, 0.2);
+  border-color: rgba(156, 39, 176, 0.4);
+  color: #f1c6ff;
+}
+
+.diff-viewer-container .filter-btn svg {
+  font-size: 0.7rem;
+}
+
+.diff-viewer-container .filter-btn.active[class*="added"] {
+  background: rgba(76, 175, 80, 0.2);
+  border-color: rgba(76, 175, 80, 0.4);
+  color: #b4ffb7;
+}
+
+.diff-viewer-container .filter-btn.active[class*="removed"] {
+  background: rgba(244, 67, 54, 0.2);
+  border-color: rgba(244, 67, 54, 0.4);
+  color: #ffc9c5;
+}
+
+.diff-viewer-container .filter-btn.active[class*="modified"] {
+  background: rgba(255, 152, 0, 0.2);
+  border-color: rgba(255, 152, 0, 0.4);
+  color: #ffe0b2;
+}
+
+/* --- Changes Summary --- */
+.diff-viewer-container .changes-summary {
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 10px 16px;
+}
+
+.diff-viewer-container .changes-summary h3 {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0 0 8px 0;
+  color: #e0e0e0;
+}
+
+.diff-viewer-container .summary-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.diff-viewer-container .summary-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+}
+
+.diff-viewer-container .stat-value {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #9c27b0;
+}
+
+.diff-viewer-container .stat-label {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+
+/* --- Timeline --- */
+.diff-viewer-container .timeline-scroll-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+  background-color: #111111;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  height: 40px;
+  flex-shrink: 0;
+  margin-left: 220px; /* Exact match with track header width */
+
+}
+
+.diff-viewer-container .timeline-scroll-container::-webkit-scrollbar {
+  height: 0px;
+  display: none;
+}
+
+.diff-viewer-container .timeline-scroll-container::-webkit-scrollbar-track {
+  /* background: rgba(0,0,0,0.2); */
+  background: transparent;
+  display: none;
+}
+
+.diff-viewer-container .timeline-scroll-container::-webkit-scrollbar-thumb {
+  display: none;
+}
+
+.diff-viewer-container .timeline {
+  height: 100%;
+  position: relative;
+  min-width: 100%;
+  padding-left: 0; /* Remove any padding that might cause misalignment */
+  box-sizing: border-box; /* Ensure box-sizing is consistent */
+}
+
+.diff-viewer-container .timeline-marker {
+  position: absolute;
+  height: 100%;
+  top: 0;
+}
+
+.diff-viewer-container .timeline-marker.major {
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.diff-viewer-container .timeline-marker.minor {
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  height: 60%;
+  top: 40%;
+}
+
+.diff-viewer-container .timeline-marker.micro {
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+  height: 30%;
+  top: 70%;
+}
+
+.diff-viewer-container .timeline-label {
+  position: absolute;
+  top: 5px;
+  left: 4px;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+}
+
+.diff-viewer-container .timeline-time {
+  font-size: 0.65rem;
+  opacity: 0.8;
+  font-weight: normal;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* --- Tracks Content Area --- */
+.diff-viewer-container .diff-viewer-content {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.diff-viewer-container .tracks-scroll-container {
+  overflow: auto;
+  flex: 1;
+  background-color: #151515;
+  position: relative;
+  /* scrollbar-width: thin; */
+  /* scrollbar-color: rgba(156, 39, 176, 0.5) rgba(0,0,0,0.2); */
+}
+
+.diff-viewer-container .tracks-scroll-container::-webkit-scrollbar {
+  width: 8px;
+  height: 3px;
+}
+
+.diff-viewer-container .tracks-scroll-container::-webkit-scrollbar-track {
+  /* background: rgba(0,0,0,0.2); */
+}
+
+.diff-viewer-container .tracks-scroll-container::-webkit-scrollbar-thumb {
+  background: #fff2;
+  border-radius: 4px;
+}
+
+.diff-viewer-container .tracks-background-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  min-height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  padding: 0; /* Remove any padding that might cause misalignment */
+  margin: 0; /* Remove any margin that might cause misalignment */
+  box-sizing: border-box; /* Ensure box-sizing is consistent */
+  margin-left: 220px;
+  width: calc(100% - 220px);
+}
+
+.diff-viewer-container .grid-line {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 1px;
+  pointer-events: none;
+  margin: 0; /* Remove any margin that might cause misalignment */
+  padding: 0; /* Remove any padding that might cause misalignment */
+  transform: translateX(0); /* Ensure no transform affects position */
+}
+
+
+.diff-viewer-container .grid-line.major {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.diff-viewer-container .grid-line.minor {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.diff-viewer-container .tracks-container {
+  position: relative;
+  min-width: 100%;
+  min-height: 100%;
+  z-index: 2;
+}
+
+/* --- Track Styling --- */
+.diff-viewer-container .track {
+  position: relative;
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background-color 0.2s ease;
+  overflow: visible;
+}
+
+.diff-viewer-container .track:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.diff-viewer-container .track.active {
+  background-color: rgba(156, 39, 176, 0.05);
+}
+
+.diff-viewer-container .track-header {
+  width: 220px; /* Ensure this matches the margin-left in timeline-scroll-container */
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.diff-viewer-container .track-header-top {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.diff-viewer-container .track-header-middle {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.diff-viewer-container .track-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  padding-left: 16px;
+  color: #e0e0e0;
+}
+
+.diff-viewer-container .track-number {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.diff-viewer-container .track-type {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: fit-content;
+  font-weight: 500;
+}
+
+.diff-viewer-container .track-type.midi {
+  background-color: rgba(156, 39, 176, 0.15);
+  color: #e56ff7;
+  border: 1px solid rgba(156, 39, 176, 0.3);
+}
+
+.diff-viewer-container .track-type.audio {
+  background-color: rgba(33, 150, 243, 0.15);
+  color: #90caf9;
+  border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.diff-viewer-container .diff-indicator {
+  font-size: 0.65rem;
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin-top: 4px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.diff-viewer-container .diff-indicator svg {
+  font-size: 0.7em;
+}
+
+.diff-viewer-container .diff-indicator.added {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #c8ffc9;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.diff-viewer-container .diff-indicator.removed {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: #ffc8c8;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.diff-viewer-container .diff-indicator.modified {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: #ffe7c8;
+  border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+.diff-viewer-container .track-parameters {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.7rem;
+  background: rgba(20, 0, 35, 0.2);
+  padding: 4px 6px;
+  border-radius: 3px;
+  overflow-y: auto; /* Show scrollbar only when needed */
+  /* max-height: 45px; Maximum height */
+  /* min-height: fit-content; Allow to grow with content */
+  /* border: 1px solid rgba(147, 0, 215, 0.2); Border to match site theme */
+  flex-shrink: 0; /* Prevent flex container from shrinking this */
+  height: auto; /* Let it grow naturally with content */
+}
+.diff-viewer-container .parameter-change {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.diff-viewer-container .param-name {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.diff-viewer-container .param-arrow {
+  font-size: 0.6rem;
+  opacity: 0.6;
+  margin: 0 2px;
+}
+
+.diff-viewer-container .param-old {
+  color: #ff9a9a;
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+.diff-viewer-container .param-new {
+  color: #9cff9f;
+}
+
+.diff-viewer-container .track-midi-range {
+  margin-top: 6px;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.diff-viewer-container .range-label {
+  color: rgba(255, 255, 255, 0.7);
+  margin-right: 4px;
+}
+
+.diff-viewer-container .track-content {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* --- Piano Roll --- */
+.diff-viewer-container .piano-roll-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0; /* Zero width - it just provides the vertical piano keys */
+  height: 100%;
+  z-index: 1;
+}
+
+.diff-viewer-container .piano-keys {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+.diff-viewer-container .piano-key {
+  position: absolute;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.diff-viewer-container .piano-key.white {
+  background-color: rgba(255, 255, 255, 0.03);
+  z-index: 1;
+}
+
+.diff-viewer-container .piano-key.black {
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.diff-viewer-container .key-label {
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.6);
+  position: absolute;
+  left: 2px;
+  pointer-events: none;
+}
+
+.diff-viewer-container .piano-roll-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.diff-viewer-container .piano-grid-line {
+  position: absolute;
+  width: 100%;
+  pointer-events: none;
+}
+
+/* --- Event/Clip Styling --- */
+.diff-viewer-container .track-events-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  padding: 0; /* Remove padding that might cause misalignment */
+  margin: 0; /* Remove any margin that might cause misalignment */
+  box-sizing: border-box; /* Ensure box-sizing is consistent */
+}
+
+
+.diff-viewer-container .track-event {
+  position: absolute;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.15s ease;
+}
+
+.diff-viewer-container .track-event:hover {
+  /* transform: translateY(-1px); */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  z-index: 10 !important;
+}
+
+.diff-viewer-container .event-status-indicator {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.diff-viewer-container .track-event:hover .event-status-indicator {
+  opacity: 1;
+}
+
+.diff-viewer-container .event-status-indicator.added {
+  color: #4CAF50;
+}
+
+.diff-viewer-container .event-status-indicator.removed {
+  color: #F44336;
+}
+
+.diff-viewer-container .event-status-indicator.modified {
+  color: #FF9800;
+}
+
+/* --- Audio Clip Styling --- */
+.diff-viewer-container .audio-clip-info {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.diff-viewer-container .audio-waveform {
+  height: 60%;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding: 0 4px;
+}
+
+.diff-viewer-container .waveform-bar {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 1px;
+  min-width: 2px;
+}
+
+.diff-viewer-container .audio-name {
+  padding: 4px 6px;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.3);
+  margin-top: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.diff-viewer-container .audio-change-arrow {
+  margin: 0 4px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.diff-viewer-container .old-audio {
+  text-decoration: line-through;
+  opacity: 0.7;
+  color: #ff9a9a;
+}
+
+.diff-viewer-container .new-audio {
+  color: #9cff9f;
+}
+
+/* --- MIDI Note Styling --- */
+.diff-viewer-container .notes-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0; /* Remove padding that might cause misalignment */
+  transition: background-color 0.2s ease;
+  margin: 0; /* Remove any margin that might cause misalignment */
+  box-sizing: border-box; /* Ensure box-sizing is consistent */
+}
+
+
+.diff-viewer-container .notes-container:hover
+{
+  background-color: rgba(255, 255, 255, 0.01);
+}
+
+.diff-viewer-container .piano-note {
+  position: absolute;
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  transition: all 0.1s ease-out;
+  max-height: 25px; /* Set an absolute max height to prevent extreme values */
+  min-height: 4px; /* Ensure notes are always visible */
+  height: 5% !important; /* Override the calculated height percentage */
+  transform-origin: center center;
+}
+
+.diff-viewer-container .piano-note.status-added {
+  background-color: rgba(76, 175, 80, 0.8) !important;
+  border: 1px solid rgba(76, 175, 80, 1);
+  z-index: 3;
+}
+
+.diff-viewer-container .piano-note.status-removed {
+  background-color: rgba(244, 67, 54, 0.25) !important;
+  border: 1px dashed rgba(244, 67, 54, 0.9);
+  z-index: 4;          /* above unchanged (2) and modified (3) */
+}
+
+.diff-viewer-container .piano-note.status-modified {
+  background-color: rgba(255, 152, 0, 0.8) !important;
+  border: 1px solid rgba(255, 152, 0, 1);
+  z-index: 2;
+}
+
+.diff-viewer-container .piano-note.status-unchanged {
+  background-color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  display: none;
+}
+
+.diff-viewer-container .note-velocity {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.15));
+  mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
+}
+
+.diff-viewer-container .note-label {
+  position: absolute;
+  font-size: 0.6rem;
+  color: rgba(0, 0, 0, 0.7);
+  left: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.7);
+  pointer-events: none;
+  user-select: none;
+  display: none;
+}
+
+/* --- Track Status Styling --- */
+/* Added tracks */
+.diff-viewer-container .track.status-added {
+  background-color: rgba(76, 175, 80, 0.02);
+  border-left: 4px solid #4CAF50;
+}
+
+.diff-viewer-container .track.status-added .track-header {
+  background-color: rgba(76, 175, 80, 0.05);
+}
+
+/* Removed tracks */
+.diff-viewer-container .track.status-removed {
+  background-color: rgba(244, 67, 54, 0.02);
+  border-left: 4px solid #F44336;
+  opacity: 0.8;
+  
+}
+
+.diff-viewer-container .track.status-removed .track-header {
+  background-color: rgba(244, 67, 54, 0.05);
+}
+
+.diff-viewer-container .removed-track-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(244, 67, 54, 0),
+    rgba(244, 67, 54, 0) 10px,
+    rgba(244, 67, 54, 0.05) 10px,
+    rgba(244, 67, 54, 0.05) 20px
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.diff-viewer-container .removed-track-overlay span {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+/* Modified tracks */
+.diff-viewer-container .track.status-modified {
+  background-color: rgba(255, 152, 0, 0.02);
+  border-left: 4px solid #FF9800;
+}
+
+.diff-viewer-container .track.status-modified .track-header {
+  background-color: rgba(255, 152, 0, 0.05);
+}
+
+/* --- Legend --- */
+.diff-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background-color: #111111;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  height: 48px;
+}
+
+.diff-footer-left, .diff-footer-center, .diff-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.footer-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.footer-btn-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.playhead-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 320px;
+}
+
+.play-btn {
+  background: rgba(156, 39, 176, 0.2);
+  color: #e56ff7;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timeline-slider {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.timeline-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #9c27b0;
+  cursor: pointer;
+}
+
+.time-display {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  min-width: 80px;
+}
+
+.view-select {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.view-select option {
+  background-color: #1A1A1A;
+}
+
+/* --- Loading/Error States --- */
+.diff-loading, .diff-error, .diff-info, .no-tracks-info {
+  padding: 40px 20px;
+  text-align: center;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 45px;
+  min-height: 300px;
+  background-color: #1A1A1A;
+  box-shadow: none;
+}
+
+.diff-loading
+{
+  height: 100vh;
+}
+
+.diff-error svg, .diff-info svg {
+  font-size: 2.5rem;
+  opacity: 0.8;
+}
+
+.diff-error svg {
+  color: #ff8a8a;
+}
+
+.diff-info svg {
+  color: #8ab4f8;
+}
+
+.loading-text, .error-message, .info-message {
+  max-width: 600px;
+}
+
+
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* --- Media Queries for Responsive Design --- */
+@media (max-width: 768px) {
+  .header-section:nth-child(2) {
+    display: none; /* Hide filter buttons on small screens */
+  }
+  
+  .diff-viewer-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .summary-stats {
+    justify-content: center;
+  }
+  
+  .diff-legend {
+    justify-content: center;
+  }
+}
+
+
+.diff-viewer-container .changes-summary.compact {
+  background: rgba(20, 20, 30, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 8px 16px;
+}
+
+.diff-viewer-container .summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.diff-viewer-container .summary-header h3 {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0;
+  color: #e0e0e0;
+}
+
+.diff-viewer-container .total-changes {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.diff-viewer-container .total-changes strong {
+  color: #9c27b0;
+  font-weight: 600;
+}
+
+.diff-viewer-container .summary-stats {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.diff-viewer-container .stat-group {
+  display: flex;
+  gap: 15px;
+}
+
+.diff-viewer-container .stat-divider {
+  width: 1px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.diff-viewer-container .summary-stat {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}
+
+.diff-viewer-container .stat-icon {
+  font-size: 0.7rem;
+}
+
+.diff-viewer-container .stat-icon.added {
+  color: #4CAF50;
+}
+
+.diff-viewer-container .stat-icon.removed {
+  color: #F44336;
+}
+
+.diff-viewer-container .stat-icon.modified {
+  color: #FF9800;
+}
+
+.diff-viewer-container .stat-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.diff-viewer-container .stat-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+}
+

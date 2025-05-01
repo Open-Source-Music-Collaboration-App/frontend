@@ -25,6 +25,8 @@ import Admin from "./pages/Admin/Admin";
 import Profile from "./pages/Profile/Profile";
 import { OnboardingProvider } from "./context/OnboardingProvider";
 import WelcomeTour from "./components/WelcomeTour/WelcomeTour";
+import DiffViewer from "./components/DiffViewer/DiffViewer";
+import LoadingSpinner from "./components/LoadingSpinner/LoadingSpinner";
 
 function App() {
   return (
@@ -48,8 +50,10 @@ function App() {
                     <Route path="/project/:id/history" element={<History />} />
                     <Route path="/project/:id/collabs" element={<CollabRequests/>}/>
                     <Route path="/project/:id/features" element={<Features />} />
+                    <Route path="/project/:id/diff/:hash/:prevHash" element={<DiffViewer />} />
                     <Route path="/admin" element={<Admin />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/loading" element={<LoadingSpinner fullScreen={true} message="Loading..." size="large" barCount={30} />} />
                     <Route path="*" element={<NotFound />} />
                   </Route>
                 </Route>

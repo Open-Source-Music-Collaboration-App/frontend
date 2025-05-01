@@ -95,6 +95,10 @@
   pointer-events: none;
   transition: all 0.ss ease;
 }
+main
+{
+  height: 100%
+}
 
 .project-share-btn:focus + .share-tooltip,
 .share-tooltip:hover {

@@ -15,6 +15,7 @@ import { ProjectProvider } from "../../context/ProjectContext";
 import FirstTimeProjectGuide from "../../components/FirstTimeProjectGuide/FirstTimeProjectGuide";
 import DiffPreview from "../../components/DiffPreview/DiffPreview";
 import { UploadAction } from "../../constants/constants";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 
 function Project() {
   const { id } = useParams();
@@ -366,11 +367,7 @@ function Project() {
 
   if (loading) {
     return (
-      <div className="project-loading">
-        <div className="spinner"></div>
-        <p>Loading project data...</p>
-        {retryCount > 0 && <p>Retry attempt {retryCount}/{maxRetries}...</p>}
-      </div>
+      <LoadingSpinner message="Loading project..." size="large" fullScreen={true} />
     );
   }
 

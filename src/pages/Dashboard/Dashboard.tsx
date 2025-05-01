@@ -13,6 +13,7 @@ import { FaPlus, FaStar, FaHistory, FaCodeBranch, FaSearch } from "react-icons/f
 import { motion } from "framer-motion";
 import OnboardingTooltip from '../../components/OnboardingTooltip/OnboardingTooltip';
 import FeatureBanner from "../../components/FeatureBanner.tsx/FeatureBanner";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 
 
 /**
@@ -166,10 +167,7 @@ function Dashboard() {
             />
             
             {loading ? (
-                <div className="dashboard-loading">
-                    <div className="spinner"></div>
-                    <p>Loading your projects...</p>
-                </div>
+                <LoadingSpinner />
             ) : filteredProjects.length > 0 ? (
                 <div className="projects-grid">
                     {filteredProjects.slice(0, 1).map((project, index) => (

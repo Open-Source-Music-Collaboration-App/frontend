@@ -39,6 +39,10 @@
               <li><a href="#features-endpoints">Features</a></li>
               <li><a href="#comments-endpoints">Comments</a></li>
               <li><a href="#admin-endpoints">Admin</a></li>
+              <li><a href="#ai-endpoints">AI</a></li>
+              <li><a href="#collaboration-endpoints">Collaboration</a></li>
+              <li><a href="#profile-endpoints">Profile</a></li>
+              <li><a href="#audio-endpoints">Audio</a></li>
             </ul>
           </li>
           <li><a href="#services">Services</a></li>
@@ -612,6 +616,163 @@ metadata.json: File // JSON file containing metadata (userId, projectId, commitM
             </details>
           </div>
         </div>
+
+        <div id="ai-endpoints" class="content-card">
+          <h3>AI Endpoints</h3>
+          <div class="endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/api/ai/generate-commit-message</span>
+            <p>Generates an AI-powered commit message based on project changes</p>
+            <details>
+              <summary>Request Body</summary>
+              <div class="code-block">
+                <pre><code>{
+  "diffSummary": {
+    "llmSummary": "string", // Summary of changes in natural language
+    // other diff properties
+  },
+  "options": {
+    "style": "string", // Optional style parameter
+    // other options
+  }
+}</code></pre>
+              </div>
+            </details>
+            <details>
+              <summary>Response</summary>
+              <div class="code-block">
+                <pre><code>{
+  "success": true,
+  "commitMessage": "string",
+  "explanation": "string" // Optional explanation of changes
+}</code></pre>
+              </div>
+            </details>
+          </div>
+          <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/api/ai/commit-style-options</span>
+            <p>Gets available commit message style options</p>
+            <details>
+              <summary>Response</summary>
+              <div class="code-block">
+                <pre><code>{
+  "styles": ["concise", "detailed", "technical", ...],
+  "defaultStyle": "string"
+}</code></pre>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div id="collaboration-endpoints" class="content-card">
+          <h3>Collaboration Endpoints</h3>
+          <div class="endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/api/collabs/:collab_id</span>
+            <p>Updates the status of a collaboration request (accept/reject)</p>
+            <details>
+              <summary>Request Body</summary>
+              <div class="code-block">
+                <pre><code>{
+  "action": "string" // "accepted", "rejected", or other valid status
+}</code></pre>
+              </div>
+            </details>
+            <details>
+              <summary>Response</summary>
+              <div class="code-block">
+                <pre><code>{
+  "message": "Collaboration request status: {status}",
+  "files": ["string"] // List of files (if applicable)
+}</code></pre>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div id="profile-endpoints" class="content-card">
+          <h3>Profile Endpoints</h3>
+          <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/api/profile/:userId</span>
+            <p>Gets a user's profile and comprehensive statistics</p>
+            <details>
+              <summary>Response</summary>
+              <div class="code-block">
+                <pre><code>{
+  "user": {
+    "id": "string",
+    "name": "string",
+    "created_at": "timestamp",
+    "photo": "string"
+  },
+  "stats": {
+    "projects": {
+      "total": number,
+      "public": number,
+      "private": number,
+      "projects": array,
+      "recentActivity": array,
+      "mostUsedTags": array
+    },
+    "features": {
+      "created": number,
+      "open": number,
+      "closed": number,
+      "byPriority": {
+        "high": number,
+        "medium": number,
+        "low": number
+      },
+      "features": array
+    },
+    "collabs": {
+      "total": number,
+      "pending": number,
+      "accepted": number,
+      "rejected": number,
+      "collabs": array
+    },
+    "comments": {
+      "total": number,
+      "byFeature": array,
+      "comments": array
+    },
+    "activityData": array,
+    "engagementScore": number
+  }
+}</code></pre>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div id="audio-endpoints" class="content-card">
+          <h3>Audio Endpoints</h3>
+          <div class="endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/api/audio/compare</span>
+            <p>Compares two WAV files for similarity</p>
+            <details>
+              <summary>Request Body</summary>
+              <div class="code-block">
+                <pre><code>{
+  // Request format needs to be implemented
+  // Currently a work in progress in the codebase
+}</code></pre>
+              </div>
+            </details>
+            <details>
+              <summary>Response</summary>
+              <div class="code-block">
+                <pre><code>{
+  "similarity": number // Similarity score between 0 and 1
+}</code></pre>
+              </div>
+            </details>
+          </div>
+        </div>
       </section>
 
       <section id="services">
@@ -636,11 +797,8 @@ metadata.json: File // JSON file containing metadata (userId, projectId, commitM
           <div class="code-block">
             <pre><code>// services/supabase.js
 const { createClient } = require('@supabase/supabase-js');
-
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+require('dotenv').config();
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE);
 
 module.exports = supabase;</code></pre>
           </div>

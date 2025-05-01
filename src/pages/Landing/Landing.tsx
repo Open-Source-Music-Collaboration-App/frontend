@@ -5,6 +5,7 @@ import LandingHeader from "../../components/LandingHeader/LandingHeader";
 import LandingFooter from "../../components/LandingFooter/LandingFooter";
 
 import repository from '../../assets/repository.png';
+import diffImage from '../../assets/diff.png';
 
 function Landing() {
   const navigate = useNavigate(); // React Router navigation hook
@@ -30,7 +31,7 @@ function Landing() {
                 placeholder="Enter your email"
               />
               <button className="buttonfill" onClick={() => navigate("/login")}>
-                Sign up for [name]
+                Sign up for OpenSynq
               </button>
             </div>
 
@@ -52,12 +53,49 @@ function Landing() {
                 borderRadius: "10px",
                 marginTop: "50px",
                 
-                }}/>
-        </div>
-        <LandingFooter />
-      </div>
-    </>
-  );
-}
+              }}/>
+              </div>
+      
+              {/* Diffing Section */}
+              <div className="sectionwrapper text-center">
+                  <h1 className="font-bold text-white">
+                      Visualize Every Change with Version Diffing
+                  </h1>
+                  <h3 className="subtitle text-gray-400 mt-5">
+                      See exactly what changed between versions with our intuitive visual diff tool, designed specifically for music projects.
+                  </h3>
+                  {/* Placeholder for the diff image */}
+                  {/* <div style={{
+                      width: '80%', // Adjust width as needed
+                      maxWidth: '1000px', // Max width for larger screens
+                      height: '400px', // Adjust height as needed
+                      backgroundColor: '#2a2a3a', // Placeholder background
+                      border: '1px dashed #555',
+                      borderRadius: '10px',
+                      marginTop: '50px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#888',
+                      boxShadow: "0px 0px 20px 0px #fff2",
+                      margin: '50px auto 0' // Center the placeholder
+                      }}>
+                      [Diff Viewer Image Placeholder]
+                  </div> */}
+                  
+                  <img src={diffImage} alt="Visual Diff Tool" style={{
+                      boxShadow: "0px 0px 20px 0px #fff2",
+                      borderRadius: "10px",
+                      marginTop: "50px",
+                  }}/>
+                 
+              </div>
+              {/* End Diffing Section */}
+      
+              <LandingFooter />
+            </div>
+          </>
+        );
+      }
 
 export default Landing;
