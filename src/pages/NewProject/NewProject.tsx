@@ -36,7 +36,7 @@ function NewProject() {
     
     setIsSubmitting(true);
     
-    axios.post(`http://${window.location.hostname}:3333/api/projects/`, {
+    axios.post(`/api/projects/`, {
       title: projectName,
       hashtags: tags ? tags.split(',').map(tag => tag.trim()) : [],
       userId: user.id,

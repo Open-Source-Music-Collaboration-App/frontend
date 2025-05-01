@@ -116,7 +116,7 @@ function DiffViewer() {
         console.log(`Fetching project data for commit: ${hash}`);
         try {
           const zipResponse = await axios.get(
-            `http://${window.location.hostname}:3333/api/history/${user.username}/${projectId}/${hash}`,
+            `/api/history/${user.username}/${projectId}/${hash}`,
             { withCredentials: true, responseType: 'blob', timeout: 60000 }
           );
           if (zipResponse.status === 204) {
@@ -147,7 +147,7 @@ function DiffViewer() {
         // 1. Fetch Diff Data
         console.log(`Fetching diff for commit: ${currentHash}`);
         const diffResponse = await axios.get<ProjectDiff>(
-          `http://${window.location.hostname}:3333/api/history/diff/${user.username}/${projectId}/${currentHash}`,
+          `/api/history/diff/${user.username}/${projectId}/${currentHash}`,
           { withCredentials: true, timeout: 30000 }
         );
         setDiffData(diffResponse.data);

@@ -51,7 +51,7 @@ function Project() {
       try {
         // Step 1: Fetch project metadata
         console.log("Fetching project data for project ID:", id);
-        const metadataResponse = await axios.get(`http://${window.location.hostname}:3333/api/projects/${id}`, { 
+        const metadataResponse = await axios.get(`/api/projects/${id}`, { 
           withCredentials: true,
           timeout: 10000 // 10 seconds timeout
         });
@@ -64,7 +64,7 @@ function Project() {
 
 
         // fetch all commits for the project
-        const commitsRes = await axios.get(`http://${window.location.hostname}:3333/api/history/all/${user.username}/${id}`, {
+        const commitsRes = await axios.get(`/api/history/all/${user.username}/${id}`, {
           withCredentials: true,
           timeout: 10000
         });
@@ -80,7 +80,7 @@ function Project() {
         try {
           console.log("Fetching project content for project ID:", id);
           const contentResponse = await axios.get(
-            `http://${window.location.hostname}:3333/api/history/latest/${user.username}/${id}`, 
+            `/api/history/latest/${user.username}/${id}`, 
             { 
               withCredentials: true,
               responseType: 'blob', // Important: we need to get the response as a blob
@@ -222,7 +222,7 @@ function Project() {
 
         try {
           console.log(`Sending preview request for project ${id}...`);
-          const response = await axios.post(`http://${window.location.hostname}:3333/api/projects/preview-diff/${id}`, formData, {
+          const response = await axios.post(`/api/projects/preview-diff/${id}`, formData, {
             withCredentials: true, // Send cookies if needed for auth
             headers: { 'Content-Type': 'multipart/form-data' },
             timeout: 60000 // Set a reasonable timeout (e.g., 60 seconds) for parsing
@@ -299,7 +299,7 @@ function Project() {
       formData.append("actionType", UploadAction.COMMIT);
 
       // Upload with progress tracking
-      const response = await axios.post(`http://${window.location.hostname}:3333/api/upload`, formData, {
+      const response = await axios.post(`/api/upload`, formData, {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (progressEvent) => {
@@ -344,7 +344,7 @@ function Project() {
     try {
       // *** Replace with your actual API endpoint and expected payload structure ***
       // Assuming the backend expects the diff summary object
-      const response = await axios.post('http://localhost:3333/api/ai/generate-commit-message', {
+      const response = await axios.post(`/api/ai/generate-commit-message`, {
          diffSummary: diffPreview // Or potentially diffPreview.summary or a specific text field if available
          // Add any generation options if your backend supports them
       });

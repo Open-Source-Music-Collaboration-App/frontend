@@ -82,7 +82,7 @@ function CollabRequests() {
     setLoading(true);
     
     //fetch /api/projects/:id to get owner
-    fetch(`http://${window.location.hostname}:3333/api/projects/${id}`, { withCredentials: true })
+    fetch(`/api/projects/${id}`, { withCredentials: true })
       .then(response => response.json())
       .then(data => {
         // console.log("Project datafrom collab:", data);

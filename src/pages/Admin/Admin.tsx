@@ -45,7 +45,7 @@ function Admin() {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://${window.location.hostname}:3333/api/admin/users`, { 
+        const response = await axios.get(`/api/admin/users`, { 
           withCredentials: true 
         });
         setUsers(response.data);

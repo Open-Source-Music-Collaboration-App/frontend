@@ -60,7 +60,8 @@ function ProjectHeader() {
     if (user && id) {
       const domain = window.location.hostname;
       axios
-        .get(`http://${domain}:3333/api/projects/${id}`)
+        .get(`/api/projects/${id}`, {
+        })
         .then((response) => {
           console.log("Project data:", response.data);
           setProject(response.data);
