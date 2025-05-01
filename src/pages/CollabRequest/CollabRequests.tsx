@@ -63,7 +63,7 @@ function CollabRequests() {
         const owner = data[0].User.name;
         setProjectOwner(owner);
 
-        if (user.username === owner) {
+        // if (user.username === owner) {
           // Fetch real collaboration requests for the owner
           try {
             const response = await axios.get(
@@ -85,7 +85,7 @@ function CollabRequests() {
             console.error("Failed to fetch collaboration requests:", err);
             setError("Failed to load collaboration requests.");
           }
-        }
+        // }
       })
       .catch(err => {
         console.error(err);
@@ -427,17 +427,17 @@ function CollabRequests() {
                         <span>{request.user}</span>
                       </div>
                       <div className={`request-status ${request.status}`}>
-                        {request.status === 'pending' ? (
-                          'Pending'
-                        ) : request.status === 'approved' ? (
-                          <>
-                            <FaCheck className="status-icon approved" /> Approved
-                          </>
-                        ) : (
-                          <>
-                            <FaTimes className="status-icon rejected" /> Rejected
-                          </>
-                        )}
+                      {request.status === 'pending' ? (
+                        'Pending'
+                      ) : request.status === 'approved' || request.status === 'accepted' ? (
+                        <>
+                          <FaCheck className="status-icon approved" /> Approved
+                        </>
+                      ) : (
+                        <>
+                          <FaTimes className="status-icon rejected" /> Rejected
+                        </>
+                      )}
                       </div>
                     </div>
 

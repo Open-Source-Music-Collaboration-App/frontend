@@ -855,3 +855,27 @@
     order: -1;
   }
 }
+
+
+ /* Download button hover styles */
+.download-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Fix style naming consistency - add accepted class (since both approved and accepted are used) */
+.request-status-indicator.accepted {
+  background-color: rgba(71, 187, 95, 0.8);
+  box-shadow: 0 0 5px rgba(71, 187, 95, 0.5);
+}
+
+.request-status.accepted {
+  background-color: rgba(71, 187, 95, 0.1);
+  border: 1px solid rgba(71, 187, 95, 0.3);
+  color: rgba(71, 187, 95, 0.9);
+}
+
+.collab-request-card.accepted {
+  border-left-color: rgba(71, 187, 95, 0.8);
+}
