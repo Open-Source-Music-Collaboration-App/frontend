@@ -43,6 +43,10 @@ import Tooltip from "../Tooltip/Tooltip";
 interface ALSViewProps {
   projectData: ProjectData;
   trackFiles: {[key: string]: string};
+  isLoadingAudio?: boolean;
+  audioLoadingProgress?: number;
+  setIsLoadingAudio?: (loading: boolean) => void;
+  setAudioLoadingProgress?: (progress: number) => void;
 }
 
 /**
@@ -71,7 +75,7 @@ interface ALSViewProps {
  * 
  * @component
  */
-function ALSView({ projectData, trackFiles }: ALSViewProps) {
+function ALSView({ projectData, trackFiles, isLoadingAudio, audioLoadingProgress, setIsLoadingAudio, setAudioLoadingProgress }: ALSViewProps) {
   // --------------------- STATE ---------------------
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -140,15 +144,23 @@ function ALSView({ projectData, trackFiles }: ALSViewProps) {
     }
   }, [projectData]);
 
-  // Update audio element sources with the fetched track files
+  useEffect(() => {
+    if(audioLoaded) {
+      setIsLoadingAudio(false);
+    }
+  }, [audioLoaded]);
+
+  // Update audio element sources with the fetched track files 
   useEffect(() => {
     if (audioRefs.current && projectData?.tracks) {
       console.log("Updating audio sources with track files");
+      console.log("Available track files:", Object.keys(trackFiles));
+      
       projectData.tracks.forEach((track, index) => {
         const audioEl = audioRefs.current[index];
-        console.log(`Setting audio file for track: ${track.name}`);
+        console.log(`Setting up track ${index}: ${track.name}`);
+        
         if (audioEl && track.audio_file) {
-          console.log("audioel exists and track has audio file");
           // Get file name from track.audio_file (might be a full path)
           const fileName = track.audio_file.split('/').pop() || track.audio_file;
           
@@ -156,14 +168,29 @@ function ALSView({ projectData, trackFiles }: ALSViewProps) {
           if (trackFiles[fileName]) {
             // Set the source to the blob URL
             audioEl.src = trackFiles[fileName];
-            console.log(`Set source for ${track.name} to ${fileName}`);
+            console.log(`✓ Set source for ${track.name} to ${fileName}`);
+            
+            // Add a canplaythrough event to verify the audio can be played
+            audioEl.addEventListener('canplaythrough', () => {
+              console.log(`Audio for track ${track.name} is ready to play through`);
+            });
+            
+            // Check for errors
+            audioEl.addEventListener('error', (e) => {
+              console.error(`Error loading audio for track ${track.name}:`, e);
+            });
           } else {            
-            console.warn(`No matching audio file found for track: ${track.name}, looking for: ${fileName}`);
+            console.warn(`❌ No matching audio file found for track: ${track.name}, looking for: ${fileName}`);
+            console.log(`Available files: ${Object.keys(trackFiles).join(', ')}`);
           }
+        } else if (!audioEl) {
+          console.warn(`No audio element reference for track ${index}`);
+        } else if (!track.audio_file) {
+          console.log(`Track ${track.name} has no audio_file property`);
         }
       });
     }
-  }, [projectData]);
+  }, [projectData, trackFiles]);
 
   // -------------------------------------------------
   // 1) Determine minBeat & maxBeat, gather track note ranges
@@ -337,29 +364,64 @@ function ALSView({ projectData, trackFiles }: ALSViewProps) {
     // Reset timing references
     startTimeRef.current = null;
     startBeatRef.current = currentBeat;
-
+  
     // Convert the current beat to seconds
     const sec = beatsToSeconds(currentBeat);
-
-    // Attempt to play all unmuted (or soloed) tracks from that time
+  
+    // Debug: Check how many audio elements are available
+    console.log(`Attempting to play ${audioRefs.current.length} audio tracks`);
+    
+    // Count how many tracks are actually playable
+    let playableCount = 0;
+    audioRefs.current.forEach((audio, idx) => {
+      if (audio && !mutedTracks.includes(idx) && (soloTrack === null || soloTrack === idx)) {
+        playableCount++;
+      }
+    });
+    console.log(`Found ${playableCount} playable tracks`);
+  
+    // Try to play all unmuted (or soloed) tracks
     const promises: Promise<void>[] = [];
     audioRefs.current.forEach((audio, idx) => {
       if (audio && !mutedTracks.includes(idx) && (soloTrack === null || soloTrack === idx)) {
         try {
+          // Check if the audio has a valid source
+          if (!audio.src) {
+            console.warn(`Track ${idx} has no audio source`);
+            return;
+          }
+          
+          // Log the attempt
+          console.log(`Attempting to play track ${idx} from time ${sec}s`);
+          
+          // Set the current time
           audio.currentTime = sec;
-          const p = audio.play();
+          
+          // Try to play and catch any errors
+          const p = audio.play()
+            .catch((err) => {
+              console.error(`Audio play error for track ${idx}:`, err);
+              // Try one more time with user interaction
+              if (err.name === "NotAllowedError") {
+                console.log("Autoplay prevented. Will try again on next user interaction.");
+              }
+            });
+          
           if (p !== undefined) promises.push(p);
         } catch (err) {
-          console.error("Audio play error:", err);
+          console.error(`Unexpected error playing track ${idx}:`, err);
         }
       }
     });
-
-    // Once at least one track is playing, begin the animation loop
-    Promise.allSettled(promises).finally(() => {
-      if (isPlayingRef.current) {
-        animationRef.current = requestAnimationFrame(updatePlayhead);
-      }
+  
+    // Begin the animation loop even if audio fails
+    // This ensures the playhead moves even if audio can't play
+    animationRef.current = requestAnimationFrame(updatePlayhead);
+  
+    // Once at least one track is playing or all have failed, log the result
+    Promise.allSettled(promises).then(results => {
+      const fulfilled = results.filter(r => r.status === 'fulfilled').length;
+      console.log(`Successfully started playback for ${fulfilled}/${promises.length} audio tracks`);
     });
   };
 
@@ -765,14 +827,35 @@ function ALSView({ projectData, trackFiles }: ALSViewProps) {
           </button>
           </Tooltip>
 
-          <Tooltip content={isPlaying ? "Pause playback" : "Start playback"} position="bottom">
+          <Tooltip content={isLoadingAudio ? `Loading audio files (${audioLoadingProgress}%)` : isPlaying ? "Pause playback" : "Start playback"} position="bottom">
+            <button
+              className={`transport-btn play-btn ${isPlaying ? "playing" : ""} ${isLoadingAudio ? "loading" : ""}`}
+              onClick={isPlaying ? stopPlayback : startPlayback}
+              disabled={isLoadingAudio && audioLoadingProgress < 100}
+            >
+              {isLoadingAudio ? (
+                <div className="loading-indicator">
+                  <div className="circular-progress" style={{ 
+                    backgroundImage: `conic-gradient(#9300D7 ${audioLoadingProgress}%, rgba(147, 0, 215, 0.2) 0%)` 
+                  }}></div>
+                  <FaPlay className="play-icon" />
+                </div>
+              ) : isPlaying ? (
+                <FaPause />
+              ) : (
+                <FaPlay />
+              )}
+            </button>
+          </Tooltip>
+
+          {/* <Tooltip content={isPlaying ? "Pause playback" : "Start playback"} position="bottom">
             <button
               className={`transport-btn play-btn ${isPlaying ? "playing" : ""}`}
               onClick={isPlaying ? stopPlayback : startPlayback}
             >
               {isPlaying ? <FaPause /> : <FaPlay />}
             </button>
-          </Tooltip>
+          </Tooltip> */}
 
           <Tooltip content="Current time / Total duration" position="bottom">
             <div className="time-display">

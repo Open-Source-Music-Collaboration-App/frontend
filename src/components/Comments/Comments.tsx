@@ -65,7 +65,7 @@ function Comments({ featureId }: CommentsProps) {
     
     try {
       const response = await axios.post(
-        `api/comments/`,
+        `/api/comments/`,
         {
           feature_id: featureId,
           author_id: user?.id,

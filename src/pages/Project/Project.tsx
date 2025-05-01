@@ -42,7 +42,9 @@ function Project() {
   const [isEmptyRepo, setIsEmptyRepo] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
   const [numCommits, setNumCommits] = useState<number>(0);
-
+  
+  const [isLoadingAudio, setIsLoadingAudio] = useState<boolean>(false);
+  const [audioLoadingProgress, setAudioLoadingProgress] = useState<number>(0);
   
   const maxRetries = 3;
 
@@ -53,7 +55,7 @@ function Project() {
         console.log("Fetching project data for project ID:", id);
         const metadataResponse = await axios.get(`/api/projects/${id}`, { 
           withCredentials: true,
-          timeout: 10000 // 10 seconds timeout
+          timeout: 10000
         });
         console.log("Project metadata:", metadataResponse.data);
         setProject(metadataResponse.data);
@@ -61,33 +63,50 @@ function Project() {
         if (!metadataResponse.data || !user) {
           throw new Error("Project not found or not authorized");
         }
-
-
-        // fetch all commits for the project
+    
+        // Fetch commit count
         const commitsRes = await axios.get(`/api/history/all/${user.username}/${id}`, {
           withCredentials: true,
           timeout: 10000
         });
-
+    
         if(commitsRes.status !== 204)
           setNumCommits(commitsRes.data.history.total);
-      
         
-        
-      
-
-        // Step 2: Fetch project content as ZIP
         try {
-          console.log("Fetching project content for project ID:", id);
+          // Step 2: Fetch project JSON data first (new endpoint needed on backend)
+          const jsonResponse = await axios.get(
+            `/api/history/json/${user.username}/${id}/latest`, 
+            { withCredentials: true, timeout: 10000 }
+          );
+          
+          if (jsonResponse.data) {
+            setProjectData(jsonResponse.data);
+            console.log("Project JSON data loaded:", jsonResponse.data);
+            setDataReady(true);
+            setLoading(false);
+          }
+          
+          // Step 3: Now start loading audio files in the background
+          setAudioLoadingProgress(0);
+          setIsLoadingAudio(true);
+          
+          // Fetch the ZIP with audio files
+          console.log("Starting background download of audio files");
           const contentResponse = await axios.get(
             `/api/history/latest/${user.username}/${id}`, 
             { 
               withCredentials: true,
-              responseType: 'blob', // Important: we need to get the response as a blob
-              timeout: 3000000, // 30 seconds timeout for potentially large files
+              responseType: 'blob',
+              timeout: 30000,
+              onDownloadProgress: (progressEvent) => {
+                const percentCompleted = Math.round(
+                  (progressEvent.loaded * 100) / (progressEvent.total || 100)
+                );
+                setAudioLoadingProgress(percentCompleted);
+              },
               validateStatus: (status) => {
-                console.log("Response status:", status);
-                return status === 200 || status === 204; // Accept both success and no-content
+                return status === 200 || status === 204;
               }
             }
           );
@@ -148,6 +167,7 @@ function Project() {
           await Promise.all(audioPromises);
           setTrackFiles(audioFiles);
           setDataReady(true);
+          // setIsLoadingAudio(false)
         } catch (error) {
           if (axios.isAxiosError(error) && error.response?.status === 204) {
             console.log("Repository is empty, no content to display yet");
@@ -159,7 +179,7 @@ function Project() {
       } catch (error) {
         console.error("Error loading project:", error);
       } finally {
-        setLoading(false);
+
       }
     };
 
@@ -469,6 +489,10 @@ function Project() {
                 <ALSView 
                   projectData={projectData} 
                   trackFiles={trackFiles}
+                  isLoadingAudio={isLoadingAudio}
+                  audioLoadingProgress={audioLoadingProgress}
+                  setIsLoadingAudio={setIsLoadingAudio}
+                  setAudioLoadingProgress={setAudioLoadingProgress}
                 />
               ) : (
                 <div className="loading-project-data">

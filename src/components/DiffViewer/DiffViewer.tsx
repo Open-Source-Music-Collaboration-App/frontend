@@ -53,6 +53,7 @@ function DiffViewer() {
   const [lockScrolling, setLockScrolling] = useState(true);
   const [activeTrack, setActiveTrack] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'all' | 'added' | 'removed' | 'modified'>('all');
+  const [loadingStage, setLoadingStage] = useState<'initial' | 'fetching' | 'extracting' | 'analyzing' | 'finalizing'>('initial');
   
   // Refs
   const timelineScrollRef = useRef<HTMLDivElement>(null);
@@ -105,46 +106,17 @@ function DiffViewer() {
         setLoading(false);
         return;
       }
-
+    
       setLoading(true);
+      setLoadingStage('initial');
       setError(null);
       setDiffData(null);
       setCurrentProjectData(null);
       setPreviousProjectData(null);
-
-      const fetchProjectJson = async (hash: string): Promise<ProjectData | null> => {
-        console.log(`Fetching project data for commit: ${hash}`);
-        try {
-          const zipResponse = await axios.get(
-            `/api/history/${user.username}/${projectId}/${hash}`,
-            { withCredentials: true, responseType: 'blob', timeout: 60000 }
-          );
-          if (zipResponse.status === 204) {
-             console.warn(`No content found for commit ${hash}.`);
-             return null;
-          }
-          const zip = await new JSZip().loadAsync(zipResponse.data);
-          const jsonFile = zip.file("ableton_project.json");
-          if (jsonFile) {
-            const jsonContent = await jsonFile.async("string");
-            console.log(`Project data loaded for ${hash}.`);
-            return JSON.parse(jsonContent);
-          } else {
-            console.warn(`ableton_project.json not found in commit ${hash}`);
-            return null;
-          }
-        } catch (err: any) {
-           if (axios.isAxiosError(err) && err.response?.status === 404) {
-               console.warn(`Commit ${hash} not found or project structure missing.`);
-               return null;
-           }
-           console.error(`Error fetching project data for commit ${hash}:`, err);
-           throw new Error(`Failed to fetch project data for commit ${hash}. ${err.message}`);
-        }
-      };
-
+  
       try {
         // 1. Fetch Diff Data
+        setLoadingStage('fetching');
         console.log(`Fetching diff for commit: ${currentHash}`);
         const diffResponse = await axios.get<ProjectDiff>(
           `/api/history/diff/${user.username}/${projectId}/${currentHash}`,
@@ -152,27 +124,50 @@ function DiffViewer() {
         );
         setDiffData(diffResponse.data);
         console.log("Diff data loaded:", diffResponse.data);
-
+  
         const previousHash = prevHash;
-
-        // 2. Fetch Current and Previous Project JSON in parallel
+        
+        // Define fetchProjectJson here
+        const fetchProjectJson = async (hash: string): Promise<ProjectData | null> => {
+          console.log(`Fetching project data for commit: ${hash}`);
+          try {
+            // Use the new optimized endpoint instead of downloading and extracting ZIP
+            const response = await axios.get<ProjectData>(
+              `/api/history/json/${user.username}/${projectId}/${hash}`,
+              { 
+                withCredentials: true, 
+                timeout: 30000 // We can reduce timeout since response should be faster
+              }
+            );
+            
+            if (response.status === 204) {
+              console.warn(`No content found for commit ${hash}.`);
+              return null;
+            }
+            
+            // The response is already JSON, no need to parse
+            return response.data;
+          } catch (err: any) {
+            console.error(`Error loading project data for commit ${hash}:`, err);
+            return null;
+          }
+        };
+  
+        // 2. Fetch Project Data in parallel
+        setLoadingStage('fetching');
         const [currentData, previousData] = await Promise.all([
           fetchProjectJson(currentHash),
           previousHash ? fetchProjectJson(previousHash) : Promise.resolve(null)
         ]);
-
+        
         if (!currentData && !previousData) {
-            throw new Error("Could not load project data for either commit.");
+          throw new Error("Could not load project data for either commit.");
         }
-
+        
+        setLoadingStage('finalizing')
         setCurrentProjectData(currentData);
         setPreviousProjectData(previousData);
-
-        if (!previousHash) {
-            console.log("This is the first commit, no previous version to compare.");
-        } else if (!previousData) {
-            console.warn(`Could not load project data for the previous commit (${previousHash}).`);
-        }
+        
       } catch (err: any) {
         console.error("Error loading diff data:", err);
         setError(err.response?.data?.message || err.message || "Failed to load comparison data.");
@@ -180,9 +175,9 @@ function DiffViewer() {
         setLoading(false);
       }
     };
-
+  
     fetchData();
-  }, [projectId, currentHash, user]);
+  }, [projectId, currentHash, prevHash, user]);
 
   // 1) Define a default “empty” diff
   const emptyDiff: ProjectDiff = {
@@ -1321,7 +1316,24 @@ function DiffViewer() {
   
   // --- Main Render ---
   if (loading) {
-    return <LoadingSpinner message = "Loading Project Comparison" fullScreen />;
+    let loadingMessage = "Initializing comparison engine";
+    
+    switch(loadingStage) {
+      case 'fetching':
+        loadingMessage = "Retrieving project data";
+        break;
+      case 'extracting':
+        loadingMessage = "Decompressing project archives";
+        break;
+      case 'analyzing':
+        loadingMessage = "Analyzing track modifications";
+        break;
+      case 'finalizing':
+        loadingMessage = "Finalizing visual diff representation";
+        break;
+    }
+    
+    return <LoadingSpinner message={loadingMessage} fullScreen />;
   }
 
   if (error) {
