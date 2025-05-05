@@ -709,3 +709,63 @@ main
   }
 }
 
+.collab-request-card
+{
+  background: rgba(20, 0, 35, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 30px;
+  border: 1px solid #fff3;
+  box-shadow: 0 0px 40px rgba(0, 0, 0, 0.2),
+              0 0 20px rgba(147, 0, 215, 0.1);
+}
+
+.collab-invite-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 30px 20px;
+  /* border: 1px dashed rgba(147, 0, 215, 0.3); */
+}
+
+.collab-icon {
+  font-size: 2.5rem;
+  color: rgba(147, 0, 215, 0.9);
+  /* margin-bottom: 15px; */
+}
+
+.collab-invite-title {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.collab-invite-desc {
+  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.collab-request-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #9300D7, #7800b3);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.collab-request-btn:hover {
+  background: linear-gradient(135deg, #a714e8, #8a00d4);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(147, 0, 215, 0.3);
+}
+
+.btn-icon {
+  font-size: 1.2rem;
+}
