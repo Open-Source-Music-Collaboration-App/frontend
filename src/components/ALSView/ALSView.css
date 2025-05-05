@@ -44,7 +44,7 @@
   display: flex;
   align-items: center;
   gap: 15px;
-  width: 100%;
+  /* width: 100%; */
   justify-content: flex-end;
 }
 
@@ -555,4 +555,123 @@
   /* 0% { transform: scale(1); opacity: 0.7; } */
   0% { transform: scale(1); opacity: 1; }
   100% { transform: scale(1); opacity: 0.5; }
+}
+
+
+.als-view-container .latest-update-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.3), rgba(33, 150, 243, 0.1));
+  border-radius: 100px;
+  border: 1px solid rgba(33, 150, 243, 0.4);
+  transition: all 0.3s ease;
+  position: relative;
+  /* margin-left: auto; */
+  margin-right: auto;
+  cursor: pointer;
+  padding-right: 15px;
+  /* flex: 1; Use flex-grow to fill available space */
+}
+
+
+.als-view-container .latest-update-indicator:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+  /* max-width: 300px; */
+}
+
+.als-view-container .update-avatar {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 1px solid rgba(147, 0, 215, 0.3);
+  flex-shrink: 0;
+  margin: 0px 0px;
+}
+
+.als-view-container .update-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-width: 0; /* Required for text overflow to work */
+  /* flex: 1; Use flex-grow to fill available space */
+  /* overflow: hidden; Hide overflow */
+}
+.als-view-container .update-info {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  /* width: 100%; Ensure it takes full width */
+}
+
+.als-view-container .update-author {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+  /* overflow: hidden; */
+  /* text-overflow: ellipsis; */
+}
+
+.als-view-container .update-time {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+  flex-shrink: 0; /* Prevent time from shrinking */
+  width: 100%;
+  padding-right: 7px;
+}
+
+
+.als-view-container .update-summary {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  /* overflow: hidden; */
+  /* text-overflow: ellipsis; */
+  width: 100%; /* Ensure it takes full width */
+}
+
+.als-view-container .change-stats {
+  display: flex;
+  gap: 5px;
+}
+
+.als-view-container .stat-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  /* padding: 0px 5px; */
+  border-radius: 20px;
+  background-color: transparent;
+  /* border: 1px solid rgba(0, 0, 0, 0.1); */
+}
+
+.als-view-container .stat-badge.added {
+  /* background: rgba(76, 175, 80, 0.2); */
+  color: #51f256;
+}
+
+.als-view-container .stat-badge.removed {
+  /* background: rgba(244, 67, 54, 0.2); */
+  color: #f64d41;
+}
+
+.als-view-container .stat-badge.modified {
+  /* background: rgba(255, 152, 0, 0.2); */
+  color: #f6b24c;
+}
+
+.als-view-container .stat-icon {
+  margin-right: 2px;
+}
+
+.als-view-container .commit-excerpt {
+  font-style: italic;
+  overflow: visible;
+  color: rgba(33, 150, 243, 1);
+  text-transform: lowercase;
+  font-size: 11px;
 }
