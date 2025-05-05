@@ -75,8 +75,9 @@ function Project() {
           timeout: 10000
         });
 
-        setIsOwner(metadataResponse.data[0].user_id === user.id);
-
+        // Convert string user_id to number for proper comparison with user.id
+        setIsOwner(parseInt(metadataResponse.data[0].user_id, 10) == parseInt(user.id));
+        console.log(parseInt(metadataResponse.data[0].user_id, 10), parseInt(user.id));
         if (commitsRes.status !== 204 && commitsRes.data?.history?.all?.length > 0) {
           setLatestUpdate(commitsRes.data.history.all[0]);
           setNumCommits(commitsRes.data.history.total);
