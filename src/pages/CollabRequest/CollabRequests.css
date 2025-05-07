@@ -54,15 +54,15 @@
     border-radius: 50%;
   }
 
-  .collab-request-card.pending {
+  .collab-requests-container .collab-request-card.pending {
     border-left-color: rgba(255, 193, 7, 0.8);
   }
   
-  .collab-request-card.approved {
+  .collab-requests-container .collab-request-card.approved {
     border-left-color: rgba(71, 187, 95, 0.8);
   }
   
-  .collab-request-card.rejected {
+  .collab-requests-container .collab-request-card.rejected {
     border-left-color: rgba(255, 82, 82, 0.8);
   }
   
@@ -137,7 +137,7 @@
     gap: 10px;
   }
   
-  .collab-request-card {
+  .collab-requests-container .collab-request-card {
     background: rgba(20, 0, 35, 0.4);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
@@ -665,7 +665,7 @@
       padding: 20px 15px 40px;
     }
   
-    .collab-request-card {
+    .collab-requests-container .collab-request-card {
       padding: 15px;
     }
   
@@ -704,7 +704,7 @@
   /* Add these new styles to your existing CSS file */
 
 /* Compact card styles */
-.collab-request-card {
+.collab-requests-container .collab-request-card {
   cursor: pointer;
   transition: all 0.3s;
 }
@@ -731,29 +731,29 @@
   gap: 15px;
 }
 
-.request-status-indicator {
+.collab-requests-container .request-status-indicator {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-.request-status-indicator.pending {
+.collab-requests-container .request-status-indicator.pending {
   background-color: rgba(255, 193, 7, 0.8);
   box-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
 }
 
-.request-status-indicator.approved {
+.collab-requests-container .request-status-indicator.approved {
   background-color: rgba(71, 187, 95, 0.8);
   box-shadow: 0 0 5px rgba(71, 187, 95, 0.5);
 }
 
-.request-status-indicator.rejected {
+.collab-requests-container .request-status-indicator.rejected {
   background-color: rgba(255, 82, 82, 0.8);
   box-shadow: 0 0 5px rgba(255, 82, 82, 0.5);
 }
 
-.request-user-compact {
+.collab-requests-container .request-user-compact {
   font-size: 0.85rem;
   display: flex;
   align-items: center;
@@ -761,7 +761,7 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
-.expand-btn {
+.collab-requests-container .expand-btn {
   background: transparent;
   border: none;
   color: rgba(255, 255, 255, 0.5);
@@ -776,25 +776,25 @@
   transition: all 0.2s;
 }
 
-.expand-btn:hover {
+.collab-requests-container .expand-btn:hover {
   background: rgba(255, 255, 255, 0.1);
   color: white;
 }
 
-.request-expanded-content {
+.collab-requests-container .request-expanded-content {
   margin-top: 15px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 15px;
   animation: fadeIn 0.3s ease;
 }
 
-.expand-all-container {
+.collab-requests-container .expand-all-container {
   display: flex;
   justify-content: flex-end;
   /* margin-bottom: 15px; */
 }
 
-.expand-all-btn {
+.collab-requests-container .expand-all-btn {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: rgba(255, 255, 255, 0.7);
@@ -808,29 +808,29 @@
   transition: all 0.2s;
 }
 
-.expand-all-btn:hover {
+.collab-requests-container .expand-all-btn:hover {
   background: rgba(255, 255, 255, 0.05);
   color: white;
 }
 
 /* Download button styles */
-.download-btn {
+.collab-requests-container .download-btn {
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Drag and drop improvements */
-.file-input-label {
+.collab-requests-container .file-input-label {
   transition: all 0.2s ease;
 }
 
-.file-input-label.drag-active {
+.collab-requests-container .file-input-label.drag-active {
   background-color: rgba(147, 0, 215, 0.15);
   border-color: rgba(147, 0, 215, 0.5);
   transform: scale(1.02);
 }
 
-.file-items-container {
+.collab-requests-container .file-items-container {
   max-height: 200px;
   overflow-y: auto;
   display: flex;
@@ -854,4 +854,28 @@
   .request-user-compact {
     order: -1;
   }
+}
+
+
+ /* Download button hover styles */
+.collab-requests-container .download-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Fix style naming consistency - add accepted class (since both approved and accepted are used) */
+.collab-requests-container .request-status-indicator.accepted {
+  background-color: rgba(71, 187, 95, 0.8);
+  box-shadow: 0 0 5px rgba(71, 187, 95, 0.5);
+}
+
+.collab-requests-container .request-status.accepted {
+  background-color: rgba(71, 187, 95, 0.1);
+  border: 1px solid rgba(71, 187, 95, 0.3);
+  color: rgba(71, 187, 95, 0.9);
+}
+
+.collab-requests-container .collab-request-card.accepted {
+  border-left-color: rgba(71, 187, 95, 0.8);
 }

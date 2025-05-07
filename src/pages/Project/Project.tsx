@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import ALSView from "../../components/ALSView/ALSView";
 import HoverInfo from '../../components/HoverInfo/HoverInfo';
 import Tooltip from '../../components/Tooltip/Tooltip';
-import { FaShareAlt, FaFolderOpen, FaMusic, FaFileUpload, FaTag, FaStar, FaCodeBranch, FaHistory, FaMagic } from 'react-icons/fa';
+import { FaShareAlt, FaFolderOpen, FaMusic, FaFileUpload, FaTag, FaStar, FaCodeBranch, FaHistory, FaMagic, FaPaperPlane, FaUserFriends, FaCheck } from 'react-icons/fa';
 // Add JSZip for handling ZIP files
 import JSZip from 'jszip';
 import { ProjectProvider } from "../../context/ProjectContext";
@@ -42,7 +42,11 @@ function Project() {
   const [isEmptyRepo, setIsEmptyRepo] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
   const [numCommits, setNumCommits] = useState<number>(0);
-  
+
+  const [latestUpdate, setLatestUpdate] = useState<any>(null);
+
+  const [isOwner, setIsOwner] = useState<boolean>(false);
+
   const [isLoadingAudio, setIsLoadingAudio] = useState<boolean>(false);
   const [audioLoadingProgress, setAudioLoadingProgress] = useState<number>(0);
   
@@ -59,6 +63,8 @@ function Project() {
         });
         console.log("Project metadata:", metadataResponse.data);
         setProject(metadataResponse.data);
+
+
         
         if (!metadataResponse.data || !user) {
           throw new Error("Project not found or not authorized");
@@ -69,9 +75,15 @@ function Project() {
           withCredentials: true,
           timeout: 10000
         });
-    
-        if(commitsRes.status !== 204)
+
+        // Convert string user_id to number for proper comparison with user.id
+        setIsOwner(parseInt(metadataResponse.data[0].user_id, 10) == parseInt(user.id));
+        console.log(parseInt(metadataResponse.data[0].user_id, 10), parseInt(user.id));
+        if (commitsRes.status !== 204 && commitsRes.data?.history?.all?.length > 0) {
+          setLatestUpdate(commitsRes.data.history.all[0]);
           setNumCommits(commitsRes.data.history.total);
+        }
+
         
         try {
           // Step 2: Fetch project JSON data first (new endpoint needed on backend)
@@ -315,6 +327,7 @@ function Project() {
 
       formData.append("projectId", id);
       formData.append("userId", user.id);
+      formData.append("username", user.username);
       formData.append("commitMessage", commitMessage);
       formData.append("actionType", UploadAction.COMMIT);
 
@@ -489,6 +502,9 @@ function Project() {
                 <ALSView 
                   projectData={projectData} 
                   trackFiles={trackFiles}
+
+                  latestUpdate={latestUpdate}
+
                   isLoadingAudio={isLoadingAudio}
                   audioLoadingProgress={audioLoadingProgress}
                   setIsLoadingAudio={setIsLoadingAudio}
@@ -505,6 +521,7 @@ function Project() {
         
         {/* Project Upload and Collaboration - Now in the same row */}
         <div className="project-actions">
+          {isOwner ? (
           <div className="upload-card">
             <h3 className="section-title">
               <FaFolderOpen className="section-icon" />
@@ -623,6 +640,24 @@ function Project() {
             </div>
           )}
           </div>
+        ) : (
+          <div className="collab-request-card">
+            <div className="collab-invite-container">
+              <FaUserFriends className="collab-icon" />
+              <h3 className="collab-invite-title">Want to contribute to this project?</h3>
+              <p className="collab-invite-desc">
+                Submit your own version with changes and improvements. The project owner can review and merge your work.
+              </p>
+              <button 
+                className="collab-request-btn"
+                onClick={() => navigate(`/project/${id}/collabs`)}
+              >
+                <FaPaperPlane className="btn-icon" />
+                Make Collaboration Request
+              </button>
+            </div>
+          </div>
+        )}
         </div>
       </div>
     </motion.div>

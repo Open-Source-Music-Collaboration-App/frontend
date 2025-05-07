@@ -783,6 +783,9 @@ function History() {
             : history.history.all[index + 1];
           const isExpanded = expandedVersions.includes(version.hash);
 
+          const userId = version.body.match(/User-ID: (.+)$/s)?.[1].substring(0, version.body.match(/User-ID: (.+)$/s)?.[1].indexOf("\n") || 0).trim();
+        
+
 
 
 
@@ -831,7 +834,15 @@ function History() {
 
               <div className="version-details">
                 <div className="version-author">
-                  <FaUser className="version-icon" />
+                  {userId ? (
+                    <img
+                      src={`https://avatars.githubusercontent.com/u/${userId}?v=4`}
+                      alt="User Avatar"
+                      className="version-avatar"
+                    />
+                  ) : (
+                    <FaUser className="version-icon" />
+                  )}
                   <span>{version.author_name}</span>
                 </div>
 

@@ -2,14 +2,18 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthProvider';
 import { motion } from 'framer-motion';
-import { 
-  FaArrowLeft, FaUser, FaCalendarAlt, FaMusic, 
+import {
+  FaArrowLeft, FaUser, FaCalendarAlt, FaMusic,
   FaPlus, FaCheck, FaTimes, FaPaperPlane, FaFileAudio,
   FaUserFriends, FaTag, FaDownload, FaChevronDown, FaChevronUp,
   FaAngleDown, FaAngleUp
 } from 'react-icons/fa';
 import './CollabRequests.css';
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner';
+import axios from 'axios';
+import { UploadAction } from "../../constants/constants";
+import { CollabReqStatus } from "../../constants/constants";
+
 
 /**
  * @interface CollabRequest
@@ -31,34 +35,6 @@ interface CollabRequest {
 function CollabRequests() {
   const { id } = useParams(); // Project ID from URL
   const { user } = useAuth(); // Current authenticated user
-
-  const dummyRequests: CollabRequest[] = [
-    {
-      id: 1,
-      user: "dj_alice",
-      message: "Added a new synth lead to the chorus section.",
-      date: "2025-03-05T14:30:00Z",
-      tracks_modified: ["synth_lead"],
-      status: "pending",
-    },
-    {
-      id: 2,
-      user: "beatmaster_bob",
-      message: "Tweaked the drum loop and added a new kick pattern.",
-      date: "2025-03-04T09:15:00Z",
-      tracks_modified: ["drums"],
-      status: "approved",
-    },
-    {
-      id: 3,
-      user: "vocalist_eve",
-      message: "Recorded a vocal track for the bridge.",
-      date: "2025-03-03T18:45:00Z",
-      tracks_modified: ["vocals bridge", "harmony layer"],
-      status: "rejected",
-    },
-  ];
-
   const [requests, setRequests] = useState<CollabRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +49,7 @@ function CollabRequests() {
   const [expandedRequests, setExpandedRequests] = useState<number[]>([]);
   const [areAllExpanded, setAreAllExpanded] = useState<boolean>(false);
   const [dragActive, setDragActive] = useState<boolean>(false);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
 
   const isOwner = user?.username === projectOwner;
 
@@ -80,18 +57,38 @@ function CollabRequests() {
   useEffect(() => {
     if (!user || !id) return;
     setLoading(true);
-    
+
     //fetch /api/projects/:id to get owner
     fetch(`/api/projects/${id}`, { withCredentials: true })
       .then(response => response.json())
-      .then(data => {
-        // console.log("Project datafrom collab:", data);
-        setProjectOwner(data[0].User.name);
-        if (data.owner !== user.username) {
-          setRequests(dummyRequests);
-        }
-      }
-      )
+      .then(async data => {
+        const owner = data[0].User.name;
+        setProjectOwner(owner);
+
+        // if (user.username === owner) {
+          // Fetch real collaboration requests for the owner
+          try {
+            const response = await axios.get(
+              `http://${window.location.hostname}:3333/api/projects/${id}/collabs`,
+              { withCredentials: true }
+            );
+
+            const transformed = response.data.map((r: any) => ({
+              id: r.id,
+              user: r.User?.name || "unknown",
+              message: r.description,
+              date: r.created_at,
+              tracks_modified: r.trackChanges?.modified?.map((t: any) => t.name) || [],
+              status: r.status
+            }));
+
+            setRequests(transformed);
+          } catch (err) {
+            console.error("Failed to fetch collaboration requests:", err);
+            setError("Failed to load collaboration requests.");
+          }
+        // }
+      })
       .catch(err => {
         console.error(err);
         setError('Failed to load project data.');
@@ -99,9 +96,10 @@ function CollabRequests() {
       .finally(() => setLoading(false));
   }, [id, user]);
 
+
   const toggleRequestExpansion = (requestId: number) => {
-    setExpandedRequests(prev => 
-      prev.includes(requestId) 
+    setExpandedRequests(prev =>
+      prev.includes(requestId)
         ? prev.filter(id => id !== requestId)
         : [...prev, requestId]
     );
@@ -141,53 +139,154 @@ function CollabRequests() {
     }
   };
 
-  const handleSubmitRequest = () => {
-    if (!newRequestMessage || selectedFiles.length === 0) {
-      setSubmitError('Please provide a message and select at least one file.');
+  const handleSubmitRequest = async () => {
+    const fileInput = document.getElementById('file-upload') as HTMLInputElement | null;
+    const files = selectedFiles;
+
+    if (!files || files.length === 0) {
+      setSubmitError("Please select files to upload");
+      return;
+    }
+
+    if (!newRequestMessage.trim()) {
+      setSubmitError("Please enter a message");
+      return;
+    }
+
+    if (!id) {
+      setSubmitError("Project ID is missing.");
+      return;
+    }
+
+    if (!user?.id) {
+      setSubmitError("User authentication failed.");
+      return;
+    }
+
+    const hasAlsFile = files.some(file => file.name.toLowerCase().endsWith(".als"));
+    if (!hasAlsFile) {
+      setSubmitError("At least one .als file is required for collaboration requests.");
       return;
     }
 
     setSubmitting(true);
     setSubmitError(null);
+    setSubmitSuccess(null);
+    setUploadProgress(0);
 
-    setTimeout(() => {
-      const newRequest: CollabRequest = {
-        id: requests.length + 1,
-        user: user?.username || 'unknown_user',
-        message: newRequestMessage,
-        date: new Date().toISOString(),
-        tracks_modified: selectedFiles.map(file => file.name),
-        status: 'pending',
-      };
+    try {
+      const formData = new FormData();
+      formData.append("projectId", id);
+      formData.append("userId", String(user.id));
+      formData.append("commitMessage", newRequestMessage);
+      formData.append("actionType", UploadAction.COLLAB_REQ);
+      formData.append("title", `Collaboration request from ${user.username || user.id}`);
 
-      setRequests([newRequest, ...requests]);
-      setSubmitSuccess('Collaboration request submitted successfully!');
-      setNewRequestMessage('');
+      files.forEach(file => {
+        const name = file.name.toLowerCase();
+        const isBackup = file.webkitRelativePath?.toLowerCase().includes("backup");
+        if (!isBackup && (name.endsWith(".als") || name.endsWith(".wav") || name.endsWith(".flac"))) {
+          formData.append("files", file);
+        }
+      });
+
+      const response = await axios.post(
+        `http://${window.location.hostname}:3333/api/upload`,
+        formData,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+          onUploadProgress: (e) => {
+            const percent = Math.round((e.loaded * 100) / (e.total || 1));
+            setUploadProgress(percent);
+          },
+          timeout: 60000
+        }
+      );
+
+      console.log("Upload successful:", response.data);
+      setSubmitSuccess("Collaboration request submitted successfully!");
+      setNewRequestMessage("");
       setSelectedFiles([]);
+      if (fileInput) fileInput.value = "";
       setIsModalOpen(false);
+
+      const collabResponse = await axios.get(
+        `http://${window.location.hostname}:3333/api/projects/${id}/collabs`,
+        { withCredentials: true }
+      );
+
+      const transformed = collabResponse.data.map((r: any) => ({
+        id: r.id,
+        user: r.User?.name || "unknown",
+        message: r.description,
+        date: r.created_at,
+        tracks_modified: r.trackChanges?.modified?.map((t: any) => t.name) || [],
+        status: r.status
+      }));
+
+      setRequests(transformed);
+      console.log("Collaboration requests refreshed:", transformed);
+
+    } catch (error: any) {
+      const message = error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Upload failed. Please try again.";
+      console.error("Upload error:", message);
+      setSubmitError(message);
+    } finally {
       setSubmitting(false);
-      setTimeout(() => setSubmitSuccess(null), 3000);
-    }, 1000);
+      setUploadProgress(0);
+    }
   };
 
-  const handleApproveReject = (requestId: number, action: 'approve' | 'reject') => {
-    setActionLoading(`${requestId}-${action}`);
-    setTimeout(() => {
-      setRequests(requests.map(request => 
-        request.id === requestId ? { ...request, status: action === 'approve' ? 'approved' : 'rejected' } : request
-      ));
-      setActionLoading(null);
-    }, 1000);
+
+  const updateCollabStatus = async (collabId: string, status: 'accepted' | 'rejected') => {
+    const response = await axios.post(
+      `http://${window.location.hostname}:3333/api/collabs/${collabId}`,
+      { action: status },
+      { withCredentials: true }
+    );
+
+    if (response.status !== 200) {
+      throw new Error("Failed to update collaboration status");
+    }
+
+    return response.data;
   };
+
+  const handleApproveReject = async (requestId: number, action: 'approve' | 'reject') => {
+    const backendStatus = action === 'approve' ? CollabReqStatus.ACCEPTED : CollabReqStatus.REJECTED;
+    const uiStatus = action === 'approve' ? 'approved' : 'rejected';
+
+    setActionLoading(`${requestId}-${action}`);
+
+    try {
+      await updateCollabStatus(requestId.toString(), backendStatus);
+
+      setRequests(prev =>
+        prev.map(req =>
+          req.id === requestId ? { ...req, status: uiStatus } : req
+        )
+      );
+    } catch (err) {
+      console.error("Failed to update collaboration status");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+
 
   const handleDownloadFiles = (requestId: number) => {
-    // Mock download functionality
     console.log(`Downloading files for request ${requestId}`);
-    // In a real app, this would trigger a file download
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "Invalid date";
+
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'short',
@@ -239,9 +338,9 @@ function CollabRequests() {
 
       <div className="collab-description">
         {isOwner ? (
-        <p>Review collaboration requests from other users. Approve to add them as collaborators and merge their changes, or reject to decline.</p>
+          <p>Review collaboration requests from other users. Approve to add them as collaborators and merge their changes, or reject to decline.</p>
         ) : (
-        <p>View collaboration requests from users. You can submit your own request to collaborate on this project.</p>
+          <p>View collaboration requests from users. You can submit your own request to collaborate on this project.</p>
         )}
       </div>
 
@@ -256,33 +355,31 @@ function CollabRequests() {
         </div>
       )}
 
-      {/* Only show New Collab Request button to non-owners */}
       <div className="collab-actions">
-      {!isOwner && (
+        {!isOwner && (
           <button
             className="request-collab-btn"
             onClick={() => setIsModalOpen(true)}
           >
             <FaPlus /> New Collaboration Request
           </button>
-      )}
+        )}
 
-      {/* Expand All toggle when there are requests */}
-      {requests.length > 0 && (
-        <div className="expand-all-container">
-          <button className="expand-all-btn" onClick={toggleAllExpansions}>
-            {areAllExpanded ? (
-              <>
-                <FaAngleUp /> Collapse All
-              </>
-            ) : (
-              <>
-                <FaAngleDown /> Expand All
-              </>
-            )}
-          </button>
-        </div>
-      )}
+        {requests.length > 0 && (
+          <div className="expand-all-container">
+            <button className="expand-all-btn" onClick={toggleAllExpansions}>
+              {areAllExpanded ? (
+                <>
+                  <FaAngleUp /> Collapse All
+                </>
+              ) : (
+                <>
+                  <FaAngleDown /> Expand All
+                </>
+              )}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="collab-requests-list">
@@ -297,7 +394,7 @@ function CollabRequests() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <div 
+                <div
                   className="request-header"
                   onClick={() => toggleRequestExpansion(request.id)}
                 >
@@ -320,7 +417,6 @@ function CollabRequests() {
                   </div>
                 </div>
 
-                {/* Expanded content */}
                 {isExpanded && (
                   <div className="request-expanded-content">
                     <div className="request-details">
@@ -329,26 +425,26 @@ function CollabRequests() {
                         <span>{request.user}</span>
                       </div>
                       <div className={`request-status ${request.status}`}>
-                        {request.status === 'pending' ? (
-                          'Pending'
-                        ) : request.status === 'approved' ? (
-                          <>
-                            <FaCheck className="status-icon approved" /> Approved
-                          </>
-                        ) : (
-                          <>
-                            <FaTimes className="status-icon rejected" /> Rejected
-                          </>
-                        )}
+                      {request.status === 'pending' ? (
+                        'Pending'
+                      ) : request.status === 'approved' || request.status === 'accepted' ? (
+                        <>
+                          <FaCheck className="status-icon approved" /> Approved
+                        </>
+                      ) : (
+                        <>
+                          <FaTimes className="status-icon rejected" /> Rejected
+                        </>
+                      )}
                       </div>
                     </div>
 
                     <div className="request-tracks">
                       <h4>
-                        <FaMusic className="tracks-icon" /> Modified Tracks ({request.tracks_modified.length})
+                        <FaMusic className="tracks-icon" /> Modified Tracks ({request.tracks_modified?.length || 0})
                       </h4>
                       <div className="tracks-list">
-                        {request.tracks_modified.map((track, idx) => (
+                        {(request.tracks_modified || []).map((track, idx) => (
                           <div key={idx} className="track-item">
                             <FaFileAudio className="track-icon" />
                             <span className="track-name">{track}</span>
@@ -356,6 +452,9 @@ function CollabRequests() {
                         ))}
                       </div>
                     </div>
+
+
+
 
                     <div className="request-actions">
                       {isOwner && request.status === 'pending' && (
@@ -414,7 +513,7 @@ function CollabRequests() {
             <FaUserFriends className="empty-icon" />
             <p>No collaboration requests yet.</p>
             <p className="empty-subtitle">
-              {isOwner 
+              {isOwner
                 ? "When users submit requests, they will appear here."
                 : "Submit a request to collaborate on this project."}
             </p>
@@ -422,7 +521,6 @@ function CollabRequests() {
         )}
       </div>
 
-      {/* Improved upload modal */}
       {isModalOpen && (
         <div className="modal-overlay">
           <motion.div
@@ -448,8 +546,8 @@ function CollabRequests() {
                 />
               </div>
               <div className="form-group">
-                <label 
-                  htmlFor="file-upload" 
+                <label
+                  htmlFor="file-upload"
                   className={`file-input-label ${dragActive ? 'drag-active' : ''}`}
                   onDragEnter={handleDrag}
                   onDragOver={handleDrag}
@@ -460,7 +558,7 @@ function CollabRequests() {
                   <div className="file-input-text">
                     {dragActive ? 'Drop files here' : 'Drag & drop files or click to browse'}
                   </div>
-                  <div className="file-input-subtext">Supports .wav, .flac, .als files</div>
+                  <div className="file-input-subtext">Supports .wav, .flac, .als files (at least one .als file required)</div>
                 </label>
                 <input
                   id="file-upload"
@@ -470,6 +568,7 @@ function CollabRequests() {
                   onChange={handleFileChange}
                   disabled={submitting}
                   className="file-input"
+                  webkitdirectory="true"
                 />
               </div>
               {selectedFiles.length > 0 && (
@@ -484,6 +583,14 @@ function CollabRequests() {
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+              {submitting && (
+                <div className="upload-progress">
+                  <div className="progress-bar">
+                    <div className="progress-fill" style={{ width: `${uploadProgress}%` }}></div>
+                  </div>
+                  <span className="progress-percentage">{uploadProgress}%</span>
                 </div>
               )}
               <div className="modal-actions">
