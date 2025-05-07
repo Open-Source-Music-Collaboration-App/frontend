@@ -777,7 +777,7 @@ function History() {
             : history.history.all[index + 1];
           const isExpanded = expandedVersions.includes(version.hash);
 
-          const userId = version.body.match(/User-ID: (.+)$/s)?.[1].substring(0,8)
+          const userId = version.body.match(/User-ID: (.+)$/s)?.[1].substring(0, version.body.match(/User-ID: (.+)$/s)?.[1].indexOf("\n") || 0).trim();
         
 
 

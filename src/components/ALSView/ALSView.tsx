@@ -838,7 +838,7 @@ function ALSView({ projectData, trackFiles, latestUpdate }: ALSViewProps) {
         {latestUpdate && (
           <div className="latest-update-indicator">
             <img 
-              src={`https://avatars.githubusercontent.com/u/${latestUpdate.body.match(/User-ID: (.+)$/s)?.[1].substring(0,8) || latestUpdate.author_name}?v=4`}  
+              src={`https://avatars.githubusercontent.com/u/${latestUpdate.body.match(/User-ID: (.+)$/s)?.[1].substring(0, latestUpdate.body.match(/User-ID: (.+)$/s)?.[1].indexOf("\n") ).trim() || latestUpdate.author_name}?v=4`}  
               alt="Author" 
               className="update-avatar"
               onError={(e) => {(e.target as HTMLImageElement).src = 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'}}
