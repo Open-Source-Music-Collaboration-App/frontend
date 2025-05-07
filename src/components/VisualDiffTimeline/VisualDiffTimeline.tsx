@@ -45,12 +45,16 @@ const VisualDiffTimeline: React.FC<VisualDiffTimelineProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const hostname = window.location.hostname;
+  const apiBaseUrl = `/api`; // Adjust the port as necessary
+  
+
   useEffect(() => {
     if (!user?.username || !projectId || !commitHash) return;
     setLoading(true);
     axios
       .get<DiffResponse>(
-        `http://localhost:3333/api/history/diff/${user.username}/${projectId}/${commitHash}`,
+        `${apiBaseUrl}/history/diff/${user.username}/${projectId}/${commitHash}`,
         { withCredentials: true },
       )
       .then((res) => {

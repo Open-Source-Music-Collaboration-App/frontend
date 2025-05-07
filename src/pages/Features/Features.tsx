@@ -86,7 +86,7 @@ function Features() {
       
       try {
         const response = await axios.get(
-          `http://${window.location.hostname}:3333/api/features/project/${id}`,
+          `/api/features/project/${id}`,
           { withCredentials: true }
         );
         
@@ -187,7 +187,7 @@ function Features() {
 
     try {
       const response = await axios.post(
-        `http://${window.location.hostname}:3333/api/features/`, 
+        `/api/features/`, 
         {
           project_id: id,
           author_id: user?.id,
@@ -231,7 +231,7 @@ function Features() {
   const handleCloseFeature = async (featureId: number) => {
     try {
       await axios.put(
-        `http://${window.location.hostname}:3333/api/features/${featureId}`,
+        `/api/features/${featureId}`,
         { open: false },
         { withCredentials: true }
       );
@@ -259,7 +259,7 @@ function Features() {
     try {
       console.log("Deleting feature with ID:", featureId);
       await axios.delete(
-        `http://${window.location.hostname}:3333/api/features/${featureId}`,
+        `/api/features/${featureId}`,
         { withCredentials: true }
       );
       

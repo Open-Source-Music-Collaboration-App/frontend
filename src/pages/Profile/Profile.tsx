@@ -59,7 +59,7 @@ function Profile() {
       
       try {
         const response = await axios.get(
-          `http://${window.location.hostname}:3333/api/profile/${profileId}`,
+          `/api/profile/${profileId}`,
           { withCredentials: true }
         );
         

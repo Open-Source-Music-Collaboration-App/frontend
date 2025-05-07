@@ -84,7 +84,7 @@ function Dashboard() {
     useEffect(() => {
         if (user && !hasFetchedProjects.current) {
             console.log("Fetching projects for user:", user);
-            axios.get(`http://${window.location.hostname}:3333/api/projects/?owner_id=${user.id}`, { withCredentials: true })
+            axios.get(`/api/projects/?owner_id=${user.id}`, { withCredentials: true })
                 .then(response => setProjects(response.data))
                 .catch(error => console.error("Error fetching projects:", error))
                 .finally(() => setLoading(false));

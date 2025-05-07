@@ -21,6 +21,12 @@ import {
 import './History.css';
 import Tooltip from '../../components/Tooltip/Tooltip';
 
+//get hostname
+const hostname = window.location.hostname;
+
+
+const apiBaseUrl = `/api`; // Adjust the port as necessary
+
 /**
  * @interface Version
  * @description Defines the structure of a single commit/version in the project history.
@@ -421,7 +427,7 @@ function History() {
     if (user && id) {
       setLoading(true);
       axios
-        .get(`http://localhost:3333/api/history/all/${user.username}/${id}`, {
+        .get(`${apiBaseUrl}/history/all/${user.username}/${id}`, {
           withCredentials: true,
         })
         .then((response) => {
@@ -446,7 +452,7 @@ function History() {
 
           axios
             .get(
-              `http://localhost:3333/api/history/diff/${userId}/${projectId}/${commitHash}`,
+              `${apiBaseUrl}/history/diff/${userId}/${projectId}/${commitHash}`,
               {
                 withCredentials: true,
               },
@@ -533,7 +539,7 @@ function History() {
     try {
       // Call the API endpoint to restore this version
       const response = await axios.post(
-        `http://localhost:3333/api/history/restore/${user?.username}/${id}/${versionHash}`,
+        `${apiBaseUrl}/history/restore/${user?.username}/${id}/${versionHash}`,
         {
           message: `Restored to ${versionNumber}`,
         },
@@ -553,7 +559,7 @@ function History() {
         // Refetch history to show the new restoration commit
         axios
           .get(
-            `http://localhost:3333/api/history/all/${user?.username}/${id}`,
+            `${apiBaseUrl}/history/all/${user?.username}/${id}`,
             {
               withCredentials: true,
             },

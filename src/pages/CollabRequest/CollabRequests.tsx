@@ -58,7 +58,8 @@ function CollabRequests() {
     if (!user || !id) return;
     setLoading(true);
 
-    fetch(`http://${window.location.hostname}:3333/api/projects/${id}`, { withCredentials: true })
+    //fetch /api/projects/:id to get owner
+    fetch(`/api/projects/${id}`, { withCredentials: true })
       .then(response => response.json())
       .then(async data => {
         const owner = data[0].User.name;
