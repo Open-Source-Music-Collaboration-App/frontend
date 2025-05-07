@@ -69,7 +69,7 @@ function CollabRequests() {
           // Fetch real collaboration requests for the owner
           try {
             const response = await axios.get(
-              `http://${window.location.hostname}:3333/api/projects/${id}/collabs`,
+              `/api/projects/${id}/collabs`,
               { withCredentials: true }
             );
 
@@ -191,7 +191,7 @@ function CollabRequests() {
       });
 
       const response = await axios.post(
-        `http://${window.location.hostname}:3333/api/upload`,
+        `/api/upload`,
         formData,
         {
           withCredentials: true,
@@ -212,7 +212,7 @@ function CollabRequests() {
       setIsModalOpen(false);
 
       const collabResponse = await axios.get(
-        `http://${window.location.hostname}:3333/api/projects/${id}/collabs`,
+        `/api/projects/${id}/collabs`,
         { withCredentials: true }
       );
 
@@ -244,7 +244,7 @@ function CollabRequests() {
 
   const updateCollabStatus = async (collabId: string, status: 'accepted' | 'rejected') => {
     const response = await axios.post(
-      `http://${window.location.hostname}:3333/api/collabs/${collabId}`,
+      `/api/projects/${id}/collabs/${collabId}`,
       { action: status },
       { withCredentials: true }
     );

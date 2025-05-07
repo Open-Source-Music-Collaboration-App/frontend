@@ -77,7 +77,7 @@ interface ALSViewProps {
  * @component
  */
 
-function ALSView({ projectData, trackFiles, latestUpdate. isLoadingAudio, audioLoadingProgress, setIsLoadingAudio, setAudioLoadingProgress }: ALSViewProps) {
+function ALSView({ projectData, trackFiles, latestUpdate, isLoadingAudio, audioLoadingProgress, setIsLoadingAudio, setAudioLoadingProgress }: ALSViewProps) {
 
   // --------------------- STATE ---------------------
   const [isPlaying, setIsPlaying] = useState(false);
