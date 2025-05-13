@@ -27,6 +27,7 @@ import { OnboardingProvider } from "./context/OnboardingProvider";
 import WelcomeTour from "./components/WelcomeTour/WelcomeTour";
 import DiffViewer from "./components/DiffViewer/DiffViewer";
 import LoadingSpinner from "./components/LoadingSpinner/LoadingSpinner";
+import GlobalPresentationQR from "./components/PresentationQR/PresentationQR";
 
 function App() {
   return (
@@ -58,6 +59,8 @@ function App() {
                   </Route>
                 </Route>
               </Routes>
+
+              {/* <GlobalPresentationQR /> */}
             </OnboardingProvider>
           </AuthProvider>
         </ErrorBoundary>

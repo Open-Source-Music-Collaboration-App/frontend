@@ -21,6 +21,7 @@ import { FaPlay, FaPause, FaStepBackward, FaSearchMinus, FaSearchPlus } from "re
 import { motion } from "framer-motion"; // Animation library
 import { ProjectData, Track, Event } from "../../types/ProjectData"; // Types for project data
 import Tooltip from "../Tooltip/Tooltip";
+import LatestUpdateView from "./LatestUpdateView/LatestUpdateView";
 
 
 
@@ -43,6 +44,7 @@ import Tooltip from "../Tooltip/Tooltip";
 interface ALSViewProps {
   projectData: ProjectData;
   trackFiles: {[key: string]: string};
+  latestUpdate?: any; // Add this line
   isLoadingAudio?: boolean;
   audioLoadingProgress?: number;
   setIsLoadingAudio?: (loading: boolean) => void;
@@ -75,7 +77,9 @@ interface ALSViewProps {
  * 
  * @component
  */
-function ALSView({ projectData, trackFiles, isLoadingAudio, audioLoadingProgress, setIsLoadingAudio, setAudioLoadingProgress }: ALSViewProps) {
+
+function ALSView({ projectData, trackFiles, latestUpdate, isLoadingAudio, audioLoadingProgress, setIsLoadingAudio, setAudioLoadingProgress }: ALSViewProps) {
+
   // --------------------- STATE ---------------------
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -793,16 +797,22 @@ function ALSView({ projectData, trackFiles, isLoadingAudio, audioLoadingProgress
           <h2>{projectData.project}.als</h2>
           <div className="tracks-count">{projectData.tracks.length} tracks</div>
         </div>
-        <div className="tempo-display" style = {{
-            animation: `${isPlaying ? "pulse " + (60/tempo) + "s infinite" : "none"}`,
-            animationTimingFunction: "linear"
-          }}>
+        <div className="tempo-display" style={{
+          animation: `${isPlaying ? "pulse " + (60/tempo) + "s infinite" : "none"}`,
+          animationTimingFunction: "linear"
+        }}>
           <svg className="beat-icon" width="18" height="18" viewBox="0 0 24 24">
             <path fill="currentColor" d="M3,12H6V19H9V12H12V19H15V12H18V19H21V12H24V9H21V2H18V9H15V2H12V9H9V2H6V9H3V12Z" />
           </svg>
           <span className="tempo">{Math.round(tempo)}</span>
           <span className="bpm">Tempo</span>
         </div>
+
+        {latestUpdate && (
+          <LatestUpdateView
+            latestUpdate={latestUpdate}
+          />
+        )}
 
         <div className="transport-controls">
         <Tooltip content="Go to beginning of project" position="bottom">

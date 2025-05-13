@@ -7,7 +7,8 @@ import {
   FaUser, FaCalendarAlt, FaChartBar, FaMusic, FaPuzzlePiece, 
   FaGithub, FaArrowLeft, FaLink, FaStar, FaLock, FaGlobe,
   FaComments, FaHandshake, FaTag, FaUserEdit, FaExternalLinkAlt,
-  FaFireAlt, FaAward, FaDiagnoses, FaPercentage, FaThumbsUp
+  FaFireAlt, FaAward, FaDiagnoses, FaPercentage, FaThumbsUp,
+  FaFileAlt
 } from "react-icons/fa";
 import { Line, Doughnut } from "react-chartjs-2";
 import {
@@ -667,24 +668,53 @@ function Profile() {
                 </h3>
                 
                 {stats.collabs?.collabs && stats.collabs.collabs.length > 0 ? (
-                  <div className="collabs-grid">
+                  <div className="collaborations-grid">
                     {stats.collabs.collabs.map((collab) => (
                       <div 
                         key={collab.id} 
                         className="collab-card"
                         onClick={() => navigate(`/project/${collab.project_id}/collabs`)}
                       >
-                        <div className={`collab-status ${collab.status}`}>
-                          {collab.status.charAt(0).toUpperCase() + collab.status.slice(1)}
+                        <div className="collab-header">
+                          <h3 className="collab-project">{collab.Project.title}</h3>
+                          <div className={`collab-status ${collab.status}`}>
+                            {collab.status.charAt(0).toUpperCase() + collab.status.slice(1)}
+                          </div>
                         </div>
-                        <h3 className="collab-title">{collab.title}</h3>
-                        <p className="collab-description">
-                          {collab.description && collab.description.length > 120 ? 
-                            `${collab.description.substring(0, 120)}...` : 
-                            collab.description}
-                        </p>
-                        <div className="collab-date">
-                          {formatDate(collab.created_at, {year: 'numeric', month: 'short', day: 'numeric'})}
+                        
+                        {/* <div className="collab-meta">
+                          <div className="collab-meta-item">
+                            <FaUser className="collab-meta-icon" />
+                            <span>{collab.with_user || "Project Owner"}</span>
+                          </div>
+                          <div className="collab-meta-item">
+                            <FaFileAlt className="collab-meta-icon" />
+                            <span>{collab.file_count || "?"} Files</span>
+                          </div>
+                        </div> */}
+
+                        <div className="collab-message">
+                          "{collab.description && collab.description.length > 100 ? 
+                            `${collab.description.substring(0, 100)}...` : 
+                            collab.description || "No description provided"}"
+                        </div>
+
+                        {collab.tracks_modified && collab.tracks_modified.length > 0 && (
+                          <div className="collab-meta tracks-meta">
+                            <div className="collab-meta-item">
+                              <FaMusic className="collab-meta-icon" />
+                              <span>Modified: {collab.tracks_modified.slice(0, 2).join(", ")}
+                              {collab.tracks_modified.length > 2 ? ` +${collab.tracks_modified.length - 2} more` : ""}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="collab-footer">
+                          <div className="collab-date">
+                            {formatDate(collab.created_at, {year: 'numeric', month: 'short', day: 'numeric'})}
+                          </div>
+                          <button className="collab-action">View Details</button>
                         </div>
                       </div>
                     ))}

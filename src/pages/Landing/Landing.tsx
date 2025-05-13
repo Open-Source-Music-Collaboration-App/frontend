@@ -46,7 +46,7 @@ function Landing() {
                 Collaborate with musicians from around the world
             </h1>
             <h3 className="subtitle text-gray-400 mt-5">
-                [name] provides version control, diffs, and pull requests for music projects.
+                OpenSynq provides version control, diffs, and pull requests for music projects.
             </h3>
             <img src={repository} alt="landing" style={{ 
                 boxShadow: "0px 0px 20px 0px #fff2",

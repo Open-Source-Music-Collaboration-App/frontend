@@ -64,6 +64,7 @@
   background-color: rgba(147, 0, 215, 0.15);
   border-radius: 20px;
   border: 1px solid rgba(147, 0, 215, 0.3);
+  margin-left: auto;
 }
 
 .history-version-count {
@@ -74,7 +75,8 @@
 .history-header-controls {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 15px;
+  /* padding: 5px 15px; */
+  /* margin-bottom: 15px; */
 }
 
 
@@ -86,7 +88,7 @@
   color: white;
   border: 1px solid rgba(147, 0, 215, 0.3);
   border-radius: 20px;
-  padding: 6px 12px;
+  padding: 7px 15px;
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s;
@@ -292,6 +294,14 @@
 .version-icon {
   opacity: 0.7;
   font-size: 0.9em;
+}
+
+.version-avatar {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  /* background-color: #fff; */
+  border: 2px solid #fff3;
 }
 
 .version-body {
