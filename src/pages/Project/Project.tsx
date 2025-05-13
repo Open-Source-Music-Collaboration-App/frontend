@@ -110,7 +110,7 @@ function Project() {
             { 
               withCredentials: true,
               responseType: 'blob',
-              timeout: 30000,
+              timeout: 60000,
               onDownloadProgress: (progressEvent) => {
                 const percentCompleted = Math.round(
                   (progressEvent.loaded * 100) / (progressEvent.total || 100)
@@ -124,6 +124,9 @@ function Project() {
           );
 
           console.log("Project content loaded:", contentResponse);
+
+          setAudioLoadingProgress(100); // Set to 100% when download completes
+          setIsLoadingAudio(false);
           
           
           // Handle empty repository case (status 204)

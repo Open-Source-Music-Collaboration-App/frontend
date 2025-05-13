@@ -136,7 +136,7 @@ function DiffViewer() {
               `/api/history/json/${user.username}/${projectId}/${hash}`,
               { 
                 withCredentials: true, 
-                timeout: 30000 // We can reduce timeout since response should be faster
+                timeout: 60000 // We can reduce timeout since response should be faster
               }
             );
             
