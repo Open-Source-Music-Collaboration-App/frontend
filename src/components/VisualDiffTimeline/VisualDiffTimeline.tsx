@@ -4,6 +4,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthProvider";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
+import { apiUrl } from "../../config/api";
 
 //
 // ─── TYPES ─────────────────────────────────────────────────────────────────────
@@ -50,7 +51,7 @@ const VisualDiffTimeline: React.FC<VisualDiffTimelineProps> = ({
     setLoading(true);
     axios
       .get<DiffResponse>(
-        `http://localhost:3333/api/history/diff/${user.username}/${projectId}/${commitHash}`,
+        `${apiUrl}/api/history/diff/${user.username}/${projectId}/${commitHash}`,
         { withCredentials: true },
       )
       .then((res) => {

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { FaUser, FaTrash, FaPaperPlane } from 'react-icons/fa';
 import './Comments.css';
 import SendButton from '../UI/SendButton/SendButton';
+import { apiUrl } from '../../config/api';
 
 interface Comment {
   id: number;
@@ -42,7 +43,7 @@ function Comments({ featureId }: CommentsProps) {
     
     try {
       const response = await axios.get(
-        `http://${window.location.hostname}:3333/api/comments/feature/${featureId}`,
+        `${apiUrl}/api/comments/feature/${featureId}`,
         { withCredentials: true }
       );
       
@@ -65,7 +66,7 @@ function Comments({ featureId }: CommentsProps) {
     
     try {
       const response = await axios.post(
-        `http://${window.location.hostname}:3333/api/comments/`,
+        `${apiUrl}/api/comments/`,
         {
           feature_id: featureId,
           author_id: user?.id,
@@ -88,7 +89,7 @@ function Comments({ featureId }: CommentsProps) {
   const handleDeleteComment = async (commentId: number) => {
     try {
       await axios.delete(
-        `http://${window.location.hostname}:3333/api/comments/${commentId}`,
+        `${apiUrl}/api/comments/${commentId}`,
         { withCredentials: true }
       );
       

@@ -4,6 +4,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import { FaUser, FaCalendarAlt, FaFolder, FaSearch } from "react-icons/fa";
 import "./Admin.css";
+import { apiUrl } from "../../config/api";
 
 /**
  * @interface User
@@ -45,7 +46,7 @@ function Admin() {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://${window.location.hostname}:3333/api/admin/users`, { 
+        const response = await axios.get(`${apiUrl}/api/admin/users`, { 
           withCredentials: true 
         });
         setUsers(response.data);

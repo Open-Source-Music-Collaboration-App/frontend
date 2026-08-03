@@ -13,6 +13,7 @@ import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner';
 import axios from 'axios';
 import { UploadAction } from "../../constants/constants";
 import { CollabReqStatus } from "../../constants/constants";
+import { apiUrl } from "../../config/api";
 
 
 /**
@@ -58,7 +59,7 @@ function CollabRequests() {
     if (!user || !id) return;
     setLoading(true);
 
-    fetch(`http://${window.location.hostname}:3333/api/projects/${id}`, { withCredentials: true })
+    fetch(`${apiUrl}/api/projects/${id}`, { credentials: "include" })
       .then(response => response.json())
       .then(async data => {
         const owner = data[0].User.name;
@@ -68,7 +69,7 @@ function CollabRequests() {
           // Fetch real collaboration requests for the owner
           try {
             const response = await axios.get(
-              `http://${window.location.hostname}:3333/api/projects/${id}/collabs`,
+              `${apiUrl}/api/projects/${id}/collabs`,
               { withCredentials: true }
             );
 
@@ -190,7 +191,7 @@ function CollabRequests() {
       });
 
       const response = await axios.post(
-        `http://${window.location.hostname}:3333/api/upload`,
+        `${apiUrl}/api/upload`,
         formData,
         {
           withCredentials: true,
@@ -211,7 +212,7 @@ function CollabRequests() {
       setIsModalOpen(false);
 
       const collabResponse = await axios.get(
-        `http://${window.location.hostname}:3333/api/projects/${id}/collabs`,
+        `${apiUrl}/api/projects/${id}/collabs`,
         { withCredentials: true }
       );
 
@@ -243,7 +244,7 @@ function CollabRequests() {
 
   const updateCollabStatus = async (collabId: string, status: 'accepted' | 'rejected') => {
     const response = await axios.post(
-      `http://${window.location.hostname}:3333/api/collabs/${collabId}`,
+      `${apiUrl}/api/collabs/${collabId}`,
       { action: status },
       { withCredentials: true }
     );

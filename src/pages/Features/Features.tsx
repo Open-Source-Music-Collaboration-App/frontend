@@ -235,7 +235,7 @@ function Features() {
   const handleCloseFeature = async (featureId: number) => {
     try {
       await axios.put(
-        `http://${window.location.hostname}:3333/api/features/${featureId}`,
+        `${apiUrl}/api/features/${featureId}`,
         { open: false },
         { withCredentials: true }
       );
@@ -263,7 +263,7 @@ function Features() {
     try {
       console.log("Deleting feature with ID:", featureId);
       await axios.delete(
-        `http://${window.location.hostname}:3333/api/features/${featureId}`,
+        `${apiUrl}/api/features/${featureId}`,
         { withCredentials: true }
       );
       

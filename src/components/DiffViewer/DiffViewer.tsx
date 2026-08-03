@@ -14,6 +14,7 @@ import {
 } from 'react-icons/fa';
 import { BiDice1, BiDice2, BiDice3, BiDice4, BiDice5, BiDice6 } from 'react-icons/bi';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
+import { apiUrl } from '../../config/api';
 
 // --- Helper Utilities ---
 const formatTime = (seconds: number): string => {
@@ -116,7 +117,7 @@ function DiffViewer() {
         console.log(`Fetching project data for commit: ${hash}`);
         try {
           const zipResponse = await axios.get(
-            `http://${window.location.hostname}:3333/api/history/${user.username}/${projectId}/${hash}`,
+            `${apiUrl}/api/history/${user.username}/${projectId}/${hash}`,
             { withCredentials: true, responseType: 'blob', timeout: 60000 }
           );
           if (zipResponse.status === 204) {
@@ -149,7 +150,7 @@ function DiffViewer() {
         let loadedDiff: ProjectDiff | null = null;
         try {
           const diffResponse = await axios.get<ProjectDiff>(
-            `http://${window.location.hostname}:3333/api/history/diff/${user.username}/${projectId}/${currentHash}`,
+            `${apiUrl}/api/history/diff/${user.username}/${projectId}/${currentHash}`,
             { withCredentials: true, timeout: 30000 }
           );
           loadedDiff = diffResponse.data;

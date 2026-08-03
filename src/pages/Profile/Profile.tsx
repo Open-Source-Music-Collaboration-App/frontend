@@ -22,6 +22,7 @@ import {
   ArcElement
 } from 'chart.js';
 import "./Profile.css";
+import { apiUrl } from "../../config/api";
 
 // Register Chart.js components
 ChartJS.register(
@@ -59,7 +60,7 @@ function Profile() {
       
       try {
         const response = await axios.get(
-          `http://${window.location.hostname}:3333/api/profile/${profileId}`,
+          `${apiUrl}/api/profile/${profileId}`,
           { withCredentials: true }
         );
         
