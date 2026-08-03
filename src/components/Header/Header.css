@@ -20,7 +20,8 @@
     width: auto;
     padding: 0px 20px;
     font-size: 14px;
-    background-color: #9300D7;
+    background-color: #ef6d45;
+    color:#173127;
     transition: box-shadow 0.2s;
     /* box-shadow: 0px 0px 10px #9300D7; */
     border: none;
@@ -61,9 +62,9 @@
     align-items: center;
     justify-content: space-between;
     height: 80px;
-    background: #1c001f;
+    background: #173127;
     position:fixed;
-    border-bottom: 1px solid #fff2;
+    border-bottom: 1px solid #f4edcf55;
     z-index: 110;
 }
 
@@ -74,7 +75,12 @@
 }
 
 .logo {
-    font-size: 40px;
+    font:700 15px 'DM Mono', monospace;
+    letter-spacing:-.08em;
+    color:#f4edcf;
+    background:transparent;
+    border:0;
+    cursor:pointer;
     margin-right: 25px;
 }
 
@@ -83,7 +89,9 @@
 }
 
 .headerText {
-    font-size: 20px;
+    font-size: 15px;
+    text-transform:uppercase;
+    letter-spacing:.02em;
 }
 
 .headerText .bold {

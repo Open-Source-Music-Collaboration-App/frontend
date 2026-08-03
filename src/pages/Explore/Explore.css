@@ -1,0 +1,21 @@
+.explore-page { min-height:100vh; padding:42px clamp(24px,5vw,76px) 80px; background:#f7efcf; color:#173127; font-family:"Space Grotesk",sans-serif; }
+.explore-kicker { margin:0 0 10px; color:#ef6d45; font:700 11px "DM Mono",monospace; letter-spacing:.13em; }
+.explore-page h1 { display:flex; align-items:center; gap:12px; margin:0; font-size:clamp(2.5rem,5vw,5.5rem); line-height:.9; letter-spacing:-.07em; }
+.explore-page h1 svg,.explore-card>svg,.explore-empty svg { color:#ef6d45; }
+.explore-intro { max-width:680px; margin:20px 0 36px; color:#466054; font-size:1.05rem; line-height:1.5; }
+.explore-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:22px; }
+.explore-card { display:flex; flex-direction:column; align-items:flex-start; min-width:0; overflow:hidden; background:#fffdf3; border:1px solid #173127; padding:22px; color:#173127; box-shadow:5px 5px 0 #173127; cursor:pointer; }
+.explore-card:hover { transform:translate(-2px,-2px); box-shadow:8px 8px 0 #173127; }
+.explore-card>.explore-mode { background:#315b46; color:#f7efcf; padding:5px 8px; font:700 10px "DM Mono",monospace; letter-spacing:.08em; }
+.explore-card>svg { margin:22px 0 13px; font-size:1.55rem; }
+.explore-card h2 { margin:0; font-size:1.7rem; line-height:1; letter-spacing:-.05em; }
+.explore-card>p { margin:12px 0; color:#466054; line-height:1.45; }
+.explore-card>div:not(.project-discussion) { display:flex; gap:6px; flex-wrap:wrap; margin:9px 0 19px; }
+.explore-card>div:not(.project-discussion) b,.explore-card>b { font:700 10px "DM Mono",monospace; color:#315b46; }
+.explore-card>div:not(.project-discussion) b { border:1px solid #b6c6a7; padding:4px 6px; }
+.explore-card .native-audio-player { width:100%; max-width:100%; }
+.explore-card>button { display:flex; align-items:center; gap:9px; margin-top:auto; background:#ef6d45; border:1px solid #173127; padding:10px 12px; color:#173127; font:700 11px "DM Mono",monospace; cursor:pointer; }
+.explore-empty { max-width:550px; padding:42px; background:#fffdf3; border:1px solid #173127; box-shadow:5px 5px 0 #173127; }
+.explore-empty svg { font-size:2rem; }.explore-empty h2 { margin:15px 0 8px; font-size:2rem; }.explore-empty p { color:#466054; }
+@media(max-width:700px) { .explore-page { padding:30px 20px 60px; }.explore-grid { grid-template-columns:1fr; } }
+@media(max-width:420px) { .explore-card .native-audio-time { display:none; } }

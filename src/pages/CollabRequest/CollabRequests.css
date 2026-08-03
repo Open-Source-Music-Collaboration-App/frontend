@@ -879,3 +879,22 @@
 .collab-requests-container .collab-request-card.accepted {
   border-left-color: rgba(71, 187, 95, 0.8);
 }
+
+/* Final Outside Lands palette — collaborative workflow, no purple or glass. */
+.collab-requests-container { background: #f7efcf !important; color: #173127 !important; }
+.collab-requests-container h1, .collab-requests-container h2, .collab-requests-container h3,
+.collab-requests-container h4, .collab-requests-container p, .collab-requests-container span,
+.collab-requests-container .request-title, .collab-requests-container .request-message { color: #173127 !important; text-shadow: none !important; }
+.collab-requests-container .collab-request-card, .collab-requests-container .request-expanded-content,
+.collab-requests-container .file-items-container, .collab-requests-container .no-requests,
+.collab-requests-container .collab-description { background: #fffdf3 !important; border-color: #315b46 !important; box-shadow: none !important; }
+.collab-requests-container button, .collab-requests-container .back-btn,
+.collab-requests-container .expand-btn, .collab-requests-container .expand-all-btn,
+.collab-requests-container .download-btn { background: #315b46 !important; color: #f7efcf !important; border-color: #315b46 !important; box-shadow: none !important; }
+.collab-requests-container .approve-btn, .collab-requests-container .submit-btn,
+.collab-requests-container .file-input-label { background: #ef6d45 !important; color: #173127 !important; border-color: #173127 !important; }
+.collab-requests-container .request-status, .collab-requests-container .request-status-indicator { background: #f5c447 !important; color: #173127 !important; border-color: #173127 !important; box-shadow: none !important; }
+.collab-requests-container .collab-stats { background: #315b46 !important; border-color: #315b46 !important; box-shadow: none !important; }
+.collab-requests-container .collab-request-count { color: #f7efcf !important; }
+.collab-requests-container .empty-icon { color: #ef6d45 !important; }
+.collab-requests-container .collab-title-container .collab-icon { background: #f5c447 !important; color: #ef6d45 !important; }

@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthProvider";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion"; // Import framer-motion for animations
-import { FaPlus, FaMusic, FaTags, FaGithub, FaLock, FaGlobe, FaFileAlt } from "react-icons/fa"; // Import icons
+import { FaPlus, FaTags, FaLock, FaGlobe, FaSearch } from "react-icons/fa";
 import "./NewProject.css";
+import { apiUrl } from "../../config/api";
 
 function NewProject() {
   const [projectName, setProjectName] = useState("");
@@ -12,6 +13,11 @@ function NewProject() {
   const [isPublic, setIsPublic] = useState(true);
   const [initWithReadme, setInitWithReadme] = useState(false);
   const [tags, setTags] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [artistQuery, setArtistQuery] = useState("");
+  const [artistResults, setArtistResults] = useState<any[]>([]);
+  const [selectedArtists, setSelectedArtists] = useState<any[]>([]);
+  const [recommendedArtists, setRecommendedArtists] = useState<any[]>([]);
   const [template, setTemplate] = useState("none");
   const [bpm, setBpm] = useState(120);
   const [key, setKey] = useState("C");
@@ -19,9 +25,37 @@ function NewProject() {
   const [ownerDropdownOpen, setOwnerDropdownOpen] = useState(false);
   const [selectedOwner, setSelectedOwner] = useState("user");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get("mode") === "osl" ? "osl" : "regular";
 
   const navigate = useNavigate();
   const { user } = useAuth() as { user: any };
+  const recommendedTags = ["Indie electronic", "House", "Hip-hop", "Ambient", "R&B", "Dance", "Alt-pop", "Disco", "Live drums", "Festival closer"];
+
+  useEffect(() => {
+    if (artistQuery.trim().length < 2) { setArtistResults([]); return; }
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/artists/search`, { params: { q: artistQuery } });
+        setArtistResults(response.data.artists || []);
+      } catch { setArtistResults([]); }
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [artistQuery]);
+
+  useEffect(() => {
+    if (!selectedTags.length) { setRecommendedArtists([]); return; }
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/artists/recommendations`, { params: { tags: selectedTags.join("|") } });
+        setRecommendedArtists(response.data.artists || []);
+      } catch { setRecommendedArtists([]); }
+    }, 250);
+    return () => window.clearTimeout(timer);
+  }, [selectedTags]);
+
+  const toggleTag = (tag: string) => setSelectedTags((current) => current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag]);
+  const toggleArtist = (artist: any) => setSelectedArtists((current) => current.some((item) => item.id === artist.id) ? current.filter((item) => item.id !== artist.id) : [...current, artist].slice(0, 10));
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
@@ -36,10 +70,19 @@ function NewProject() {
     
     setIsSubmitting(true);
     
-    axios.post(`http://${window.location.hostname}:3333/api/projects/`, {
+    axios.post(`${apiUrl}/api/projects/`, {
       title: projectName,
-      hashtags: tags ? tags.split(',').map(tag => tag.trim()) : [],
+      hashtags: [...selectedTags, ...tags.split(',').map(tag => tag.trim()).filter(Boolean)],
       userId: user.id,
+      description,
+      mode,
+      visibility: isPublic ? "public" : "private",
+      isStarter: mode === "osl",
+      festivalSlug: mode === "osl" ? "outside-lands" : null,
+      festivalYear: mode === "osl" ? 2026 : null,
+      audioSource: mode === "osl" ? "inspired" : "original",
+      inspiredByArtistId: selectedArtists[0]?.id || null,
+      inspiredByArtistName: selectedArtists.map((artist) => artist.name).join(", ") || null,
     }, {
       withCredentials: true
     })
@@ -98,10 +141,12 @@ function NewProject() {
         <div className="new-project-header-section">
           <div className="new-project-header-content">
             {/* <FaMusic className="header-icon" /> */}
-            <h1>Create New Project</h1>
+            <h1>{mode === "osl" ? "Create Outside Lands v1" : "Start a Studio Circle"}</h1>
           </div>
           <p className="new-project-subtitle">
-            Start your musical journey with a new project. Fill in the details below to get started.
+            {mode === "osl"
+              ? "Publish an artist-led v1. The core stays yours; the community competes to build the strongest next version."
+              : "Make a private place for your people to build, compare Ableton versions, and finish a record."}
           </p>
         </div>
 
@@ -225,9 +270,12 @@ function NewProject() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="tags">
-                  Tags <span className="optional">(optional)</span>
+                <label>
+                  Sound tags <span className="optional">(pick the energy you are after)</span>
                 </label>
+                <div className="tag-chip-grid">
+                  {recommendedTags.map((tag) => <button type="button" key={tag} className={`tag-chip ${selectedTags.includes(tag) ? "active" : ""}`} onClick={() => toggleTag(tag)}>{tag}</button>)}
+                </div>
                 <div className="tags-input-container">
                   <FaTags className="input-icon" />
                   <input
@@ -235,10 +283,19 @@ function NewProject() {
                     type="text"
                     value={tags}
                     onChange={(e) => setTags(e.target.value)}
-                    placeholder="EDM, Ambient, 120BPM, Cmaj (comma-separated)"
+                    placeholder="Add your own tags, comma-separated"
                     className="input-field with-icon"
                   />
                 </div>
+              </div>
+
+              <div className="form-group artist-inspo-group">
+                <label htmlFor="artist-inspo">Inspo <span className="optional">(artist reference, never a claim of collaboration)</span></label>
+                <div className="selected-artists">{selectedArtists.map((artist) => <button type="button" key={artist.id} onClick={() => toggleArtist(artist)}>{artist.imageUrl && <img src={artist.imageUrl} alt="" />}<span>{artist.name}</span><b>×</b></button>)}</div>
+                <div className="tags-input-container"><FaSearch className="input-icon" /><input id="artist-inspo" className="input-field with-icon" value={artistQuery} onChange={(event) => setArtistQuery(event.target.value)} placeholder="Search artists via JamBase" /></div>
+                {artistResults.length > 0 && <div className="artist-results">{artistResults.map((artist) => <button type="button" key={artist.id} onClick={() => { toggleArtist(artist); setArtistResults([]); }}><span>{artist.name}</span><small>{artist.genres?.slice(0, 2).join(" · ")}</small></button>)}</div>}
+                {recommendedArtists.length > 0 && <div className="artist-recommendations"><p>Recommended from your sound tags</p><div className="artist-card-grid">{recommendedArtists.map((artist) => <button type="button" className={selectedArtists.some((item) => item.id === artist.id) ? "artist-card selected" : "artist-card"} key={artist.id} onClick={() => toggleArtist(artist)}>{artist.imageUrl ? <img src={artist.imageUrl} alt="" /> : <span className="artist-avatar">{artist.name.slice(0, 1)}</span>}<span>{artist.name}</span><small>{artist.genres?.slice(0, 1).join("")}</small></button>)}</div></div>}
+                {artistQuery.length >= 2 && artistResults.length === 0 && <p className="inspo-help">Artist results appear here when JamBase is configured.</p>}
               </div>
               
               {/* <div className="form-row">

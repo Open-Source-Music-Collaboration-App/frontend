@@ -1,0 +1,92 @@
+.project-settings-page {
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 0 1.5rem 3rem;
+  color: #f5f5f5;
+}
+
+.project-settings-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-settings-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.project-settings-header p {
+  margin: 0.25rem 0 0;
+  opacity: 0.7;
+}
+
+.project-settings-icon {
+  font-size: 1.75rem;
+  color: #c084fc;
+}
+
+.project-settings-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+}
+
+.project-settings-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.project-settings-row:last-child {
+  border-bottom: none;
+}
+
+.project-settings-row .label {
+  opacity: 0.65;
+  font-size: 0.95rem;
+}
+
+.project-settings-row .value {
+  font-weight: 600;
+  text-align: right;
+}
+
+.project-settings-note {
+  margin-top: 1.25rem;
+  opacity: 0.65;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.project-settings-error {
+  color: #f87171;
+}
+
+.project-settings-page .back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Final Outside Lands palette. */
+.project-settings-page { background: #f7efcf !important; color: #173127 !important; }
+.project-settings-page h1, .project-settings-page h2, .project-settings-page p,
+.project-settings-page .label, .project-settings-page .value,
+.project-settings-page .project-settings-note { color: #173127 !important; text-shadow: none !important; }
+.project-settings-page .project-settings-icon { color: #ef6d45 !important; }
+.project-settings-page .project-settings-card { background: #fffdf3 !important; border-color: #315b46 !important; box-shadow: none !important; }
+.project-settings-page .project-settings-row { border-color: #b6c6a7 !important; }
+.project-settings-page .back-btn { background: #315b46 !important; color: #f7efcf !important; border-color: #315b46 !important; box-shadow: none !important; }
+.project-visibility-settings{display:grid;gap:12px;padding:.95rem 0}.project-visibility-settings p{margin:.25rem 0 0;color:#557064!important;font-size:.88rem}.visibility-toggle{display:flex;gap:8px}.visibility-toggle button{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid #315b46;background:#fffdf3;color:#173127;cursor:pointer;font-weight:700}.visibility-toggle button.active{border-color:#173127;box-shadow:3px 3px 0 #173127}.visibility-toggle button.active-private{background:#315b46;color:#fffdf3}.visibility-toggle button.active-public{background:#f5c447;color:#173127}.visibility-toggle button:disabled{opacity:.55;cursor:not-allowed}.project-visibility-settings small{color:#557064}.project-visibility-settings .visibility-feedback{margin:0;color:#315b46!important;font-weight:700}

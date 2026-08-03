@@ -17,6 +17,7 @@ import featuresicon from '../../assets/plus-circle-svgrepo-com.svg';
 import HoverInfo from "../../components/HoverInfo/HoverInfo";
 import OnboardingTooltip from "../../components/OnboardingTooltip/OnboardingTooltip";
 import Tooltip from "../../components/Tooltip/Tooltip";
+import { apiUrl } from "../../config/api";
 
 interface Feature {
   id: number;
@@ -86,14 +87,14 @@ function Features() {
       
       try {
         const response = await axios.get(
-          `http://${window.location.hostname}:3333/api/features/project/${id}`,
+          `${apiUrl}/api/features/project/${id}`,
           { withCredentials: true }
         );
         
         // Process the data to fit our interface
         const fetchedFeatures = response.data.map(feature => ({
           ...feature,
-          author: feature.User.name,
+          author: feature.User?.name || "OutsideSynq member",
           status: feature.open ? "open" : "closed", // Map 'open' boolean to status string for UI
           title: feature.message, // Map message field to title for UI
           date: feature.created_at, // Use created_at as date for sorting/display
@@ -187,7 +188,7 @@ function Features() {
 
     try {
       const response = await axios.post(
-        `http://${window.location.hostname}:3333/api/features/`, 
+        `${apiUrl}/api/features/`,
         {
           project_id: id,
           author_id: user?.id,
@@ -222,7 +223,10 @@ function Features() {
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
       console.error("Failed to create feature", err);
-      alert("Error creating feature. Please try again.");
+      const message = axios.isAxiosError(err)
+        ? err.response?.data?.details || err.response?.data?.error
+        : null;
+      alert(message || "Couldn’t create the feature. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

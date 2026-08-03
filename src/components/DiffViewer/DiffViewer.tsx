@@ -144,16 +144,30 @@ function DiffViewer() {
       };
 
       try {
-        // 1. Fetch Diff Data
+        // 1. Fetch Diff Data (missing diff.json is common for first commits)
         console.log(`Fetching diff for commit: ${currentHash}`);
-        const diffResponse = await axios.get<ProjectDiff>(
-          `http://${window.location.hostname}:3333/api/history/diff/${user.username}/${projectId}/${currentHash}`,
-          { withCredentials: true, timeout: 30000 }
-        );
-        setDiffData(diffResponse.data);
-        console.log("Diff data loaded:", diffResponse.data);
+        let loadedDiff: ProjectDiff | null = null;
+        try {
+          const diffResponse = await axios.get<ProjectDiff>(
+            `http://${window.location.hostname}:3333/api/history/diff/${user.username}/${projectId}/${currentHash}`,
+            { withCredentials: true, timeout: 30000 }
+          );
+          loadedDiff = diffResponse.data;
+          console.log("Diff data loaded:", diffResponse.data);
+        } catch (diffErr: any) {
+          if (axios.isAxiosError(diffErr) && diffErr.response?.status === 404) {
+            console.warn(`No stored diff.json for ${currentHash}; continuing with empty diff.`);
+            loadedDiff = null;
+          } else {
+            throw diffErr;
+          }
+        }
+        setDiffData(loadedDiff);
 
-        const previousHash = prevHash;
+        const previousHash =
+          prevHash && prevHash !== "undefined" && prevHash !== "null"
+            ? prevHash
+            : null;
 
         // 2. Fetch Current and Previous Project JSON in parallel
         const [currentData, previousData] = await Promise.all([
@@ -175,14 +189,14 @@ function DiffViewer() {
         }
       } catch (err: any) {
         console.error("Error loading diff data:", err);
-        setError(err.response?.data?.message || err.message || "Failed to load comparison data.");
+        setError(err.response?.data?.error || err.response?.data?.message || err.message || "Failed to load comparison data.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [projectId, currentHash, user]);
+  }, [projectId, currentHash, prevHash, user]);
 
   // 1) Define a default “empty” diff
   const emptyDiff: ProjectDiff = {

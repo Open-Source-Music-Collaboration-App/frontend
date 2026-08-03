@@ -31,11 +31,11 @@ function ProfileDropdown({ toggleProfileDropdown }) {
       <div className={`profile-dropdown ${toggleProfileDropdown ? "active" : ""}`}>
           <div className="profile-dropdown-option">
               <img src={profileSvg} alt="Profile" />
-              <a href="/profile">Profile</a>
+              <a href="/profile" onClick={(e) => { e.preventDefault(); navigate("/profile"); }}>Profile</a>
           </div>
           <div className="profile-dropdown-option" >
               <img src={settingsSvg} alt="Settings" />
-              <a href="/settings">Settings</a>
+              <a href="/settings" onClick={(e) => { e.preventDefault(); navigate("/settings"); }}>Settings</a>
           </div>
 
           <hr/>

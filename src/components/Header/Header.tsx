@@ -85,23 +85,23 @@ function Header({ toggleSidebar, page }: HeaderProps): React.ReactElement {
                 >
                     <i className="fas fa-bars"></i>
                 </button>
-                <div className="logo">🎧</div>
+                <button className="logo" type="button" onClick={() => navigate("/dashboard")}>OUTSIDESYNQ</button>
                 <nav className="nav">
                     <div className="headerText">
-                        <span className="bold">{page}</span>
+                        <span className="bold">{page === "Dashboard" ? "Studio" : page}</span>
                     </div>
                 </nav>
                 <div className="right">
                     <button className="buttonfill" type="button" aria-label="New Project" onClick={() => navigate("/new-project")}>
-                        <span style={{ marginRight: "4px" }}>＋</span> New Project
+                        <span style={{ marginRight: "4px" }}>＋</span> Start a session
                     </button>
                     <button className="buttonoutline" type="button" aria-label="Collab Requests">
                         <img src={pullRequestIcon} alt="Collab Requests" />
                     </button>
-                    {user && user.photos?.[0]?.value ? (
+                    {user ? (
                         <div className="profile-container" style={{ position: "relative" }}>
                             <img
-                                src={user.photos[0].value}
+                                src={user.photos?.[0]?.value || `https://avatars.githubusercontent.com/u/${user.id}?v=4`}
                                 alt="GitHub Avatar"
                                 className="profile-picture"
                                 style={{

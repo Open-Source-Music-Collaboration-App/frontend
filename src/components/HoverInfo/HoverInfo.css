@@ -22,3 +22,6 @@
   color: rgba(147, 0, 215, 1);
   transform: scale(1.1);
 }
+
+/* Shared help markers use the festival gold, never purple. */
+.info-icon, .info-icon:hover { color: #f5c447 !important; }

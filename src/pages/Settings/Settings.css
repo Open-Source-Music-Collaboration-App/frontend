@@ -608,3 +608,24 @@ input:checked + .slider:before {
     font-size: 1.6rem;
   }
 }
+
+/* Outside Lands finish: opaque cream surfaces, forest ink, orange actions. */
+.settings-container { color:#173127; }
+.settings-header h1 { color:#173127; text-shadow:none; }
+.settings-subtitle,.settings-description,.github-username,.toggle-text p,.account-details p,.danger-action p { color:#5d7167; }
+.user-profile-card,.settings-panel { background:#fffdf4; border:1px solid #315f4b; box-shadow:6px 6px 0 #173127; backdrop-filter:none; -webkit-backdrop-filter:none; }
+.user-profile-card:hover,.settings-panel:hover { border-color:#173127; box-shadow:6px 6px 0 #173127; }
+.settings-avatar { border-color:#ef6d45; }
+.settings-nav-item,.toggle-item,.account-section { background:#f4edcf; border-color:#b8c7a6; color:#173127; }
+.settings-nav-item:hover,.toggle-item:hover { background:#e6edc0; }
+.settings-nav-item.active { background:#ef6d45; border-color:#173127; color:#173127; }
+.settings-nav-icon { color:#173127; }
+.settings-section-header { border-color:#b8c7a6; }
+.form-group input,.form-group textarea,.delete-confirmation input { background:#fffdf4; border-color:#7b947c; color:#173127; }
+.form-group input:focus,.form-group textarea:focus { border-color:#ef6d45; background:#fffdf4; }
+.save-btn { background:#ef6d45; border-color:#173127; color:#173127; border-radius:0; }
+.save-btn:hover { background:#d95635; border-color:#173127; }
+input:checked + .slider { background-color:#ef6d45; }
+.preview-box,.preview-box.dark { background:#173127; border-color:#315f4b; }
+.preview-box.high-contrast { border-color:#ef6d45; }
+.preview-header,.preview-box.light .preview-header,.preview-box.high-contrast .preview-header { background:#315f4b; color:#fffdf4; }

@@ -11,13 +11,18 @@ import featuresicon from '../../assets/plus-circle-svgrepo-com.svg';
 import collabrequesticon from '../../assets/pull-request-svgrepo-com.svg';
 import settingsicon from '../../assets/settings-svgrepo-com.svg';
 import historyIcon from "../../assets/history-svgrepo-com.svg"; 
+import { apiUrl } from "../../config/api";
 
 const tabs = ['track', 'history', 'settings', 'features', 'collabs'];
 
 function ProjectHeader() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { id } = useParams();
+  const params = useParams();
+  // Prefer route param; fall back to pathname so tabs keep working even if
+  // a nested route temporarily fails to provide :id.
+  const idFromPath = window.location.pathname.match(/^\/project\/([^/]+)/)?.[1];
+  const id = params.id || idFromPath;
   const [activeTab, setActiveTab] = useState<string>('track');
 
   const [project, setProject] = useState<any>(null);
@@ -29,7 +34,7 @@ function ProjectHeader() {
   // Determine active tab based on URL path
   useEffect(() => {
     const path = window.location.pathname;
-    const tab = tabs.find(tab => path.includes(tab));
+    const tab = tabs.find((tabName) => path.includes(`/project/${id}/${tabName}`));
     if (tab) {
       setActiveTab(tab);
     }
@@ -38,7 +43,7 @@ function ProjectHeader() {
     }
     // Reset error when navigating to a new tab
     setError(null);
-  }, [window.location.pathname]);
+  }, [window.location.pathname, id]);
 
   // Close profile dropdown if clicking outside
   useEffect(() => {
@@ -58,9 +63,8 @@ function ProjectHeader() {
   // Fetch project data (example from your existing code)
   useEffect(() => {
     if (user && id) {
-      const domain = window.location.hostname;
       axios
-        .get(`http://${domain}:3333/api/projects/${id}`)
+        .get(`${apiUrl}/api/projects/${id}`, { withCredentials: true })
         .then((response) => {
           console.log("Project data:", response.data);
           setProject(response.data);
@@ -75,6 +79,11 @@ function ProjectHeader() {
 
   // Handle tab switching with smooth animations
   const handleTabSwitch = (tab: string) => {
+    if (!id) {
+      navigate("/dashboard");
+      return;
+    }
+
     setActiveTab(tab);
     
     if (tab === 'track') {
@@ -93,16 +102,16 @@ function ProjectHeader() {
     <header className="project-header">
       <div className="header-container">
         <div className="left">
-          <div className="logo" onClick={() => navigate("/dashboard")}>
-            🎧
-          </div>
+          <button className="back-to-studio" onClick={() => navigate(project?.[0]?.mode === "osl" ? "/outside-lands" : "/dashboard")}>← Back to studio</button>
+          <button className="logo" onClick={() => navigate("/dashboard")}>OUTSIDESYNQ</button>
           <h2 className="user" onClick={() => navigate("/dashboard")}>
-            {project ? project[0]?.User.name : ""}
+            {project ? project[0]?.User?.name || project[0]?.ownerGithubId : ""}
           </h2>
           <span className="slash">/</span>
           <h2 className="project-name" onClick={() => navigate(`/project/${id}`)}>
             {project ? project[0]?.title : ""}
           </h2>
+          {project && <span className="project-mode-path">{project[0]?.mode === "osl" ? "OUTSIDE LANDS / V1" : "STUDIO CIRCLES / PRIVATE SESSION"}</span>}
         </div>
         <div className="right">
           <button className="buttonoutline" onClick={() => navigate("/new-project")}>
@@ -111,10 +120,10 @@ function ProjectHeader() {
           <button className="buttonoutline icon" onClick={() => navigate("/invite")}>
             <i className="fas fa-user-plus"></i>
           </button>
-          {user && user.photos?.[0]?.value ? (
+          {user ? (
             <div className="profile-container" style={{ position: "relative" }}>
               <img
-                src={user.photos[0].value}
+                src={user.photos?.[0]?.value || `https://avatars.githubusercontent.com/u/${user.id}?v=4`}
                 alt="GitHub Avatar"
                 className="profile-picture"
                 style={{

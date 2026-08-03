@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthProvider';
 import axios from 'axios';
 import { motion } from 'framer-motion';
@@ -20,6 +20,7 @@ import {
   FaChevronUp} from 'react-icons/fa';
 import './History.css';
 import Tooltip from '../../components/Tooltip/Tooltip';
+import { apiUrl } from '../../config/api';
 
 /**
  * @interface Version
@@ -161,6 +162,7 @@ function History() {
    * @description Hook to access URL parameters, used to get the project ID
    */
   const { id } = useParams();
+  const navigate = useNavigate();
 
   /**
    * @hook useAuth
@@ -421,10 +423,17 @@ function History() {
     if (user && id) {
       setLoading(true);
       axios
-        .get(`http://localhost:3333/api/history/all/${user.username}/${id}`, {
+        .get(`${apiUrl}/api/history/all/${user.username}/${id}`, {
           withCredentials: true,
+          validateStatus: (status) => status === 200 || status === 204,
         })
         .then((response) => {
+          if (response.status === 204) {
+            setHistory({ projectId: id, userId: user.id, history: { all: [], latest: {} as Version, total: 0 } });
+            setError(null);
+            setDiffLoading(false);
+            return;
+          }
           console.log("RESPONSE: ", response);
           setHistory(response.data);
 
@@ -446,13 +455,13 @@ function History() {
 
           axios
             .get(
-              `http://localhost:3333/api/history/diff/${userId}/${projectId}/${commitHash}`,
+              `${apiUrl}/api/history/diff/${userId}/${projectId}/${commitHash}`,
               {
                 withCredentials: true,
               },
             )
             .then((diffRes) => {
-              const diffData = diffRes.data.diff;
+              const diffData = diffRes.data?.diff || diffRes.data;
               console.log("diffdata: ", diffData);
               const transformed = transformDiffEngineOutput(
                 diffData,
@@ -533,7 +542,7 @@ function History() {
     try {
       // Call the API endpoint to restore this version
       const response = await axios.post(
-        `http://localhost:3333/api/history/restore/${user?.username}/${id}/${versionHash}`,
+        `${apiUrl}/api/history/restore/${user?.username}/${id}/${versionHash}`,
         {
           message: `Restored to ${versionNumber}`,
         },
@@ -553,7 +562,7 @@ function History() {
         // Refetch history to show the new restoration commit
         axios
           .get(
-            `http://localhost:3333/api/history/all/${user?.username}/${id}`,
+            `${apiUrl}/api/history/all/${user?.username}/${id}`,
             {
               withCredentials: true,
             },
@@ -605,7 +614,7 @@ function History() {
 
       // Make request to download files - the API will return a zip file
       const response = await axios.get(
-        `http://localhost:3333/api/history/${user?.username}/${id}/${version.hash}`,
+        `${apiUrl}/api/history/${user?.username}/${id}/${version.hash}`,
         {
           withCredentials: true,
           responseType: "blob", // Important: we need the response as a blob
@@ -863,7 +872,9 @@ function History() {
                 </div>
 
                 <Tooltip
-                  content="View detailed changes between this version and the previous one"
+                  content={prevVersion?.hash
+                    ? "View detailed changes between this version and the previous one"
+                    : "This is the first version — nothing to compare yet"}
                   className="view-diff-tooltip"
                   position="left"
                   delay={200}
@@ -871,8 +882,12 @@ function History() {
                   >
                 <button 
   className="version-btn view-diff-btn"
-  onClick={() => window.location.href = `/project/${id}/diff/${version.hash}/${prevVersion?.hash}`}
-  style={{ marginLeft: 'auto' }} // Align to the right
+  disabled={!prevVersion?.hash}
+  onClick={() => {
+    if (!prevVersion?.hash || !id) return;
+    navigate(`/project/${id}/diff/${version.hash}/${prevVersion.hash}`);
+  }}
+  style={{ marginLeft: 'auto', opacity: prevVersion?.hash ? 1 : 0.45, cursor: prevVersion?.hash ? 'pointer' : 'not-allowed' }}
 >
   <svg width="18" height="18" viewBox="0 0 24 24" style={{ marginRight: "0px" }}>
     {/* Central connector with glow effect */}

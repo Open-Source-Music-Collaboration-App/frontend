@@ -16,6 +16,8 @@ import FirstTimeProjectGuide from "../../components/FirstTimeProjectGuide/FirstT
 import DiffPreview from "../../components/DiffPreview/DiffPreview";
 import { UploadAction } from "../../constants/constants";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
+import { apiUrl } from "../../config/api";
+import ProjectDiscussion from "../../components/ProjectDiscussion/ProjectDiscussion";
 
 function Project() {
   const { id } = useParams();
@@ -46,21 +48,32 @@ function Project() {
   const [latestUpdate, setLatestUpdate] = useState<any>(null);
 
   const [isOwner, setIsOwner] = useState<boolean>(false);
+  const [savedForBuild, setSavedForBuild] = useState<boolean>(false);
+  const [starterStemNames, setStarterStemNames] = useState<string[]>([]);
+  const [publishing, setPublishing] = useState(false);
 
   
   const maxRetries = 3;
+
+  const addToMyProjects = () => {
+    if (!id) return;
+    const saved = JSON.parse(localStorage.getItem("outsideSynqSavedProjects") || "[]") as string[];
+    if (!saved.includes(id)) localStorage.setItem("outsideSynqSavedProjects", JSON.stringify([...saved, id]));
+    setSavedForBuild(true);
+  };
 
   useEffect(() => {
     const fetchProject = async () => {
       try {
         // Step 1: Fetch project metadata
         console.log("Fetching project data for project ID:", id);
-        const metadataResponse = await axios.get(`http://${window.location.hostname}:3333/api/projects/${id}`, { 
+        const metadataResponse = await axios.get(`${apiUrl}/api/projects/${id}`, {
           withCredentials: true,
           timeout: 10000 // 10 seconds timeout
         });
         console.log("Project metadata:", metadataResponse.data);
         setProject(metadataResponse.data);
+        axios.post(`${apiUrl}/api/projects/${id}/open`, { actorId: (user as any)?.id }, { withCredentials: true }).catch(() => undefined);
 
 
         
@@ -70,14 +83,15 @@ function Project() {
 
 
         // fetch all commits for the project
-        const commitsRes = await axios.get(`http://${window.location.hostname}:3333/api/history/all/${user.username}/${id}`, {
+        const commitsRes = await axios.get(`${apiUrl}/api/history/all/${user.username}/${id}`, {
           withCredentials: true,
           timeout: 10000
         });
 
         // Convert string user_id to number for proper comparison with user.id
-        setIsOwner(parseInt(metadataResponse.data[0].user_id, 10) == parseInt(user.id));
-        console.log(parseInt(metadataResponse.data[0].user_id, 10), parseInt(user.id));
+        const projectOwnerId = metadataResponse.data?.[0]?.ownerGithubId || metadataResponse.data?.[0]?.user_id;
+        setIsOwner(String(projectOwnerId) === String(user.id));
+        console.log(projectOwnerId, user.id);
         if (commitsRes.status !== 204 && commitsRes.data?.history?.all?.length > 0) {
           setLatestUpdate(commitsRes.data.history.all[0]);
           setNumCommits(commitsRes.data.history.total);
@@ -91,7 +105,7 @@ function Project() {
         try {
           console.log("Fetching project content for project ID:", id);
           const contentResponse = await axios.get(
-            `http://${window.location.hostname}:3333/api/history/latest/${user.username}/${id}`, 
+            `${apiUrl}/api/history/latest/${user.username}/${id}`,
             { 
               withCredentials: true,
               responseType: 'blob', // Important: we need to get the response as a blob
@@ -185,6 +199,26 @@ function Project() {
     };
   }, [id, user, navigate, retryCount]);
 
+  useEffect(() => {
+    const currentProject = project?.[0];
+    if (currentProject?.mode !== "osl" || !currentProject?.inspired_by_artist_name) return;
+    axios.get(`${apiUrl}/api/projects/starter-tracks/original-files?artist=${encodeURIComponent(currentProject.inspired_by_artist_name)}`, { withCredentials: true })
+      .then(({ data }) => setStarterStemNames(data.files || []))
+      .catch(() => setStarterStemNames([]));
+  }, [project]);
+
+  const publishToCommunity = async () => {
+    if (!id || publishing) return;
+    setPublishing(true);
+    setError(null);
+    try {
+      await axios.put(`${apiUrl}/api/projects/${id}/visibility`, { visibility: "public", actorId: user?.id }, { withCredentials: true });
+      setProject((current: any) => current ? [{ ...current[0], visibility: "public" }] : current);
+    } catch (publishError: any) {
+      setError(publishError.response?.data?.error || "Could not publish this version.");
+    } finally { setPublishing(false); }
+  };
+
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     setDiffPreview(null); // Reset previous preview data
@@ -233,7 +267,7 @@ function Project() {
 
         try {
           console.log(`Sending preview request for project ${id}...`);
-          const response = await axios.post(`http://${window.location.hostname}:3333/api/projects/preview-diff/${id}`, formData, {
+          const response = await axios.post(`${apiUrl}/api/projects/preview-diff/${id}`, formData, {
             withCredentials: true, // Send cookies if needed for auth
             headers: { 'Content-Type': 'multipart/form-data' },
             timeout: 60000 // Set a reasonable timeout (e.g., 60 seconds) for parsing
@@ -288,6 +322,15 @@ function Project() {
       return;
     }
 
+    const currentProject = project?.[0];
+    if (currentProject?.mode === "osl" && currentProject?.inspired_by_artist_name && starterStemNames.length) {
+      const hasOriginalStem = Array.from(files).some((file) => starterStemNames.includes(file.name));
+      if (!hasOriginalStem) {
+        setError("Outside Lands versions must include at least one original starter stem so the artist’s core remains in every build.");
+        return;
+      }
+    }
+
     setUploading(true);
     setError(null);
     setUploadSuccess(false);
@@ -299,7 +342,8 @@ function Project() {
         if (!files[i].webkitRelativePath.includes("Backup") && 
             (files[i].name.endsWith(".wav") || 
              files[i].name.endsWith(".als") ||
-             files[i].name.endsWith(".flac"))) {
+             files[i].name.endsWith(".flac") ||
+             files[i].name.endsWith(".mp3"))) {
           formData.append("files", files[i]);
         }
       }
@@ -311,7 +355,7 @@ function Project() {
       formData.append("actionType", UploadAction.COMMIT);
 
       // Upload with progress tracking
-      const response = await axios.post(`http://${window.location.hostname}:3333/api/upload`, formData, {
+      const response = await axios.post(`${apiUrl}/api/upload`, formData, {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (progressEvent) => {
@@ -356,7 +400,7 @@ function Project() {
     try {
       // *** Replace with your actual API endpoint and expected payload structure ***
       // Assuming the backend expects the diff summary object
-      const response = await axios.post('http://localhost:3333/api/ai/generate-commit-message', {
+      const response = await axios.post(`${apiUrl}/api/ai/generate-commit-message`, {
          diffSummary: diffPreview // Or potentially diffPreview.summary or a specific text field if available
          // Add any generation options if your backend supports them
       });
@@ -398,7 +442,7 @@ function Project() {
       <div className="project-header-section">
         <div className="project-abstract">
           <img 
-            src={project && `https://avatars.githubusercontent.com/u/${project[0].user_id}?v=4`}
+            src={project && `https://avatars.githubusercontent.com/u/${project[0].ownerGithubId || project[0].user_id}?v=4`}
             alt="GitHub Avatar" 
             className="profile-picture" 
           />
@@ -443,7 +487,11 @@ function Project() {
               </div>
             </div>
             <div className="project-metadata">
-              <span className="project-visibility public">Public</span>
+              <span className={`project-visibility ${project?.[0]?.visibility || "private"}`}>
+                {(project?.[0]?.visibility || "private").toUpperCase()}
+              </span>
+              {isOwner && <button className="manage-visibility-btn" onClick={() => navigate(`/project/${id}/settings`)}>Manage visibility</button>}
+              {isOwner && project?.[0]?.mode === "osl" && project?.[0]?.inspired_by_artist_name && project?.[0]?.visibility !== "public" && <button className="publish-version-btn" onClick={publishToCommunity} disabled={publishing}>{publishing ? "Publishing…" : "Publish to community"}</button>}
               <div className="project-stats">
                 <div className="stat-item">
                   <FaStar />
@@ -466,6 +514,7 @@ function Project() {
             </div>
           </div>
         </div>
+        {id && <ProjectDiscussion projectId={id} />}
       </div>
 
       <div className="project-content">
@@ -483,6 +532,12 @@ function Project() {
                   trackFiles={trackFiles}
                   latestUpdate={latestUpdate}
                 />
+              ) : dataReady ? (
+                <div className="session-ready-notice">
+                  <FaMusic className="empty-project-icon" />
+                  <h3>Starter session ready</h3>
+                  <p>The original Ableton session and stems are in this version. Download or open them in Ableton, then upload your edit to create the next version.</p>
+                </div>
               ) : (
                 <div className="loading-project-data">
                   <div className="spinner"></div>
@@ -508,7 +563,7 @@ function Project() {
               <label htmlFor="file-upload" className="file-input-label">
                 <FaMusic className="file-input-icon" />
                 <div className="file-input-text">Drag project folder here or click to browse</div>
-                <div className="file-input-subtext">Upload project folder which includes .als and audio files (.wav or .flac)</div>
+                <div className="file-input-subtext">Upload a project folder with .als and audio files (.wav, .flac, or .mp3){project?.[0]?.mode === "osl" && project?.[0]?.inspired_by_artist_name ? ". Keep at least one original starter stem in your folder." : "."}</div>
               </label>
               <input
                 id="file-upload"
@@ -617,16 +672,20 @@ function Project() {
           <div className="collab-request-card">
             <div className="collab-invite-container">
               <FaUserFriends className="collab-icon" />
-              <h3 className="collab-invite-title">Want to contribute to this project?</h3>
+              <h3 className="collab-invite-title">Build your version of this track</h3>
               <p className="collab-invite-desc">
-                Submit your own version with changes and improvements. The project owner can review and merge your work.
+                Add this session to your projects, make your own mix, then submit it for the original creator to review. Their source files stay protected.
               </p>
+              <button className="collab-request-btn" onClick={addToMyProjects}>
+                <FaFolderOpen className="btn-icon" />
+                {savedForBuild ? "Added to My Projects" : "Add to My Projects"}
+              </button>
               <button 
                 className="collab-request-btn"
                 onClick={() => navigate(`/project/${id}/collabs`)}
               >
                 <FaPaperPlane className="btn-icon" />
-                Make Collaboration Request
+                {savedForBuild ? "Upload & Submit My Version" : "Build a Version"}
               </button>
             </div>
           </div>

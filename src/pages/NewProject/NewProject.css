@@ -4,8 +4,8 @@
   max-width: 960px;
   margin: 0 auto;
   padding: 40px 20px;
-  color: white;
-  font-family: 'Inter', sans-serif;
+  color: #173127;
+  font-family: 'Space Grotesk', sans-serif;
   margin-top: 100px;
 }
 
@@ -53,16 +53,13 @@
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.5px;
-  background: linear-gradient(90deg, #fff, #e0b0ff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-shadow: 0 2px 10px rgba(147, 0, 215, 0.3);
+  color:#173127;
+  text-transform:uppercase;
 }
 
 .new-project-subtitle {
   margin-top: 10px;
-  color: rgba(255, 255, 255, 0.8);
+  color: #173127b8;
   font-size: 1rem;
   /* max-width: 600px; */
   margin-left: auto;
@@ -87,6 +84,7 @@
   transition: all 0.3s ease;
   position: relative;
 }
+.form-card { background:#f8f2dc; border:1px solid #173127; box-shadow:5px 5px 0 #173127; }
 
 .form-card::before {
   content: '';
@@ -130,7 +128,7 @@
 
 .form-section-header {
   margin-bottom: 30px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #17312755;
   padding-bottom: 15px;
   position: relative;
 }
@@ -149,13 +147,13 @@
   font-size: 1.5rem;
   margin: 0;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
+  color: #173127;
   display: flex;
   align-items: center;
 }
 
 .section-description {
-  color: rgba(255, 255, 255, 0.6);
+  color: #173127aa;
   margin: 8px 0 0;
   font-size: 0.95rem;
 }
@@ -171,7 +169,7 @@ label {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: rgba(255, 255, 255, 0.9);
+  color: #173127;
   font-size: 0.95rem;
 }
 
@@ -189,20 +187,20 @@ label {
 .input-field {
   width: 100%;
   padding: 14px 16px;
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
+  background-color: #fff8;
+  border: 1px solid #17312788;
+  color: #173127;
   font-size: 1rem;
-  border-radius: 8px;
+  border-radius: 0;
   transition: all 0.3s ease;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .input-field:focus {
   outline: none;
-  border-color: rgba(147, 0, 215, 0.6);
-  box-shadow: 0 0 0 3px rgba(147, 0, 215, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.1);
-  background-color: rgba(255, 255, 255, 0.07);
+  border-color: #ef6d45;
+  box-shadow: 0 0 0 3px #ef6d4544;
+  background-color: #fff;
 }
 
 .input-field.with-icon {
@@ -221,6 +219,16 @@ label {
 .tags-input-container {
   position: relative;
 }
+
+.tag-chip-grid { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 12px; }
+.tag-chip { border:1px solid #f4edcf55; background:#173b2c66; color:#f4edcf; padding:7px 10px; border-radius:0; cursor:pointer; font:500 .74rem 'DM Mono',monospace; text-transform:uppercase; }.tag-chip.active { background:#d6ed77; color:#173b2c; border-color:#d6ed77; }
+.artist-results { border:1px solid #f4edcf33; border-top:0; background:#173b2c; }.artist-results button { width:100%; display:flex; justify-content:space-between; gap:10px; padding:11px 13px; background:transparent; border:0; border-bottom:1px solid #f4edcf22; color:#f4edcf; cursor:pointer; text-align:left; }.artist-results button:hover { background:#f4edcf16; }.artist-results small { color:#d6ed77; }.selected-artist { display:flex; align-items:center; justify-content:space-between; border:1px solid #d6ed77; background:#173b2c88; color:#d6ed77; padding:12px; }.selected-artist button { border:0; background:transparent; color:#f4edcf; cursor:pointer; text-transform:uppercase; font:.7rem 'DM Mono',monospace; }.inspo-help { margin:8px 0 0; color:#ffffff88; font-size:.8rem; }
+.selected-artists { display:flex; flex-wrap:wrap; gap:7px; margin:0 0 10px; }.selected-artists button { display:flex; align-items:center; gap:7px; padding:5px 7px 5px 5px; border:1px solid #d6ed77; background:#173b2c; color:#f4edcf; cursor:pointer; font:.75rem 'DM Mono',monospace; }.selected-artists img { width:22px; height:22px; border-radius:50%; object-fit:cover; }.selected-artists b { color:#d6ed77; font-size:1rem; }.artist-recommendations { margin-top:16px; }.artist-recommendations > p { margin:0 0 8px; color:#d6ed77; font:.7rem 'DM Mono',monospace; letter-spacing:.06em; text-transform:uppercase; }.artist-card-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(105px,1fr)); gap:8px; }.artist-card { min-height:132px; text-align:left; padding:8px; display:flex; flex-direction:column; gap:5px; border:1px solid #f4edcf44; background:#173b2c55; color:#f4edcf; cursor:pointer; overflow:hidden; }.artist-card:hover,.artist-card.selected { border-color:#d6ed77; background:#d6ed7722; }.artist-card img,.artist-avatar { width:100%; aspect-ratio:1.5; object-fit:cover; background:#ef6d45; display:grid; place-items:center; color:#173b2c; font-size:1.4rem; }.artist-card span:not(.artist-avatar) { font-size:.78rem; font-weight:700; line-height:1.1; }.artist-card small { color:#d6ed77; font-size:.65rem; }
+
+/* Festival form contrast overrides for the legacy form controls. */
+.new-project-container .input-field::placeholder,.new-project-container .optional { color:#557064 !important; opacity:1; }
+.new-project-container .visibility-card { background:#fff9 !important; border-color:#17312766 !important; border-radius:0 !important; color:#173127 !important; box-shadow:none !important; }.new-project-container .visibility-card.selected { background:#f5c44777 !important; border-color:#173127 !important; box-shadow:4px 4px 0 #173127 !important; }.new-project-container .visibility-card h3,.new-project-container .visibility-card p { color:#173127 !important; }.new-project-container .visibility-card p { opacity:.8; }.new-project-container .visibility-icon.public { color:#277a48 !important; }.new-project-container .visibility-icon.private { color:#d44a32 !important; }
+.new-project-container .create-btn { background:#ef6d45 !important; color:#173127 !important; border:1px solid #173127 !important; border-radius:0 !important; box-shadow:4px 4px 0 #173127 !important; }.new-project-container .cancel-btn { color:#173127 !important; border-color:#173127 !important; border-radius:0 !important; }
 
 .description-textarea {
   resize: vertical;
@@ -674,3 +682,23 @@ label {
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+/* Musical properties / artist inspiration: the last legacy violet pocket. */
+.new-project-container .new-project-header-section::after,
+.new-project-container .form-section-header::before { background: linear-gradient(90deg, #ef6d45, #f5c447, transparent) !important; }
+.new-project-container .input-icon { color: #ef6d45 !important; filter: none !important; }
+.new-project-container .form-section, .new-project-container .form-section-header { border-color: #315b46 !important; }
+.new-project-container .form-section-header h2, .new-project-container .section-description,
+.new-project-container .form-group label, .new-project-container .optional { color: #173127 !important; text-shadow: none !important; }
+.new-project-container .tags-input-container, .new-project-container .input-field,
+.new-project-container .form-group input { background: #fffdf3 !important; color: #173127 !important; border-color: #315b46 !important; box-shadow: none !important; }
+.new-project-container .input-field::placeholder, .new-project-container .form-group input::placeholder { color: #557064 !important; opacity: 1 !important; }
+.new-project-container .tag-chip { background: #aeb9a3 !important; color: #fffdf3 !important; border-color: #8e9b86 !important; box-shadow: none !important; }
+.new-project-container .tag-chip.active { background: #ef6d45 !important; color: #173127 !important; border-color: #173127 !important; }
+.new-project-container .selected-artists button, .new-project-container .artist-results,
+.new-project-container .artist-card { background: #315b46 !important; color: #f7efcf !important; border-color: #f5c447 !important; box-shadow: none !important; }
+.new-project-container .selected-artists b, .new-project-container .artist-results small,
+.new-project-container .artist-recommendations > p, .new-project-container .artist-card small { color: #f5c447 !important; }
+.new-project-container .inspo-help { color: #557064 !important; }
+.new-project-container .form-card::before, .new-project-container .form-card::after { display: none !important; }
+.new-project-container .form-card:hover { border-color: #173127 !important; }

@@ -3,9 +3,9 @@
 
 :root
 {
-    --backgroundcolor: #1C001F
-    --text: #fff
-    --accent: #9300D7
+    --backgroundcolor: #f4edcf;
+    --text: #173127;
+    --accent: #ef6d45;
 }
 
 #root
@@ -20,7 +20,7 @@ html
 {
     font-family: 'Inter', sans-serif;
     /* background: radial-gradient(circle at top, #3d004a, #1c001f); */
-    background-color: #1C001F;
+    background-color: #f4edcf;
     min-height: 100vh;
 }
 

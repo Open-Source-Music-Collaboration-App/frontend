@@ -73,7 +73,7 @@ function Settings() {
       <div className="settings-header">
         <div className="settings-header-content">
           <h1 style={{ display: "flex", alignItems: "center" }}>
-            <FaUserCog className="settings-icon" style={{ marginRight: "1rem", color: "#9806dbdd" }} />
+            <FaUserCog className="settings-icon" style={{ marginRight: "1rem", color: "#ef6d45" }} />
             Settings</h1>
           <p className="settings-subtitle">Personalize your experience and manage your account preferences</p>
         </div>

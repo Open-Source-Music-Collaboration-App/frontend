@@ -675,3 +675,11 @@
   text-transform: lowercase;
   font-size: 11px;
 }
+
+/* Opaque Outside Lands transport and piano-roll palette. */
+.als-view-container .tempo-display,.als-view-container .tempo,.als-view-container .track-type,.als-view-container .track-type.midi,.als-view-container .track-type.audio { background:#315b46 !important; color:#f7efcf !important; border:1px solid #f5c447 !important; box-shadow:none !important; text-shadow:none !important; }
+.als-view-container .timeline-marker,.als-view-container .timeline-marker.major,.als-view-container .marker-time { color:#f7efcf !important; border-color:#f5c447 !important; }.als-view-container .extended-playhead { background:#f5c447 !important; box-shadow:none !important; }.als-view-container .latest-update-indicator { background:#315b46 !important; border-color:#f5c447 !important; box-shadow:none !important; }.als-view-container .transport-btn,.als-view-container .zoom-controls button,.als-view-container .track-btn { background:#315b46 !important; border-color:#f7efcf88 !important; color:#f7efcf !important; box-shadow:none !important; }.als-view-container .transport-btn.play-btn { background:#ef6d45 !important; color:#173127 !important; border-color:#ef6d45 !important; }.als-view-container .midi-note,.als-view-container .waveform-bar { background:#ef6d45 !important; border-color:#f5c447 !important; box-shadow:none !important; }
+.als-view-container .playhead, .als-view-container .playhead::after { background:#f5c447 !important; box-shadow:none !important; }
+.als-view-container .extended-playhead::after { background:#f5c447 !important; box-shadow:none !important; }
+/* Keep one tempo frame: the outer display only. */
+.als-view-container .tempo { background:transparent !important; border:0 !important; padding:0 !important; box-shadow:none !important; }

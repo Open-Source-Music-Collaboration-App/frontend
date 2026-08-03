@@ -3,7 +3,7 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 30px 20px 60px;
-  color: white;
+  color: #173127;
 }
 .features-header {
   display: flex;
@@ -37,7 +37,8 @@
   margin: 0;
   font-size: 1.8rem;
   font-weight: 600;
-  text-shadow: 0 0 15px rgba(147, 0, 215, 0.5);
+  color:#173127;
+  text-shadow:none;
   font-family: 'Montserrat', sans-serif;
   letter-spacing: -0.5px;
 }
@@ -1196,3 +1197,41 @@
   margin-left: 8px;
   color: rgba(255, 255, 255, 0.9);
 }
+
+/* Final Outside Lands palette — no translucent violet states. */
+.features-container { background: #f7efcf !important; color: #173127 !important; }
+.features-container h1, .features-container h2, .features-container h3,
+.features-container h4, .features-container p, .features-container label,
+.features-container .features-title, .features-container .feature-title,
+.features-container .feature-description, .features-container .feature-author,
+.features-container .feature-date, .features-container .empty-subtitle { color: #173127 !important; text-shadow: none !important; }
+.features-container .features-description, .features-container .feature-card,
+.features-container .filter-panel, .features-container .modal-content,
+.features-container .feature-detail-modal, .features-container .no-features,
+.features-container .comments-section { background: #fffdf3 !important; border-color: #315b46 !important; box-shadow: none !important; }
+.features-container .search-input, .features-container .form-group input,
+.features-container .form-group textarea, .features-container .form-group select {
+  background: #fffdf3 !important; color: #173127 !important; border-color: #315b46 !important;
+}
+.features-container .search-input::placeholder, .features-container .form-group input::placeholder,
+.features-container .form-group textarea::placeholder { color: #557064 !important; opacity: 1 !important; }
+.features-container button, .features-container .filter-btn, .features-container .sort-btn,
+.features-container .cancel-btn, .features-container .vote-btn, .features-container .back-btn {
+  background: #315b46 !important; color: #f7efcf !important; border-color: #315b46 !important; box-shadow: none !important; text-shadow: none !important;
+}
+.features-container .request-feature-btn, .features-container .submit-btn { background: #ef6d45 !important; color: #173127 !important; border-color: #173127 !important; }
+.features-container .tab-btn.active::after, .features-container .success-icon,
+.features-container .empty-icon, .features-container .modal-icon { background: #f5c447 !important; color: #173127 !important; }
+.features-container .feature-category, .features-container .feature-priority,
+.features-container .comments-title::after { background: #315b46 !important; color: #f7efcf !important; border-color: #315b46 !important; }
+
+/* The legacy feature mark is a purple raster asset; tint it to the festival orange. */
+.features-container .features-title-container img.features-icon {
+  background: transparent !important;
+  opacity: 1 !important;
+  filter: brightness(0) saturate(100%) invert(58%) sepia(82%) saturate(534%) hue-rotate(335deg) brightness(101%) contrast(87%) !important;
+}
+
+/* Priority always has a visible selected state, even with the shared button reset. */
+.features-container .priority-selector .priority-btn { background: #fffdf3 !important; color: #173127 !important; border-color: #315b46 !important; }
+.features-container .priority-selector .priority-btn.selected { background: #ef6d45 !important; color: #173127 !important; border-color: #173127 !important; box-shadow: inset 0 -4px 0 #f5c447 !important; }

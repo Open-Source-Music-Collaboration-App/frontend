@@ -1,19 +1,20 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import "./Login.css";
-import LandingHeader from "../../components/LandingHeader/LandingHeader";
 import { useAuth } from "../../context/AuthProvider";
+import { apiUrl } from "../../config/api";
+import { Navigate } from "react-router-dom";
 function Login() {
-const { user, logout } = useAuth()
+const { user, loading, logout } = useAuth() as { user: any; loading: boolean; logout: () => void };
 
   const handleLogin = () => {
-    window.location.href = `http://${window.location.hostname}:3333/auth/github`; // Redirect to GitHub OAuth
+    window.location.href = `${apiUrl}/auth/github`;
   };
 
   const handleLogout = () => {
     logout()
   };
+
+  if (loading) return <div className="login-container" />;
+  if (user) return <Navigate to="/dashboard" replace />;
 
   return (
     <>
@@ -34,14 +35,9 @@ const { user, logout } = useAuth()
             </button>
           )}
         </div>
-        <div>
-          <p
-            className="text-center text-white"
-          >Don't have an account? <a
-            href="http://localhost:3000/signup"
-            className="text-purple-500"
-          >Sign Up</a></p>
-        </div>
+        <p className="login-note">
+          Signing in with GitHub creates your account automatically.
+        </p>
       </div>
     </>
   );

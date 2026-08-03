@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import axios from "axios";
 import { useContext, createContext, useState } from "react";
+import { apiUrl } from "../config/api";
 
 interface ProviderProps {
   loading: boolean,
@@ -19,7 +20,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState<boolean>(true);
   useEffect(() => {
     if (!user) {
-      axios.get(`http://${window.location.hostname}:3333/api/me`, { withCredentials: true })
+      axios.get(`${apiUrl}/api/me`, { withCredentials: true })
         .then(resp => {
           setUser(resp.data.user);
         })
@@ -29,7 +30,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
   const logout = () => {
-    axios.get(`http://${window.location.hostname}:3333/logout`, { withCredentials: true }).then(() => {
+    axios.get(`${apiUrl}/logout`, { withCredentials: true }).then(() => {
       setUser(null);
       // navigate("/");
     });

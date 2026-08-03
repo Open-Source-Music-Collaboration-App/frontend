@@ -1,19 +1,26 @@
 .project-container {
   width: 100%;
-  color: white;
+  color: #173127;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, rgba(24, 0, 36, 0.9), rgba(15, 0, 36, 0.95));
+  background: radial-gradient(circle at 90% 0,#f4c85d99,transparent 24%), #f4edcf;
 }
 
+/* Outside Lands palette overrides for project creation and collaboration. */
+.project-container .project-content { color:#173127; }.project-container .preview-container,.project-container .upload-card,.project-container .collab-request-card { background:#f9f3dc !important; border:1px solid #173127 !important; border-radius:0 !important; box-shadow:6px 6px 0 #173127 !important; color:#173127 !important; }.project-container .loading-project-data,.project-container .empty-project-notice { background:#f9f3dc !important; color:#173127 !important; }.project-container .loading-project-data p,.project-container .empty-project-notice p,.project-container .collab-invite-desc { color:#173127bb !important; }.project-container .section-title,.project-container .collab-invite-title { color:#173127 !important; }.project-container .file-input-label { background:#dce89c66 !important; border:1px dashed #173127 !important; color:#173127 !important; }.project-container .file-input-text,.project-container .file-input-subtext,.project-container .file-name,.project-container .file-size { color:#173127 !important; }.project-container .file-item,.project-container .commit-section { border-color:#17312755 !important; }.project-container #commit-message,.project-container .share-link { background:#fff !important; color:#173127 !important; border:1px solid #173127 !important; }.project-container .project-action-btn,.project-container .collab-request-btn,.project-container .upload-btn,.project-container .generate-commit-btn { background:#ef6d45 !important; color:#173127 !important; border:1px solid #173127 !important; border-radius:0 !important; box-shadow:4px 4px 0 #173127 !important; }.project-container .project-share-btn { background:#f5c447 !important; color:#173127 !important; border-color:#173127 !important; }.project-container .collab-icon,.project-container .section-icon { color:#e45d3d !important; }.project-container .progress-fill { background:#e45d3d !important; }.project-container .spinner { border-color:#17312744 !important; border-top-color:#e45d3d !important; }
+.project-container .manage-visibility-btn{border:1px solid #315b46;background:#fffdf3;color:#173127;padding:4px 8px;font:700 10px "DM Mono",monospace;cursor:pointer}
+.project-container .publish-version-btn{border:1px solid #173127;background:#ef6d45;color:#173127;padding:7px 10px;font:700 10px "DM Mono",monospace;text-transform:uppercase;cursor:pointer}.project-container .publish-version-btn:disabled{opacity:.6;cursor:wait}
+.project-container .session-ready-notice{min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;background:#f9f3dc;border:1px solid #173127;box-shadow:6px 6px 0 #173127}.project-container .session-ready-notice h3{margin:12px 0 8px;font-size:1.5rem}.project-container .session-ready-notice p{max-width:34rem;margin:0;line-height:1.45;color:#173127bb}
+.project-container .selected-files{background:#f9f3dc !important;border:1px solid #173127 !important;border-radius:0 !important;box-shadow:4px 4px 0 #173127 !important;backdrop-filter:none !important}.project-container .selected-files-icon,.project-container .commit-label-icon{color:#e45d3d !important}.project-container .file-item{background:#fffdf3 !important;border-left:3px solid #91a77a !important;border-radius:0 !important}.project-container .file-item:hover{background:#dce89c !important;border-left-color:#e45d3d !important;transform:none}.project-container .file-type.als{background:#f5c44755 !important;color:#173127 !important;border:1px solid #173127 !important}.project-container .files-list::-webkit-scrollbar-thumb{background:#91a77a !important}.project-container .more-files{background:#dce89c !important}.project-container .generate-commit-btn:hover:not(:disabled){background:#f5c447 !important;color:#173127 !important;border-color:#173127 !important;box-shadow:4px 4px 0 #173127 !important}
+
 .project-header-section {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #17312755;
   padding-bottom: 15px;
   margin-bottom: 25px;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  background-color: rgba(20, 0, 30, 0.5);
+  background-color: #f4edcfee;
   z-index: 3000;
 }
 
@@ -51,8 +58,9 @@
   font-size: 1.8rem;
   font-weight: 600;
   margin: 0;
-  text-shadow: 0 0 15px rgba(147, 0, 215, 0.5);
-  font-family: 'Montserrat', sans-serif;
+  color:#173127;
+  text-shadow:none;
+  font-family: 'Space Grotesk', sans-serif;
   letter-spacing: -0.5px;
 }
 

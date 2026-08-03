@@ -3,7 +3,7 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 30px 20px 60px;
-  color: white;
+  color: #173127;
 }
 
 .history-header {
@@ -54,7 +54,8 @@
   margin: 0;
   font-size: 1.8rem;
   font-weight: 600;
-  text-shadow: 0 0 15px rgba(147, 0, 215, 0.5);
+  color:#173127;
+  text-shadow:none;
   font-family: "Montserrat", sans-serif;
   letter-spacing: -0.5px;
 }
@@ -834,3 +835,28 @@
   display: block; /* Ensures it behaves like a block-level element */
   width: 100%; /* Stretches to fill its parent */
 }
+
+/* Final Outside Lands palette — keep this page opaque and high contrast. */
+.history-container { background: #f7efcf !important; color: #173127 !important; }
+.history-container .history-title, .history-container h1, .history-container h2,
+.history-container h3, .history-container h4, .history-container p,
+.history-container .version-message, .history-container .version-author,
+.history-container .version-date, .history-container .track-name,
+.history-container .track-detail { color: #173127 !important; text-shadow: none !important; }
+.history-container .history-icon, .history-container .empty-icon,
+.history-container .change-icon, .history-container .version-icon { color: #ef6d45 !important; }
+.history-container .history-description, .history-container .version-card,
+.history-container .version-tracks, .history-container .track-change,
+.history-container .history-loading, .history-container .history-error,
+.history-container .no-versions { background: #fffdf3 !important; border-color: #315b46 !important; box-shadow: none !important; }
+.history-container .version-badge, .history-container .history-version-count,
+.history-container .version-type, .history-container .track-type { background: #315b46 !important; color: #f7efcf !important; border-color: #315b46 !important; }
+.history-container button, .history-container .version-btn, .history-container .back-btn {
+  background: #315b46 !important; color: #f7efcf !important; border-color: #315b46 !important; box-shadow: none !important; text-shadow: none !important;
+}
+.history-container .view-diff-btn, .history-container .revert-btn { background: #ef6d45 !important; color: #173127 !important; border-color: #173127 !important; }
+.history-container .history-timeline:before, .history-container .track-change:before { background: #f5c447 !important; border-color: #f5c447 !important; }
+.history-container .history-spinner { border-color: #315b46 !important; border-top-color: #ef6d45 !important; }
+.history-container .history-stats { background: #315b46 !important; border-color: #315b46 !important; box-shadow: none !important; }
+.history-container .history-version-count { color: #f7efcf !important; }
+.history-container .version-badge { box-shadow: none !important; }

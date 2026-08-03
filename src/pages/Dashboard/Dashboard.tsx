@@ -8,12 +8,15 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useAuth } from "../../context/AuthProvider";
 import "./Dashboard.css";
-import { useNavigate } from "react-router-dom";
-import { FaPlus, FaStar, FaHistory, FaCodeBranch, FaSearch } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
+import { FaPlus, FaStar, FaSearch } from "react-icons/fa";
 import { motion } from "framer-motion";
 import OnboardingTooltip from '../../components/OnboardingTooltip/OnboardingTooltip';
 import FeatureBanner from "../../components/FeatureBanner.tsx/FeatureBanner";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
+import { apiUrl } from "../../config/api";
+import NativeAudioPlayer from "../../components/NativeAudioPlayer/NativeAudioPlayer";
+import OutsideLandsLineup from "../../components/OutsideLandsLineup/OutsideLandsLineup";
 
 
 /**
@@ -41,7 +44,12 @@ function Dashboard() {
         title: string;
         created_by: string;
         updated_at: string;
+        last_opened_at?: string;
         hashtags?: string[];
+        mode?: "regular" | "osl";
+        visibility?: "public" | "private";
+        description?: string;
+        inspired_by_artist_name?: string | null;
     }
 
     /**
@@ -61,6 +69,8 @@ function Dashboard() {
      * @description State that stores the current search query for filtering projects
      */
     const [searchTerm, setSearchTerm] = useState<string>("");
+    const location = useLocation();
+    const isOutsideLands = location.pathname === "/outside-lands";
     
     /**
      * @ref hasFetchedProjects
@@ -84,7 +94,7 @@ function Dashboard() {
     useEffect(() => {
         if (user && !hasFetchedProjects.current) {
             console.log("Fetching projects for user:", user);
-            axios.get(`http://${window.location.hostname}:3333/api/projects/?owner_id=${user.id}`, { withCredentials: true })
+            axios.get(`${apiUrl}/api/projects/?owner_id=${user.id}`, { withCredentials: true })
                 .then(response => setProjects(response.data))
                 .catch(error => console.error("Error fetching projects:", error))
                 .finally(() => setLoading(false));
@@ -99,7 +109,7 @@ function Dashboard() {
      * @returns {void}
      */
     const handleCreateProject = () => {
-        navigate("/new-project");
+        navigate(isOutsideLands ? "/new-project?mode=osl" : "/new-project");
     };
 
     /**
@@ -109,14 +119,17 @@ function Dashboard() {
      * 
      * @returns {Project[]} Filtered list of projects
      */
-    const filteredProjects = searchTerm 
-        ? projects.filter(project => 
+    const modeProjects = isOutsideLands
+        ? projects.filter(project => project.mode === "osl")
+        : projects;
+    const filteredProjects = (searchTerm
+        ? modeProjects.filter(project =>
             project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             (project.hashtags && project.hashtags.some(tag => 
                 tag.toLowerCase().includes(searchTerm.toLowerCase())
             ))
         )
-        : projects;
+        : modeProjects).slice().sort((a, b) => new Date(b.last_opened_at || b.updated_at || 0).getTime() - new Date(a.last_opened_at || a.updated_at || 0).getTime());
 
     return (
         <motion.div 
@@ -126,9 +139,12 @@ function Dashboard() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, delay: 0.3 }}
         >
-            <div className="dashboard-header">
+                <div className="dashboard-header">
                 <div className="dashboard-header-left">
-                    <h1>Projects</h1>
+                    <div>
+                      <p className="dashboard-kicker">OUTSIDESYNQ / 2026</p>
+                      <h1>{isOutsideLands ? "Create with Outside Lands artists" : "My Projects"}</h1>
+                    </div>
                     <div className="project-count">
                         {projects.length} {projects.length === 1 ? 'project' : 'projects'}
                     </div>
@@ -165,8 +181,9 @@ function Dashboard() {
               ctaText={projects.length > 0 ? `Try it on ${projects[0].title}` : "Create a New Project"}
               ctaLink={projects.length > 0 ? `/project/${projects[0].id}` : "/new-project"}
             />
+            {isOutsideLands && <OutsideLandsLineup />}
             
-            {loading ? (
+            {!isOutsideLands && (loading ? (
                 <LoadingSpinner />
             ) : filteredProjects.length > 0 ? (
                 <div className="projects-grid">
@@ -190,7 +207,7 @@ function Dashboard() {
                         >
                             <div className="project-card-header">
                                 <h3 className="project-title">{project.title}</h3>
-                                <span className="project-visibility public">Public</span>
+                                <div className="project-card-badges"><span className={`project-visibility ${project.visibility || "private"}`}>{(project.visibility || "private").toUpperCase()}</span>{project.mode === "osl" && <span className="project-mode-badge">OUTSIDE LANDS</span>}</div>
                             </div>
                             
                             <div className="project-waveform">
@@ -199,12 +216,14 @@ function Dashboard() {
                             
                             <div className="project-details">
                                 <p className="project-description">
-                                    Last modified {new Date(project.updated_at).toLocaleDateString('en-US', {
+                                    {project.description || `Last modified ${new Date(project.updated_at).toLocaleDateString('en-US', {
                                         year: 'numeric',
                                         month: 'short',
                                         day: 'numeric'
-                                    })}
+                                    })}`}
                                 </p>
+                                {project.inspired_by_artist_name && <p className="project-artist">Inspired by {project.inspired_by_artist_name}</p>}
+                                <NativeAudioPlayer src={`${apiUrl}/api/projects/${project.id}/audio`} label={project.title} />
                                 
                                 {project.hashtags && project.hashtags.length > 0 && (
                                     <div className="project-tags">
@@ -245,7 +264,7 @@ function Dashboard() {
                         >
                             <div className="project-card-header">
                                 <h3 className="project-title">{project.title}</h3>
-                                <span className="project-visibility public">Public</span>
+                                <div className="project-card-badges"><span className={`project-visibility ${project.visibility || "private"}`}>{(project.visibility || "private").toUpperCase()}</span>{project.mode === "osl" && <span className="project-mode-badge">OUTSIDE LANDS</span>}</div>
                             </div>
                             
                             <div className="project-waveform">
@@ -254,12 +273,14 @@ function Dashboard() {
                             
                             <div className="project-details">
                                 <p className="project-description">
-                                    Last modified {new Date(project.updated_at).toLocaleDateString('en-US', {
+                                    {project.description || `Last modified ${new Date(project.updated_at).toLocaleDateString('en-US', {
                                         year: 'numeric',
                                         month: 'short',
                                         day: 'numeric'
-                                    })}
+                                    })}`}
                                 </p>
+                                {project.inspired_by_artist_name && <p className="project-artist">Inspired by {project.inspired_by_artist_name}</p>}
+                                <NativeAudioPlayer src={`${apiUrl}/api/projects/${project.id}/audio`} label={project.title} />
                                 
                                 {project.hashtags && project.hashtags.length > 0 && (
                                     <div className="project-tags">
@@ -302,7 +323,7 @@ function Dashboard() {
                 <div className="empty-state">
                     <div className="empty-state-content">
                         <h2>No projects yet</h2>
-                        <p>Create your first music project to get started</p>
+                        <p>{isOutsideLands ? "Artists publish a v1. The community builds the next version." : "Every session you are building, from private circles to Outside Lands versions, lives here."}</p>
                         <OnboardingTooltip
                           stepId="empty-dashboard"
                           title="Welcome to Your Dashboard"
@@ -316,7 +337,7 @@ function Dashboard() {
                         </OnboardingTooltip>
                     </div>
                 </div>
-            )}
+            ))}
         </motion.div>
     );
 }

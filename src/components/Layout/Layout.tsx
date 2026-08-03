@@ -14,7 +14,7 @@ function getHeader(path: string, toggleSidebar: () => void) {
   }
 
   let formattedHeaderText = path.substring(1).replace(/-/g, " ").replace(/^\w/, (c) => c.toUpperCase());
-  if( path === "/dashboard" || path === "/new-project" ) {
+  if( path === "/dashboard" || path === "/new-project" || path === "/settings" || path === "/profile" ) {
     return <Header toggleSidebar={toggleSidebar} page={formattedHeaderText} />;
   }
 
@@ -26,6 +26,8 @@ function getHeader(path: string, toggleSidebar: () => void) {
   else if( path.includes("/project/") ) {
     return <ProjectHeader toggleSidebar={toggleSidebar} page="Project" />;
   }
+
+  return <Header toggleSidebar={toggleSidebar} page={formattedHeaderText || "OpenSynq"} />;
 }
 
 
@@ -35,7 +37,7 @@ const Layout = () => {
   const location = useLocation();
 
   let landingOrLogin = (location.pathname === "/login" || location.pathname === "/");
-  let needSidebar = (location.pathname === "/dashboard" || location.pathname === "/new-project");
+  let needSidebar = !landingOrLogin && !location.pathname.includes("/project/") && !location.pathname.includes("diff");
 
   const [isSidebarOpen, setIsSidebarOpen] = useState( landingOrLogin ? false : true );
 

@@ -3,11 +3,11 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    color: white;
+    color: #f4edcf;
     padding: 10px 20px;
     padding-bottom: 0px;
-    border-bottom: 1px solid #fff2;
-    background-color: #0005;
+    border-bottom: 1px solid #f4edcf55;
+    background-color: #173127;
     z-index: 5000;
 }
 
@@ -226,3 +226,7 @@
   /* transform: translateY(-1px) scale(1); */
   filter: brightness(0) invert(1) drop-shadow(0 0 2px rgba(255,255,255,0.5));
 }
+
+/* Festival theme replaces legacy purple tab states. */
+.project-header .logo { color:#f4edcf; background:transparent; border:0; font:700 14px "DM Mono",monospace; letter-spacing:-.08em; cursor:pointer; }.project-header .btn-container .header-btn { color:#f4edcf; }.project-header .btn-container .header-btn::after { background:#f5c447; }.project-header .btn-container .header-btn.selected::after { box-shadow:none; }.project-header .btn-container .header-btn:hover span { text-shadow:none; }.project-header .header-container .project-name { text-shadow:none; }.project-header .header-container .buttonoutline { color:#f4edcf; border-color:#f4edcf88; }.project-header .header-container .buttonfill { background:#ef6d45; color:#173127; }
+.project-header .back-to-studio { margin-right:12px; padding:7px 9px; border:1px solid #f4edcf66; background:transparent; color:#f4edcf; cursor:pointer; font:700 10px "DM Mono",monospace; text-transform:uppercase; }.project-header .project-mode-path { margin-left:16px; color:#f5c447; font:700 10px "DM Mono",monospace; letter-spacing:.05em; white-space:nowrap; }

@@ -1,101 +1,61 @@
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthProvider";
 import "./Landing.css";
 
-import LandingHeader from "../../components/LandingHeader/LandingHeader";
-import LandingFooter from "../../components/LandingFooter/LandingFooter";
-
-import repository from '../../assets/repository.png';
-import diffImage from '../../assets/diff.png';
-
 function Landing() {
-  const navigate = useNavigate(); // React Router navigation hook
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const enterStudio = () => navigate(user ? "/dashboard" : "/login");
 
   return (
-    <>
-      <div className="flex flex-col items-center justify-center landingcontainer">
-        {/* <LandingHeader /> */}
-        <div className="herowrapper text-center">
-          <h1 className="font-bold text-white">
-            Create and evolve music through open-source collaboration
-          </h1>
-          <h3 className="subtitle text-gray-400 mt-5">
-            Join a community where musicians openly create, refine, and innovate together.
-          </h3>
-
-          <div className="flex justify-center mt-12 splitrow">
-            <div className="inputwrapper">
-              <input
-                type="email"
-                id="email"
-                className="p-3 text-black w-72 border-none outline-none"
-                placeholder="Enter your email"
-              />
-              <button className="buttonfill" onClick={() => navigate("/login")}>
-                Sign up for OpenSynq
-              </button>
-            </div>
-
-            <button className="buttonoutline ml-4" onClick={() => navigate("/dashboard")} style={{ width: "200px" }}>
-              Explore projects
-            </button>
-          </div>
+    <div className="outside-landing">
+      <section className="outside-hero">
+        <p className="outside-eyebrow">OUTSIDESYNQ · SAN FRANCISCO · 2026</p>
+        <div className="outside-sun" aria-hidden="true" />
+        <h1>MAKE<br />SOMETHING<br /><em>OUTSIDE.</em></h1>
+        <p className="outside-intro">GitHub for music. Start an idea, invite producers to build on it, ask for the exact help your track needs, and let the strongest version rise together.</p>
+        <div className="outside-actions">
+          <button className="outside-primary" onClick={enterStudio}>{user ? "Back to the studio" : "Enter the studio"} <span>↗</span></button>
         </div>
-        
-        <div className="sectionwrapper text-center">
-            <h1 className="font-bold text-white">
-                Collaborate with musicians from around the world
-            </h1>
-            <h3 className="subtitle text-gray-400 mt-5">
-                OpenSynq provides version control, diffs, and pull requests for music projects.
-            </h3>
-            <img src={repository} alt="landing" style={{ 
-                boxShadow: "0px 0px 20px 0px #fff2",
-                borderRadius: "10px",
-                marginTop: "50px",
-                
-              }}/>
-              </div>
-      
-              {/* Diffing Section */}
-              <div className="sectionwrapper text-center">
-                  <h1 className="font-bold text-white">
-                      Visualize Every Change with Version Diffing
-                  </h1>
-                  <h3 className="subtitle text-gray-400 mt-5">
-                      See exactly what changed between versions with our intuitive visual diff tool, designed specifically for music projects.
-                  </h3>
-                  {/* Placeholder for the diff image */}
-                  {/* <div style={{
-                      width: '80%', // Adjust width as needed
-                      maxWidth: '1000px', // Max width for larger screens
-                      height: '400px', // Adjust height as needed
-                      backgroundColor: '#2a2a3a', // Placeholder background
-                      border: '1px dashed #555',
-                      borderRadius: '10px',
-                      marginTop: '50px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#888',
-                      boxShadow: "0px 0px 20px 0px #fff2",
-                      margin: '50px auto 0' // Center the placeholder
-                      }}>
-                      [Diff Viewer Image Placeholder]
-                  </div> */}
-                  
-                  <img src={diffImage} alt="Visual Diff Tool" style={{
-                      boxShadow: "0px 0px 20px 0px #fff2",
-                      borderRadius: "10px",
-                      marginTop: "50px",
-                  }}/>
-                 
-              </div>
-              {/* End Diffing Section */}
-      
-              <LandingFooter />
-            </div>
-          </>
-        );
-      }
+        <p className="outside-scroll">SCROLL TO FIND YOUR SOUND ↓</p>
+      </section>
+
+      <section className="outside-how-it-works">
+        <p className="outside-eyebrow">BUILT FOR THE SESSION</p>
+        <h2>MORE PEOPLE.<br />MORE POSSIBILITIES.</h2>
+        <div className="outside-steps">
+          <article><span>01</span><h3>Share the spark</h3><p>Start with an idea, a rough track, or one missing piece—and make the creative brief clear.</p></article>
+          <article><span>02</span><h3>Call in your people</h3><p>Ask peers for a bassline, a vocal moment, a drop, or a mix change. Anyone can make a version that moves the track forward.</p></article>
+          <article><span>03</span><h3>Choose what hits</h3><p>Keep the strongest community-built version and give every contributor a real place in the song’s story.</p></article>
+        </div>
+      </section>
+
+      <section className="outside-modes">
+        <p className="outside-eyebrow">TWO WAYS TO BUILD</p>
+        <h2>ONE SHARED<br />MUSIC ENGINE.</h2>
+        <div className="mode-grid">
+          <article className="mode-card regular-mode">
+            <span>01 / EVERYDAY</span>
+            <h3>Studio Circles</h3>
+            <p>Private project rooms for producers, friends, and bandmates. Add genre and artist-reference tags, upload Ableton sessions, and shape a song together.</p>
+            <button onClick={() => navigate(user ? "/new-project" : "/login")}>Start a regular collab →</button>
+          </article>
+          <article className="mode-card festival-mode">
+            <span>02 / FESTIVAL</span>
+            <h3>Outside Lands</h3>
+            <p>Outside Lands artists open a V1 to the community. Emerging producers make new versions, and one standout community build can be selected for each festival day.</p>
+            <button onClick={() => navigate(user ? "/outside-lands" : "/login")}>Explore the challenge →</button>
+          </article>
+        </div>
+      </section>
+
+      <section className="outside-manifesto">
+        <p>THE PARK IS THE PROMPT.</p>
+        <h2>MAKE THE VERSION<br />THE CROWD HEARS NEXT.</h2>
+        <button className="outside-primary" onClick={() => navigate("/outside-lands")}>See the Outside Lands V1s <span>↗</span></button>
+      </section>
+    </div>
+  );
+}
 
 export default Landing;

@@ -19,10 +19,13 @@ import History from './pages/History/History';
 import CollabRequests from "./pages/CollabRequest/CollabRequests";
 import PageTransition from "./components/PageTransition/PageTransition";
 import Settings from "./pages/Settings/Settings";
+import ProjectSettings from "./pages/ProjectSettings/ProjectSettings";
 import NotFound from "./pages/NotFound/NotFound";
 import Features from "./pages/Features/Features";
 import Admin from "./pages/Admin/Admin";
 import Profile from "./pages/Profile/Profile";
+import Explore from "./pages/Explore/Explore";
+import StarterTrack from "./pages/StarterTrack/StarterTrack";
 import { OnboardingProvider } from "./context/OnboardingProvider";
 import WelcomeTour from "./components/WelcomeTour/WelcomeTour";
 import DiffViewer from "./components/DiffViewer/DiffViewer";
@@ -45,16 +48,21 @@ function App() {
                   <Route path="/login" element={<Login />} /> {/* Login Page */}
                   <Route element={<ProtectedRoute />}>
                     <Route path="/dashboard" element={<Dashboard />} /> {/* Dashboard Page */}
+                    <Route path="/outside-lands" element={<Dashboard />} />
+                    <Route path="/explore" element={<Explore />} />
+                    <Route path="/outside-lands/starter" element={<StarterTrack />} />
                     <Route path="/new-project" element={<NewProject />} /> {/* New Project Page */}
                     <Route path="/project/:id" element={<Project />} /> {/* Project Page */}
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/project/:id/history" element={<History />} />
                     <Route path="/project/:id/collabs" element={<CollabRequests/>}/>
                     <Route path="/project/:id/features" element={<Features />} />
+                    <Route path="/project/:id/settings" element={<ProjectSettings />} />
                     <Route path="/project/:id/diff/:hash/:prevHash" element={<DiffViewer />} />
+                    <Route path="/project/:id/diff/:hash" element={<DiffViewer />} />
                     <Route path="/admin" element={<Admin />} />
                     <Route path="/profile" element={<Profile />} />
-                    <Route path="/loading" element={<LoadingSpinner fullScreen={true} message="Loading..." size="large" barCount={30} />} />
+                    <Route path="/loading" element={<LoadingSpinner fullScreen message="Loading..." size="large" />} />
                     <Route path="*" element={<NotFound />} />
                   </Route>
                 </Route>
